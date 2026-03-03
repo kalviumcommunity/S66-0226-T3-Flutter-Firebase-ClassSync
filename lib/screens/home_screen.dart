@@ -6,6 +6,7 @@ import 'dart_basics_screen.dart';
 import 'firestore_screen.dart';
 import 'hello_flutter_screen.dart';
 import 'storage_screen.dart';
+import 'responsive_home.dart';
 import 'welcome_screen.dart';
 
 /// HomeScreen — StatelessWidget that acts as the landing page.
@@ -19,6 +20,16 @@ class HomeScreen extends StatelessWidget {
     final _ = color; // used in AppBar backgroundColor
 
     final demos = [
+      // ── Sprint #3 Deliverable ────────────────────────────────────────────
+      _DemoCard(
+        title: 'Responsive Layout 📐',
+        subtitle: 'Sprint #3 • MediaQuery · LayoutBuilder · Adaptive UI',
+        icon: Icons.devices_outlined,
+        color: const Color(0xFF0EA5E9),
+        screen: const ResponsiveHomeScreen(),
+        highlight: true,
+      ),
+
       // ── Sprint #2 Deliverable ────────────────────────────────────────────
       _DemoCard(
         title: 'Welcome Screen ✨',
@@ -26,7 +37,6 @@ class HomeScreen extends StatelessWidget {
         icon: Icons.waving_hand_outlined,
         color: const Color(0xFF4F46E5),
         screen: const WelcomeScreen(),
-        highlight: true,
       ),
 
       // ── Concept 1: Flutter Architecture ────────────────────────
