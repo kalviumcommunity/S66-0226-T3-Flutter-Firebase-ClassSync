@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "117768309220",
+    "project_id": "classsync-df2de",
+    "storage_bucket": "classsync-df2de.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:117768309220:android:3bfd7cf801ed314c4f5ff1",
+        "android_client_info": {
+          "package_name": "com.classsync.classsync"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBgpi3HTtx5xD2AVdv6A-9MX9FK9OPjzN8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
