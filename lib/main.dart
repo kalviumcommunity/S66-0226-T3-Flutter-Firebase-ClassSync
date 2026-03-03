@@ -8,12 +8,17 @@ void main() async {
   // Required before any async work in main().
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Connect to Firebase using the auto-generated firebase_options.dart.
-  // If you haven't run `flutterfire configure` yet, this will fail with a
-  // clear error pointing you to the setup steps.
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  // Try to connect to Firebase. If `flutterfire configure` hasn't been run yet
+  // (placeholder values in firebase_options.dart), the app still launches —
+  // Firebase screens will show a friendly "not configured" message instead of crashing.
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  } catch (_) {
+    // Firebase not configured yet — app runs in demo mode.
+    // Run `flutterfire configure` to enable Firebase screens.
+  }
 
   runApp(const ClassSyncApp());
 }
