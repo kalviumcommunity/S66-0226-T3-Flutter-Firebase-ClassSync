@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'architecture_screen.dart';
+import 'auth_screen.dart';
 import 'counter_screen.dart';
 import 'dart_basics_screen.dart';
+import 'firestore_screen.dart';
 import 'hello_flutter_screen.dart';
+import 'storage_screen.dart';
 
 /// HomeScreen — StatelessWidget that acts as the landing page.
 /// Displays navigation cards for each demo in the assignment.
@@ -42,6 +45,29 @@ class HomeScreen extends StatelessWidget {
         icon: Icons.code,
         color: Colors.orange,
         screen: const DartBasicsScreen(),
+      ),
+
+      // ── Concept 2: Firebase ──────────────────────────────────────────────
+      _DemoCard(
+        title: 'Firebase Auth',
+        subtitle: 'Email/Password sign up, sign in, session persistence',
+        icon: Icons.lock_outline,
+        color: Colors.red,
+        screen: const AuthScreen(),
+      ),
+      _DemoCard(
+        title: 'Firestore Real-Time',
+        subtitle: 'Live task list — StreamBuilder + Firestore snapshots',
+        icon: Icons.sync,
+        color: Colors.blue,
+        screen: const FirestoreScreen(),
+      ),
+      _DemoCard(
+        title: 'Firebase Storage',
+        subtitle: 'Pick an image · Upload · Get download URL',
+        icon: Icons.cloud_upload_outlined,
+        color: Colors.green,
+        screen: const StorageScreen(),
       ),
     ];
 
