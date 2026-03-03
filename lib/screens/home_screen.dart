@@ -6,6 +6,7 @@ import 'dart_basics_screen.dart';
 import 'firestore_screen.dart';
 import 'hello_flutter_screen.dart';
 import 'storage_screen.dart';
+import 'welcome_screen.dart';
 
 /// HomeScreen — StatelessWidget that acts as the landing page.
 /// Displays navigation cards for each demo in the assignment.
@@ -18,6 +19,17 @@ class HomeScreen extends StatelessWidget {
     final _ = color; // used in AppBar backgroundColor
 
     final demos = [
+      // ── Sprint #2 Deliverable ────────────────────────────────────────────
+      _DemoCard(
+        title: 'Welcome Screen ✨',
+        subtitle: 'Sprint #2 • StatefulWidget · setState · animations',
+        icon: Icons.waving_hand_outlined,
+        color: const Color(0xFF4F46E5),
+        screen: const WelcomeScreen(),
+        highlight: true,
+      ),
+
+      // ── Concept 1: Flutter Architecture ────────────────────────
       _DemoCard(
         title: 'Flutter Architecture',
         subtitle: 'Framework · Engine · Embedder layers explained',
@@ -100,6 +112,77 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget _buildCard(BuildContext context, _DemoCard demo) {
+    if (demo.highlight) {
+      return Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [demo.color, demo.color.withValues(alpha: 0.75)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: demo.color.withValues(alpha: 0.35),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Material(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(16),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(16),
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => demo.screen),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(demo.icon, color: Colors.white, size: 28),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          demo.title,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 17,
+                            color: Colors.white,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          demo.subtitle,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: Colors.white70,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Icon(Icons.chevron_right, color: Colors.white70),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -159,6 +242,7 @@ class _DemoCard {
   final IconData icon;
   final Color color;
   final Widget screen;
+  final bool highlight;
 
   const _DemoCard({
     required this.title,
@@ -166,5 +250,6 @@ class _DemoCard {
     required this.icon,
     required this.color,
     required this.screen,
+    this.highlight = false,
   });
 }

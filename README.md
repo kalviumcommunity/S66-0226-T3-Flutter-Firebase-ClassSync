@@ -82,6 +82,137 @@ Figma
 
 ---
 
+## Sprint #2 Deliverable
+
+### Setup Instructions
+
+**1. Install Flutter SDK**
+
+Download from [flutter.dev](https://flutter.dev/docs/get-started/install) and follow the guide for your OS.
+
+**2. Verify installation**
+
+```bash
+flutter doctor
+```
+
+All items should show ✓. Install Android Studio or VS Code with Flutter + Dart extensions.
+
+**3. Clone & run this project**
+
+```bash
+git clone https://github.com/yourusername/ClassSync.git
+cd ClassSync
+flutter pub get
+flutter run
+```
+
+Run on Android with `flutter run -d android`, on Chrome with `flutter run -d chrome`.
+
+---
+
+### Folder Structure
+
+```
+classsync/
+├── lib/
+│   ├── main.dart                 # App entry point — initializes Firebase and runs ClassSyncApp
+│   ├── firebase_options.dart     # Auto-generated Firebase config (run flutterfire configure)
+│   │
+│   ├── models/                   # Data structures representing real-world entities
+│   │   └── student.dart          # Student class — demonstrates Dart OOP, null safety, async
+│   │
+│   ├── services/                 # Business logic and external API integration
+│   │   ├── auth_service.dart     # Wraps Firebase Auth — signUp, signIn, signOut
+│   │   ├── firestore_service.dart# Wraps Firestore — addTask, getTasks (real-time stream)
+│   │   └── storage_service.dart  # Wraps Firebase Storage — uploadImage with progress
+│   │
+│   └── screens/                  # One file per UI screen, each a self-contained widget
+│       ├── home_screen.dart      # Landing page — navigation hub for all demos
+│       ├── welcome_screen.dart   # Sprint #2 screen — StatefulWidget, setState, animations
+│       ├── architecture_screen.dart  # Flutter layer diagram + widget tree
+│       ├── hello_flutter_screen.dart # StatelessWidget example
+│       ├── counter_screen.dart   # StatefulWidget + setState counter
+│       ├── dart_basics_screen.dart   # Dart: classes, null safety, async/await
+│       ├── auth_screen.dart      # Firebase Auth: sign up / sign in / sign out
+│       ├── firestore_screen.dart # Real-time task list via StreamBuilder
+│       └── storage_screen.dart   # Image upload with progress bar
+│
+├── test/
+│   └── widget_test.dart          # Widget tests for HomeScreen and CounterScreen
+│
+├── android/                      # Android-specific configuration
+├── ios/                          # iOS-specific configuration
+├── web/                          # Web configuration
+└── pubspec.yaml                  # Package dependencies and app metadata
+```
+
+**Why this structure?**
+
+| Directory | Purpose |
+|---|---|
+| `models/` | Pure data classes with no UI or Firebase logic — easy to test and reuse |
+| `services/` | Isolates Firebase calls from UI — swap Firebase for a different backend without touching screens |
+| `screens/` | One screen per file — easy to navigate, review, and hand off to teammates |
+
+**Naming conventions:**
+- Files: `snake_case.dart` (e.g. `auth_screen.dart`)
+- Classes: `PascalCase` (e.g. `AuthScreen`, `FirestoreService`)
+- Variables/methods: `camelCase` (e.g. `signIn()`, `_tapCount`)
+- Private members prefixed with `_` (e.g. `_auth`, `_buildCard`)
+
+---
+
+### Welcome Screen — Sprint #2
+
+The [lib/screens/welcome_screen.dart](lib/screens/welcome_screen.dart) screen demonstrates:
+
+- **`Scaffold` + `AppBar`** — standard Material layout
+- **`Column`** — arranges icon, title text, and button vertically
+- **`onPressed` with `setState`** — tapping the button increments `_tapCount`, cycling through 5 greeting messages and 5 accent colors
+- **`AnimatedSwitcher` + `AnimatedContainer`** — smooth transitions when state changes
+- **Dark/Light mode toggle** — second `setState` call changes `_isDark`, re-theming the screen
+
+```dart
+void _onButtonPressed() {
+  setState(() {
+    _tapCount++;   // triggers rebuild → new greeting + color
+  });
+}
+```
+
+---
+
+### Demo
+
+> **To add a screenshot:** Run the app with `flutter run`, take a screenshot of the Welcome Screen, and place it at `assets/screenshots/welcome.png`. Then embed it below:
+
+```
+![Welcome Screen](assets/screenshots/welcome.png)
+```
+
+**How to run and see the Welcome Screen:**
+1. `flutter run -d chrome` (or `-d android`)
+2. The home screen opens — tap **"Welcome Screen ✨"** (the highlighted indigo card at the top)
+3. Tap the **"Try ClassSync"** button — the greeting message and color change with each tap
+4. Tap the moon icon in the top-right to toggle dark mode
+
+---
+
+### Reflection
+
+**What I learned about Dart & Flutter:**
+
+Flutter's widget-based architecture changed how I think about UI. In traditional Android development, you imperatively manipulate views. In Flutter, you *describe* the UI as a function of state — when state changes, `build()` re-runs and Flutter diffs the tree efficiently. This declarative approach makes complex UIs surprisingly manageable.
+
+Dart's null safety (`String?` vs `String`) caught two real bugs during development — values that could have been null at runtime were flagged at compile time. The `async/await` pattern made Firebase calls read like synchronous code despite being network operations, which kept the code readable.
+
+**How this structure helps build complex UIs:**
+
+The `services/` + `screens/` separation was immediately valuable. When building the Firestore screen, I wrote the real-time stream logic once in `FirestoreService.getTasks()` and used it in the UI with a single `StreamBuilder`. If the data source ever changes (e.g., switching from Firestore to a REST API), only the service file changes — the screen is untouched. This is the same principle as MVC/MVVM but expressed naturally through Dart classes.
+
+The `models/` layer keeps data shapes explicit and typed, preventing the "string soup" problem where data is passed around as raw `Map<String, dynamic>` throughout the codebase.
+
 ## Assignment: Flutter Architecture & Dart Fundamentals
 
 > **Objective:** Understand Flutter's architecture, widget-based UI system, and Dart language fundamentals for creating interactive, reactive, and visually consistent mobile interfaces.
