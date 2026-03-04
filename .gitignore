@@ -43,3 +43,8 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+google-services.json
+issues.md
+manual-guidance.md
+plan.md
