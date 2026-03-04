@@ -808,43 +808,34 @@ Flutter makes this relatively straightforward compared to native Android's compl
 
 ---
 
-## Module 3.26: Firebase Project Setup and Connection
+## Module 3.26: Firebase Integration (Current Progress)
 
-### Setup checklist (Android)
+### Completed in this branch
+- Added Firebase Android plugin wiring for Kotlin DSL:
+  - `android/settings.gradle.kts`
+  - `android/app/build.gradle.kts`
+- Improved startup logs in `lib/main.dart` for Firebase init success/fallback visibility.
+- Added delivery docs:
+  - `plan.md` (module plan)
+  - `issues.md` (issue tracking)
+  - `manual-guidance.md` (manual setup guide)
 
-1. Create a Firebase project in Firebase Console.
-2. Register Android app with package name: `com.classsync.classsync`.
-3. Download and place config file:
-   - `android/app/google-services.json`
-4. Generate FlutterFire options:
+### Required manual setup
+1. Create/register Firebase Android app with package: `com.classsync.classsync`.
+2. Place `google-services.json` at `android/app/google-services.json`.
+3. Run:
 
 ```bash
 dart pub global activate flutterfire_cli
 flutterfire configure
-```
-
-5. Run the app:
-
-```bash
 flutter pub get
 flutter run
 ```
 
-### Config file paths
+### Verification evidence (for submission)
+- Firebase Console screenshot: Project Settings > Your apps (Android app connected).
+- App run screenshot: Firebase-dependent screen working.
 
-- Android Firebase JSON: `android/app/google-services.json`
-- Flutter options file: `lib/firebase_options.dart`
-- Android plugin configuration:
-  - `android/settings.gradle.kts`
-  - `android/app/build.gradle.kts`
-
-### Verification proof to include
-
-- Screenshot: Firebase Console > Project Settings > Your apps (connected Android app visible)
-- Screenshot: Running app screen showing Firebase-connected flow
-
-### Reflection prompts
-
-- What was the most important Firebase setup step, and why?
-- What errors occurred, what caused them, and how were they fixed?
-- How does this setup enable upcoming Authentication, Firestore, and Storage modules?
+### Common issue found during this session
+- Flutter plugin builds were blocked because Windows Developer Mode was disabled.
+- Fix: enable Developer Mode, then rerun `flutter test` and `flutter run`.
