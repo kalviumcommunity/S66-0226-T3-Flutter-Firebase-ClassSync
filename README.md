@@ -805,3 +805,46 @@ A fixed-width layout that looks good on a Pixel 6 is cramped and hard to use on 
 On tablets, the two-column layout lets students see their stats and feature shortcuts simultaneously — a genuine productivity improvement over scrolling through a single column. This mirrors how professional apps like Gmail and Slack adapt their layouts for tablets — sidebar + content pane — which is now an expectation, not a novelty.
 
 Flutter makes this relatively straightforward compared to native Android's complex ConstraintLayout XML or iOS AutoLayout — a single Dart file with `MediaQuery` reads and conditional `Row`/`Column` logic covers most real-world responsive needs.
+
+---
+
+## Module 3.26: Firebase Project Setup and Connection
+
+### Setup checklist (Android)
+
+1. Create a Firebase project in Firebase Console.
+2. Register Android app with package name: `com.classsync.classsync`.
+3. Download and place config file:
+   - `android/app/google-services.json`
+4. Generate FlutterFire options:
+
+```bash
+dart pub global activate flutterfire_cli
+flutterfire configure
+```
+
+5. Run the app:
+
+```bash
+flutter pub get
+flutter run
+```
+
+### Config file paths
+
+- Android Firebase JSON: `android/app/google-services.json`
+- Flutter options file: `lib/firebase_options.dart`
+- Android plugin configuration:
+  - `android/settings.gradle.kts`
+  - `android/app/build.gradle.kts`
+
+### Verification proof to include
+
+- Screenshot: Firebase Console > Project Settings > Your apps (connected Android app visible)
+- Screenshot: Running app screen showing Firebase-connected flow
+
+### Reflection prompts
+
+- What was the most important Firebase setup step, and why?
+- What errors occurred, what caused them, and how were they fixed?
+- How does this setup enable upcoming Authentication, Firestore, and Storage modules?
