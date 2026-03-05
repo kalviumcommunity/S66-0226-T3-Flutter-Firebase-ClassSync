@@ -900,6 +900,65 @@ flutter run
 
 ---
 
+## Module 3.29: Signup, Login, and Logout Flow with Firebase Auth
+
+### Overview
+Built a complete Firebase Auth flow with automatic screen switching based on session state.
+
+### Core flow
+- Sign up: creates new account using Firebase Auth.
+- Login: signs in existing account.
+- Logout: ends session and returns to auth screen.
+
+### Root auth state handling (`main.dart`)
+
+```dart
+home: StreamBuilder<User?>(
+  stream: FirebaseAuth.instance.authStateChanges(),
+  builder: (context, snapshot) {
+    if (snapshot.hasData) {
+      return const HomeScreen();
+    }
+    return const AuthScreen();
+  },
+),
+```
+
+### Auth actions (`auth_screen.dart`)
+
+```dart
+await FirebaseAuth.instance.createUserWithEmailAndPassword(
+  email: email.trim(),
+  password: password.trim(),
+);
+```
+
+```dart
+await FirebaseAuth.instance.signInWithEmailAndPassword(
+  email: email.trim(),
+  password: password.trim(),
+);
+```
+
+### Logout (`home_screen.dart`)
+
+```dart
+await FirebaseAuth.instance.signOut();
+```
+
+### What to test
+1. Sign up -> user appears in Firebase Console Authentication > Users.
+2. App auto-switches to HomeScreen after signup/login.
+3. Logout returns app to AuthScreen.
+4. Login again returns to HomeScreen.
+
+### Reflection
+- Hardest part: keeping auth transitions clean without manual route calls.
+- `StreamBuilder` with `authStateChanges()` simplifies navigation and session sync.
+- Logout is essential for user/session security and shared-device safety.
+
+---
+
 ## Module 3.28: Firebase Authentication (Email and Password)
 
 ### Summary

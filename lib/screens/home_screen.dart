@@ -1,6 +1,6 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'architecture_screen.dart';
-import 'auth_screen.dart';
 import 'counter_screen.dart';
 import 'dart_basics_screen.dart';
 import 'firestore_screen.dart';
@@ -9,18 +9,15 @@ import 'storage_screen.dart';
 import 'responsive_home.dart';
 import 'welcome_screen.dart';
 
-/// HomeScreen — StatelessWidget that acts as the landing page.
-/// Displays navigation cards for each demo in the assignment.
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     final color = Theme.of(context).colorScheme;
-    final _ = color; // used in AppBar backgroundColor
+    final user = FirebaseAuth.instance.currentUser;
 
     final demos = [
-      // ── Sprint #3 Deliverable ────────────────────────────────────────────
       _DemoCard(
         title: 'Responsive Layout 📐',
         subtitle: 'Sprint #3 • MediaQuery · LayoutBuilder · Adaptive UI',
@@ -30,7 +27,6 @@ class HomeScreen extends StatelessWidget {
         highlight: true,
       ),
 
-      // ── Sprint #2 Deliverable ────────────────────────────────────────────
       _DemoCard(
         title: 'Welcome Screen ✨',
         subtitle: 'Sprint #2 • StatefulWidget · setState · animations',
@@ -39,7 +35,6 @@ class HomeScreen extends StatelessWidget {
         screen: const WelcomeScreen(),
       ),
 
-      // ── Concept 1: Flutter Architecture ────────────────────────
       _DemoCard(
         title: 'Flutter Architecture',
         subtitle: 'Framework · Engine · Embedder layers explained',
@@ -69,14 +64,6 @@ class HomeScreen extends StatelessWidget {
         screen: const DartBasicsScreen(),
       ),
 
-      // ── Concept 2: Firebase ──────────────────────────────────────────────
-      _DemoCard(
-        title: 'Firebase Auth',
-        subtitle: 'Email/Password sign up, sign in, session persistence',
-        icon: Icons.lock_outline,
-        color: Colors.red,
-        screen: const AuthScreen(),
-      ),
       _DemoCard(
         title: 'Firestore Real-Time',
         subtitle: 'Live task list — StreamBuilder + Firestore snapshots',
@@ -100,17 +87,24 @@ class HomeScreen extends StatelessWidget {
         foregroundColor: color.onPrimary,
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
-            Text(
+          children: [
+            const Text(
               'ClassSync',
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
             ),
             Text(
-              'Flutter & Dart Architecture Assignment',
-              style: TextStyle(fontSize: 12),
+              user?.email ?? 'Logged in user',
+              style: const TextStyle(fontSize: 12),
             ),
           ],
         ),
+        actions: [
+          IconButton(
+            onPressed: () => FirebaseAuth.instance.signOut(),
+            icon: const Icon(Icons.logout),
+            tooltip: 'Logout',
+          ),
+        ],
       ),
       body: ListView.separated(
         padding: const EdgeInsets.all(16),
