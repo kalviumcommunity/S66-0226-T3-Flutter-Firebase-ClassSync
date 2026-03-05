@@ -897,3 +897,56 @@ flutter run
 - FlutterFire CLI reduces manual config errors by generating `lib/firebase_options.dart` automatically.
 - Main issue faced was command discovery (`flutterfire` not recognized), fixed by adding Dart global bin path.
 - CLI-based setup is preferred because it centralizes and standardizes platform config with fewer manual edits.
+
+---
+
+## Module 3.28: Firebase Authentication (Email and Password)
+
+### Summary
+Implemented Firebase Auth email/password flow with signup, login, auth-state rendering, and sign-out.
+
+### Setup steps
+1. Enable **Email/Password** provider in Firebase Console:
+   - Authentication > Sign-in method > Email/Password > Enable
+2. Ensure dependencies in `pubspec.yaml`:
+   - `firebase_core`
+   - `firebase_auth`
+3. Run:
+
+```bash
+flutter pub get
+flutter run
+```
+
+### Authentication logic snippets
+
+```dart
+await FirebaseAuth.instance.createUserWithEmailAndPassword(
+  email: email.trim(),
+  password: password.trim(),
+);
+```
+
+```dart
+await FirebaseAuth.instance.signInWithEmailAndPassword(
+  email: email.trim(),
+  password: password.trim(),
+);
+```
+
+```dart
+await FirebaseAuth.instance.signOut();
+```
+
+### Where it is implemented
+- `lib/screens/auth_screen.dart`
+- `lib/services/auth_service.dart`
+
+### Verification evidence to capture
+- App screenshot: signup/login success flow.
+- Firebase Console screenshot: Authentication > Users with created account.
+
+### Reflection
+- Firebase simplifies auth by handling secure identity APIs, token/session lifecycle, and backend sync.
+- Compared to custom auth, Firebase reduces risk around password handling and session security.
+- Main implementation challenge is provider/environment setup consistency across local machines.
