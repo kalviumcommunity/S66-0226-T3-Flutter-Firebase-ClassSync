@@ -1,16 +1,3 @@
-// ============================================================
-// PLACEHOLDER — Run `flutterfire configure` to replace this.
-// ============================================================
-// Steps:
-//   1. Create a project at console.firebase.google.com
-//   2. Enable Auth (Email/Password), Firestore, and Storage
-//   3. In your terminal run:
-//        export PATH="$PATH":"$HOME/.pub-cache/bin"
-//        flutterfire configure
-//   4. Select your Firebase project → pick Android + iOS
-//   5. This file will be auto-generated with real values.
-// ============================================================
-
 import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, kIsWeb, TargetPlatform;
@@ -28,31 +15,30 @@ class DefaultFirebaseOptions {
     }
   }
 
-  // ── Replace ALL values below with real ones from `flutterfire configure` ──
-
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'REPLACE_WITH_YOUR_API_KEY',
-    appId: 'REPLACE_WITH_YOUR_APP_ID',
-    messagingSenderId: 'REPLACE_WITH_YOUR_SENDER_ID',
-    projectId: 'REPLACE_WITH_YOUR_PROJECT_ID',
-    storageBucket: 'REPLACE_WITH_YOUR_BUCKET',
-    authDomain: 'REPLACE_WITH_YOUR_AUTH_DOMAIN',
+    apiKey: 'AIzaSyA6lc3GmYUM1I67foFTg785dp_APBKm6BE',
+    appId: '1:117768309220:web:3f3376f91c1461f64f5ff1',
+    messagingSenderId: '117768309220',
+    projectId: 'classsync-df2de',
+    authDomain: 'classsync-df2de.firebaseapp.com',
+    storageBucket: 'classsync-df2de.firebasestorage.app',
+    measurementId: 'G-B74XC19X0B',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'REPLACE_WITH_YOUR_API_KEY',
-    appId: 'REPLACE_WITH_YOUR_APP_ID',
-    messagingSenderId: 'REPLACE_WITH_YOUR_SENDER_ID',
-    projectId: 'REPLACE_WITH_YOUR_PROJECT_ID',
-    storageBucket: 'REPLACE_WITH_YOUR_BUCKET',
+    apiKey: 'AIzaSyBgpi3HTtx5xD2AVdv6A-9MX9FK9OPjzN8',
+    appId: '1:117768309220:android:3bfd7cf801ed314c4f5ff1',
+    messagingSenderId: '117768309220',
+    projectId: 'classsync-df2de',
+    storageBucket: 'classsync-df2de.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'REPLACE_WITH_YOUR_API_KEY',
-    appId: 'REPLACE_WITH_YOUR_APP_ID',
-    messagingSenderId: 'REPLACE_WITH_YOUR_SENDER_ID',
-    projectId: 'REPLACE_WITH_YOUR_PROJECT_ID',
-    storageBucket: 'REPLACE_WITH_YOUR_BUCKET',
+    apiKey: 'AIzaSyCiXwhFz8vD9M34M_eC9LuEbvWcpoKoMQs',
+    appId: '1:117768309220:ios:b2d4d7a3816376c94f5ff1',
+    messagingSenderId: '117768309220',
+    projectId: 'classsync-df2de',
+    storageBucket: 'classsync-df2de.firebasestorage.app',
     iosBundleId: 'com.classsync.classsync',
   );
 }
