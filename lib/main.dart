@@ -3,29 +3,21 @@ import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'screens/home_screen.dart';
 
-// Entry point — initializes Firebase then launches the app.
 void main() async {
-  // Required before any async work in main().
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Try to connect to Firebase. If `flutterfire configure` hasn't been run yet
-  // (placeholder values in firebase_options.dart), the app still launches —
-  // Firebase screens will show a friendly "not configured" message instead of crashing.
   try {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
-    debugPrint('Firebase has been successfully initialized!');
-  } catch (_) {
-    debugPrint('Firebase is not configured yet. Running in demo mode.');
-    // Firebase not configured yet — app runs in demo mode.
-    // Run `flutterfire configure` to enable Firebase screens.
+    debugPrint('Firebase initialized with DefaultFirebaseOptions');
+  } catch (e) {
+    debugPrint('Firebase is not configured yet. Running in demo mode. $e');
   }
 
   runApp(const ClassSyncApp());
 }
 
-/// Root StatelessWidget — sets up MaterialApp theme and starts at HomeScreen.
 class ClassSyncApp extends StatelessWidget {
   const ClassSyncApp({super.key});
 

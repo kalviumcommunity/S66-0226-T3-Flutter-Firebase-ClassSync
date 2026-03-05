@@ -839,3 +839,61 @@ flutter run
 ### Common issue found during this session
 - Flutter plugin builds were blocked because Windows Developer Mode was disabled.
 - Fix: enable Developer Mode, then rerun `flutter test` and `flutter run`.
+
+---
+
+## Module 3.27: Integrating Firebase SDKs Using FlutterFire CLI
+
+### Purpose
+Use FlutterFire CLI to automate Firebase SDK configuration and keep setup consistent across platforms.
+
+### Steps followed
+1. Verified Firebase CLI:
+   - `firebase --version`
+2. Installed FlutterFire CLI:
+   - `dart pub global activate flutterfire_cli`
+3. Verified FlutterFire binary (path-based in current shell):
+   - `/c/Users/zzjzj/AppData/Local/Pub/Cache/bin/flutterfire.bat --version`
+4. Logged in account was verified with:
+   - `firebase login:list`
+5. Ran FlutterFire configure:
+
+```bash
+/c/Users/zzjzj/AppData/Local/Pub/Cache/bin/flutterfire.bat configure \
+  --project=classsync-df2de \
+  --yes \
+  --platforms=android,ios,web \
+  --android-package-name=com.classsync.classsync \
+  --ios-bundle-id=com.classsync.classsync \
+  --overwrite-firebase-options
+```
+
+6. Generated/updated config files:
+   - `lib/firebase_options.dart`
+   - `firebase.json`
+   - `android/app/google-services.json`
+7. Confirmed app initialization uses generated options in `lib/main.dart`:
+
+```dart
+await Firebase.initializeApp(
+  options: DefaultFirebaseOptions.currentPlatform,
+);
+debugPrint('Firebase initialized with DefaultFirebaseOptions');
+```
+
+### Required manual run (if you need to reconfigure)
+```bash
+firebase login
+flutterfire configure
+flutter pub get
+flutter run
+```
+
+### Evidence to capture
+- Terminal screenshot showing `flutterfire configure` + app run.
+- Firebase Console screenshot showing registered/active app.
+
+### Reflection
+- FlutterFire CLI reduces manual config errors by generating `lib/firebase_options.dart` automatically.
+- Main issue faced was command discovery (`flutterfire` not recognized), fixed by adding Dart global bin path.
+- CLI-based setup is preferred because it centralizes and standardizes platform config with fewer manual edits.
