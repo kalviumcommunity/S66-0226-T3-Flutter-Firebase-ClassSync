@@ -11,6 +11,7 @@ import 'signup_screen.dart';
 import 'storage_screen.dart';
 import 'responsive_home.dart';
 import 'welcome_screen.dart';
+import 'widget_tree_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -36,6 +37,14 @@ class HomeScreen extends StatelessWidget {
         icon: Icons.waving_hand_outlined,
         color: const Color(0xFF4F46E5),
         screen: const WelcomeScreen(),
+      ),
+      _DemoCard(
+        title: 'Widget Tree & Reactive UI 🌳',
+        subtitle: 'Sprint #2 • Widget tree · setState · reactive rebuild',
+        icon: Icons.account_tree_outlined,
+        color: const Color(0xFF7C3AED),
+        screen: const WidgetTreeScreen(),
+        highlight: true,
       ),
 
       // ── Firebase Auth Demos ──────────────────────────────────────────────
