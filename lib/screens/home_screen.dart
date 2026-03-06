@@ -11,6 +11,7 @@ import 'signup_screen.dart';
 import 'storage_screen.dart';
 import 'responsive_home.dart';
 import 'welcome_screen.dart';
+import 'devtools_demo_screen.dart';
 import 'stateless_stateful_demo.dart';
 import 'widget_tree_screen.dart';
 
@@ -39,6 +40,15 @@ class HomeScreen extends StatelessWidget {
         color: const Color(0xFF4F46E5),
         screen: const WelcomeScreen(),
       ),
+      _DemoCard(
+        title: 'Hot Reload & DevTools ⚡',
+        subtitle: 'Sprint #2 • Hot Reload · Debug Console · DevTools',
+        icon: Icons.developer_mode,
+        color: const Color(0xFFF59E0B),
+        screen: const DevToolsDemoScreen(),
+        highlight: true,
+      ),
+
       _DemoCard(
         title: 'Stateless vs Stateful 🔵🟢',
         subtitle: 'Sprint #2 • StatelessWidget · StatefulWidget · setState',

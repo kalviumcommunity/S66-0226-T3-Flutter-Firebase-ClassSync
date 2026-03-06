@@ -10,13 +10,14 @@ ClassSync is a Flutter + Firebase mobile application built for coaching centers 
 2. [Flutter Project Structure](#flutter-project-structure)
 3. [Stateless vs Stateful Widgets](#stateless-vs-stateful-widgets)
 4. [Widget Tree & Reactive UI](#widget-tree--reactive-ui)
-5. [Project Overview](#project-overview)
-6. [Firebase Setup](#firebase-setup)
-7. [Authentication](#authentication)
-8. [Cloud Firestore](#cloud-firestore)
-9. [App Screens](#app-screens)
-10. [Reflection](#reflection)
-11. [Team Members](#team-members)
+5. [Hot Reload & DevTools](#hot-reload--devtools)
+6. [Project Overview](#project-overview)
+7. [Firebase Setup](#firebase-setup)
+8. [Authentication](#authentication)
+9. [Cloud Firestore](#cloud-firestore)
+10. [App Screens](#app-screens)
+11. [Reflection](#reflection)
+12. [Team Members](#team-members)
 
 ---
 
@@ -334,6 +335,127 @@ Because `Element`s hold the state between rebuilds, calling `setState()` on a ch
 ### Reflection
 
 Working through the widget tree demos clarified two things. First, `setState()` does not "refresh the screen" — it marks a **specific widget** as dirty, and only that sub-branch re-runs `build()`. This makes Flutter UIs efficient even on low-end Android devices. Second, the three-tree architecture (Widget → Element → Render) is what makes the diff cheap: lightweight widget objects can be discarded and recreated every frame, while the heavier `Element` and `RenderObject` layers are reused wherever possible. Visualizing the ASCII tree diagram in the app made it much easier to reason about which `setState()` call triggers which repaint boundary.
+
+---
+
+## Hot Reload & DevTools
+
+### 1. Hot Reload
+
+Hot Reload lets you push code changes to a running app in under a second — without restarting or losing the current UI state (scroll position, counter values, form inputs).
+
+**How to use it:**
+
+```bash
+# Step 1 — start the app
+flutter run
+
+# Step 2 — edit any widget property and save (⌘ S)
+# Step 3 — press r in the terminal (or the ⚡ icon in VS Code)
+```
+
+**Example — changing a label without restarting:**
+
+```dart
+// Before (currently running)
+Text('Hello, Flutter!');
+
+// After (save → hot reload → see the change instantly)
+Text('Welcome to Hot Reload!');
+```
+
+**What Hot Reload can and cannot do:**
+
+| Scenario | Hot Reload? |
+|---|---|
+| Change widget text, color, padding | ✅ Yes |
+| Add a new widget to the tree | ✅ Yes |
+| Change `initState()` or global variables | ❌ Hot Restart needed |
+| Change `main()` or Firebase init | ❌ Full restart needed |
+
+> Hot Reload works by injecting updated Dart code into the running VM and asking the framework to rebuild the widget tree from scratch — but the `State` objects are preserved, so all stateful data remains intact.
+
+---
+
+### 2. Debug Console
+
+The Debug Console shows `print()` and `debugPrint()` output, framework warnings, and unhandled exceptions in real time.
+
+**Recommended pattern — use `debugPrint()` not `print()`:**
+
+```dart
+void increment() {
+  setState(() {
+    count++;
+    debugPrint('Button pressed! Current count: $count');
+  });
+}
+```
+
+`debugPrint()` compared to `print()`:
+- Automatically **rate-limits** output to avoid flooding the console
+- Truncates very long strings to a readable length
+- Identical API — just a drop-in replacement
+
+**What to watch for in the console:**
+
+| Message type | Meaning |
+|---|---|
+| `flutter: …` | Your own `debugPrint()` output |
+| `══╡ EXCEPTION ╞══` | Unhandled exception with full stack trace |
+| `RenderFlex overflowed` | Layout overflow — a widget is too wide/tall for its parent |
+| `setState() called after dispose()` | Async operation completed after widget was removed |
+
+**Demo screen workflow:**
+
+The `DevToolsDemoScreen` has four buttons that each call `debugPrint()` with a different severity label (`[INFO]`, `[WARN]`, `[ERROR]`, `[DEBUG]`). The output mirrors exactly what appears in the VS Code Debug Console, making it easy to trace which user action triggered which log line.
+
+---
+
+### 3. Flutter DevTools
+
+DevTools is a browser-based suite of debugging and profiling tools. Launch it while your app is running:
+
+```bash
+# Activate once
+flutter pub global activate devtools
+
+# Launch (or use VS Code: Run → Open DevTools in Browser)
+flutter pub global run devtools
+```
+
+**Key panels:**
+
+| Panel | What to look for |
+|---|---|
+| **Widget Inspector** | Full live widget tree; click any node to highlight it on screen; inspect layout constraints and properties |
+| **Performance** | Frame timeline — each bar = 1 frame (target ≤ 16 ms / 60 fps); red bars = jank |
+| **Memory** | Dart heap over time; identify leaks with the allocation profiler |
+| **Network** | Firebase Firestore and Storage requests — status codes, payload size, timing |
+| **Logging** | Structured view of all `debugPrint()` output |
+
+**Step-by-step DevTools workflow used in this sprint:**
+
+1. Run `flutter run` → copy the `Observatory` / `DevTools` URL printed in the terminal.
+2. Open that URL in Chrome (or click **Open DevTools** in VS Code).
+3. Navigate to **Widget Inspector** → click the target icon → tap any widget on the device to see its properties.
+4. Navigate to **Performance** → click **Record** → interact with the app (tap buttons, scroll) → click **Stop** → inspect the flame chart for slow frames.
+5. Check the **Memory** tab — if the heap grows indefinitely during repeated interactions, a `StreamSubscription` or `AnimationController` is not being disposed.
+
+---
+
+### Reflection
+
+**How does Hot Reload improve development speed?**
+Without Hot Reload, every UI tweak requires a full app restart (~10–30 seconds including build time). Hot Reload compresses that to under one second and preserves state — so you can adjust padding, colors, and text in tight feedback loops without navigating back to the screen you were testing.
+
+**Why are debugging and profiling essential?**
+`debugPrint()` makes logic flow explicit: instead of guessing which code path ran, you see timestamps and variable values in the console. DevTools' Performance panel reveals problems that are invisible in the source code — a widget that rebuilds 60 times per second when it only needs to rebuild once, or a layout pass that takes 8 ms because a `Column` is trying to measure unbounded children.
+
+**Integrating these tools into a team workflow:**
+- **Code review:** Replace all `print()` calls with `debugPrint()` — it is safe to leave in debug builds and silenced in release builds automatically.
+- **CI check:** Run `flutter analyze` to catch performance anti-patterns (e.g., building expensive widgets inside `build()`) before merge.
+- **Performance budget:** Agree on a "no red frames in DevTools Performance" rule during sprint demos. If a PR introduces jank, identify the responsible widget via the flame chart and refactor before merging.
 
 ---
 
