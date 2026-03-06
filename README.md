@@ -8,14 +8,15 @@ ClassSync is a Flutter + Firebase mobile application built for coaching centers 
 
 1. [Setup Verification](#setup-verification)
 2. [Flutter Project Structure](#flutter-project-structure)
-3. [Widget Tree & Reactive UI](#widget-tree--reactive-ui)
-4. [Project Overview](#project-overview)
-5. [Firebase Setup](#firebase-setup)
-6. [Authentication](#authentication)
-7. [Cloud Firestore](#cloud-firestore)
-8. [App Screens](#app-screens)
-9. [Reflection](#reflection)
-10. [Team Members](#team-members)
+3. [Stateless vs Stateful Widgets](#stateless-vs-stateful-widgets)
+4. [Widget Tree & Reactive UI](#widget-tree--reactive-ui)
+5. [Project Overview](#project-overview)
+6. [Firebase Setup](#firebase-setup)
+7. [Authentication](#authentication)
+8. [Cloud Firestore](#cloud-firestore)
+9. [App Screens](#app-screens)
+10. [Reflection](#reflection)
+11. [Team Members](#team-members)
 
 ---
 
@@ -110,6 +111,103 @@ flutter run -d emulator
 ```
 
 The default counter app launches successfully on the emulator.
+
+---
+
+## Stateless vs Stateful Widgets
+
+### What is a StatelessWidget?
+
+A `StatelessWidget` has **no mutable state** of its own. It receives all its data through constructor parameters and builds a fixed UI. Flutter only rebuilds it when its **parent** rebuilds and passes new data.
+
+Use it for: headers, labels, static cards, icons, and any UI that is purely derived from its inputs.
+
+```dart
+class GreetingWidget extends StatelessWidget {
+  final String name;
+
+  const GreetingWidget({required this.name});
+
+  @override
+  Widget build(BuildContext context) {
+    return Text('Hello, $name!');
+  }
+}
+```
+
+> `GreetingWidget` will never rebuild on its own — only when its parent rebuilds and provides a different `name`.
+
+### What is a StatefulWidget?
+
+A `StatefulWidget` maintains an internal `State` object whose fields can change at runtime. Calling `setState()` marks the widget as dirty and schedules a new `build()` call, updating only that subtree.
+
+Use it for: counters, toggles, forms, color switches, animations — anything that reacts to user interaction or time.
+
+```dart
+class CounterWidget extends StatefulWidget {
+  @override
+  _CounterWidgetState createState() => _CounterWidgetState();
+}
+
+class _CounterWidgetState extends State<CounterWidget> {
+  int count = 0;
+
+  void increment() {
+    setState(() {
+      count++; // marks widget dirty → triggers build()
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text('Count: $count'),
+        ElevatedButton(onPressed: increment, child: const Text('Increase')),
+      ],
+    );
+  }
+}
+```
+
+### How Flutter rebuilds only the widgets that change
+
+Flutter maintains three parallel trees:
+
+| Tree | Role | Persistence |
+|---|---|---|
+| **Widget tree** | Immutable blueprints — recreated every `build()` | Discarded each frame |
+| **Element tree** | Mutable wrappers that hold `State` objects | Survive rebuilds when widget type is unchanged |
+| **Render tree** | Layout and paint — expensive operations | Updated only when Element signals a change |
+
+When `setState()` is called, Flutter marks just that `Element` as dirty. On the next frame it calls `build()` on that widget, diffs the new widget tree against the old one via the Element tree, and updates only the `RenderObject`s that actually changed. The `_AppBanner` `StatelessWidget` at the top of the demo screen is never touched — only the `StatefulWidget` section that owns the changed state rebuilds.
+
+### Demos in `stateless_stateful_demo.dart`
+
+| Section | Widget type | What it demonstrates |
+|---|---|---|
+| App Banner | `StatelessWidget` | Static content — built once, never rebuilds |
+| Counter | `StatefulWidget` | `setState()` increments `_count`; `AnimatedSwitcher` transitions the digit |
+| Color Toggle | `StatefulWidget` | `setState()` cycles `_themeIndex`; `AnimatedContainer` transitions background |
+| Visibility Toggle | `StatefulWidget` | `setState()` flips `_visible`; widget added to / removed from the element tree |
+| Quick Comparison | `StatelessWidget` | Side-by-side property table — always static |
+
+### When to prefer each type
+
+**Prefer `StatelessWidget` when:**
+- The UI is fully determined by constructor arguments
+- No user interaction changes what is displayed inside the widget
+- You want to signal to other developers that the widget is pure and predictable
+
+**Prefer `StatefulWidget` when:**
+- The widget needs to react to button taps, text input, timers, or animations
+- You need local state (counters, toggle flags, loading indicators) between builds
+- The widget subscribes to a `Stream` or `Future` and updates its UI on new values
+
+### Reflection
+
+Building this demo made one key insight concrete: `setState()` does not "refresh the screen" — it marks a **specific** `State` object as dirty. The Element tree acts as a persistent identity layer between rebuilds; because `_CounterSectionState` is a separate object from `_ColorToggleSectionState`, tapping the counter button never touches the color section, and vice versa. Splitting a large widget into focused `StatefulWidget`s means interactions affect the **smallest possible subtree**, which is essential for both performance and code clarity.
 
 ---
 

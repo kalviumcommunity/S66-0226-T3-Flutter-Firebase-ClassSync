@@ -11,6 +11,7 @@ import 'signup_screen.dart';
 import 'storage_screen.dart';
 import 'responsive_home.dart';
 import 'welcome_screen.dart';
+import 'stateless_stateful_demo.dart';
 import 'widget_tree_screen.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -38,6 +39,15 @@ class HomeScreen extends StatelessWidget {
         color: const Color(0xFF4F46E5),
         screen: const WelcomeScreen(),
       ),
+      _DemoCard(
+        title: 'Stateless vs Stateful 🔵🟢',
+        subtitle: 'Sprint #2 • StatelessWidget · StatefulWidget · setState',
+        icon: Icons.compare_arrows_rounded,
+        color: const Color(0xFF0284C7),
+        screen: const StatelessStatefulDemo(),
+        highlight: true,
+      ),
+
       _DemoCard(
         title: 'Widget Tree & Reactive UI 🌳',
         subtitle: 'Sprint #2 • Widget tree · setState · reactive rebuild',
