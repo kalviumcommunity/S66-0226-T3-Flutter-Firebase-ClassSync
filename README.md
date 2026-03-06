@@ -13,13 +13,14 @@ ClassSync is a Flutter + Firebase mobile application built for coaching centers 
 5. [Hot Reload & DevTools](#hot-reload--devtools)
 6. [Navigator & Routes](#navigator--routes)
 7. [Responsive Layout Design](#responsive-layout-design)
-8. [Project Overview](#project-overview)
-9. [Firebase Setup](#firebase-setup)
-10. [Authentication](#authentication)
-11. [Cloud Firestore](#cloud-firestore)
-12. [App Screens](#app-screens)
-13. [Reflection](#reflection)
-14. [Team Members](#team-members)
+8. [Design System — Figma → Flutter](#design-system--figma--flutter)
+9. [Project Overview](#project-overview)
+10. [Firebase Setup](#firebase-setup)
+11. [Authentication](#authentication)
+12. [Cloud Firestore](#cloud-firestore)
+13. [App Screens](#app-screens)
+14. [Reflection](#reflection)
+15. [Team Members](#team-members)
 
 ---
 
@@ -785,6 +786,226 @@ Beyond the `isLandscape` flag used here, `LayoutBuilder` provides the available 
 
 ---
 
+## Design System — Figma → Flutter
+
+### Sprint #4 — Design Thinking · UI/UX Translation · Adaptive Interfaces
+
+`lib/screens/design_system_screen.dart` documents the full journey from Figma wireframe to a running, responsive Flutter UI through the five stages of Design Thinking.
+
+---
+
+### Design Thinking Process
+
+| Stage | Focus | In ClassSync |
+|---|---|---|
+| **1 — Empathize** | Understand user problems | Students need fewer taps to add tasks and want clear deadline visibility |
+| **2 — Define** | State the core problem | "Students lose track of deadlines because task entry is buried in menus" |
+| **3 — Ideate** | Sketch layout options | FAB for quick add, card-based task list, colour-coded urgency flags |
+| **4 — Prototype** | Build Figma mockup | Auto Layout screens with shared colour/type style guide |
+| **5 — Test** | Translate & iterate | Flutter implementation with real-device rendering validation |
+
+---
+
+### Figma Design Process
+
+**Color palette (Figma → Flutter `DSColors`):**
+
+| Token | Hex | Flutter constant |
+|---|---|---|
+| Primary | `#4F46E5` | `DSColors.primary` |
+| Secondary | `#0EA5E9` | `DSColors.secondary` |
+| Success | `#10B981` | `DSColors.success` |
+| Warning | `#F59E0B` | `DSColors.warning` |
+| Error | `#EF4444` | `DSColors.error` |
+| Surface | `#F8FAFC` | `DSColors.surface` |
+
+**Typography scale:** DisplayLarge (28 bold) → HeadlineMedium (22 bold) → TitleLarge (18 w600) → BodyLarge (16) → BodySmall (13) → LabelSmall (11 w600)
+
+**Spacing tokens:** `xs`=4 · `sm`=8 · `md`=16 · `lg`=24 · `xl`=32 · `xxl`=48 (all in dp)
+
+**Border radius:** `sm`=8 · `md`=12 · `lg`=16 · `full`=999
+
+---
+
+### Figma Component → Flutter Widget Mapping
+
+| Figma element | Flutter widget | Notes |
+|---|---|---|
+| Text / Heading | `Text()` | `TextStyle` for font size, weight, color |
+| Frame / Container | `Container()` / `SizedBox()` | Padding, decoration, sizing |
+| Auto Layout (horizontal) | `Row()` + `Expanded()` | `mainAxisAlignment` controls spacing |
+| Auto Layout (vertical) | `Column()` + `Expanded()` | `crossAxisAlignment` controls alignment |
+| Card | `Card()` or `Container` + `BoxDecoration` | `boxShadow`, `borderRadius`, `border` |
+| Button (Filled) | `ElevatedButton()` | Primary CTA |
+| Button (Outlined) | `OutlinedButton()` | Secondary action |
+| Button (Ghost / Text) | `TextButton()` | Tertiary / destructive |
+| Icon Button | `IconButton()` | Toolbar / inline actions |
+| FAB | `FloatingActionButton()` | Quick-add, primary screen action |
+| Input Field | `TextField()` + `InputDecoration` | `labelText`, `hintText`, `prefixIcon` |
+| Toggle / Switch | `Switch()` | Settings, feature flags |
+| Chip / Tag | `FilterChip()` / `Chip()` | Category filters |
+| Scrollable area | `SingleChildScrollView()` / `ListView()` | Variable content |
+| Navigation bar | `BottomNavigationBar()` / `NavigationBar()` | Primary navigation |
+
+---
+
+### Flutter Implementation
+
+#### Scaffold + AppBar + TabBar
+
+```dart
+Scaffold(
+  appBar: AppBar(
+    title: const Text('Design System'),
+    bottom: const TabBar(
+      tabs: [
+        Tab(icon: Icon(Icons.lightbulb_outline), text: 'Design'),
+        Tab(icon: Icon(Icons.palette_outlined),  text: 'Tokens'),
+        Tab(icon: Icon(Icons.widgets_outlined),  text: 'Widgets'),
+        Tab(icon: Icon(Icons.devices_outlined),  text: 'Adaptive'),
+      ],
+    ),
+  ),
+  body: const TabBarView(
+    children: [
+      _DesignThinkingTab(),
+      _DesignTokensTab(),
+      _WidgetCatalogTab(),
+      _AdaptiveLayoutTab(),
+    ],
+  ),
+);
+```
+
+#### TextField + ElevatedButton (Figma input + CTA)
+
+```dart
+Scaffold(
+  appBar: AppBar(title: const Text('Smart UI')),
+  body: Padding(
+    padding: const EdgeInsets.all(16.0),
+    child: Column(
+      children: [
+        const Text(
+          'Welcome Back!',
+          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 16),
+        const TextField(
+          decoration: InputDecoration(labelText: 'Enter your task'),
+        ),
+        const SizedBox(height: 16),
+        ElevatedButton(onPressed: () {}, child: const Text('Add Task')),
+      ],
+    ),
+  ),
+);
+```
+
+---
+
+### Responsive & Adaptive Techniques
+
+#### MediaQuery — layout switch
+
+```dart
+Widget build(BuildContext context) {
+  final double screenWidth = MediaQuery.of(context).size.width;
+  return screenWidth < 600
+      ? Column(children: buildMobileLayout())
+      : Row(children: buildTabletLayout());
+}
+```
+
+#### LayoutBuilder — constraint-based grid
+
+```dart
+LayoutBuilder(
+  builder: (context, constraints) {
+    final int cols = constraints.maxWidth > 480 ? 3 : 2;
+    return Wrap(
+      children: List.generate(
+        6,
+        (i) => SizedBox(
+          width: constraints.maxWidth / cols,
+          child: MyCard(index: i),
+        ),
+      ),
+    );
+  },
+);
+```
+
+#### OrientationBuilder — portrait vs landscape
+
+```dart
+OrientationBuilder(
+  builder: (context, orientation) {
+    return orientation == Orientation.portrait
+        ? Column(children: panels) // stacked
+        : Row(children: panels);   // side-by-side
+  },
+);
+```
+
+#### Flexible vs Expanded
+
+```dart
+// Expanded: fills ALL remaining main-axis space
+Row(children: [
+  Container(width: 60, child: const Text('Fixed')),
+  Expanded(child: Container(color: Colors.blue)),
+]);
+
+// Flexible: wraps to content size, can shrink
+Row(children: [
+  Flexible(child: const Text('Wraps to content')),
+  Container(width: 60, child: const Text('Fixed')),
+]);
+```
+
+---
+
+### What Remained Consistent vs What Changed
+
+| Figma element | Consistent in Flutter | Changed / Adjusted |
+|---|---|---|
+| Color palette | ✅ All hex values matched exactly | — |
+| Typography scale | ✅ Font sizes and weights preserved | System font replaces custom Figma font |
+| Button styles | ✅ Filled / Outlined / Text variants | Added `shape` for border-radius matching |
+| Card structure | ✅ Shadow + border + rounded corners | `BoxDecoration` instead of Figma Effects panel |
+| Spacing tokens | ✅ Same dp values throughout | Asymmetric padding adjusted for safe area |
+| Sidebar navigation | ✅ Icon + label layout preserved | Fixed-width Figma frame → `Container(width: 120)` |
+| Responsive layout | ✅ Phone column / tablet sidebar intent preserved | Breakpoint shifted from Figma 768 → Flutter 600 dp |
+
+---
+
+### Screenshots
+
+> **Design tab** — 5-stage Design Thinking cards with Figma artifact notes
+> **Tokens tab** — Color swatches, typography scale, spacing bar chart, border radius samples
+> **Widgets tab** — Live interactive Flutter versions of every Figma component
+> **Adaptive tab** — Live MediaQuery values, OrientationBuilder demo, LayoutBuilder grid, dashboard preview
+
+| Phone | Tablet / Landscape |
+|:---:|:---:|
+| Single-column, full-width cards | Dashboard with sidebar + two-column grid |
+
+---
+
+### Reflection
+
+**How did Design Thinking influence your UI choices?**
+Starting with empathy reframing — "students lose track of deadlines" — drove the decision to use colour-coded urgency indicators on task cards rather than plain text. The define stage forced a single, clear problem statement which prevented scope creep into analytics or messaging features. Prototyping in Figma first let us validate spacing and contrast before writing Flutter code, cutting rework time significantly.
+
+**What differences did you encounter between Figma and Flutter?**
+Figma's Auto Layout maps cleanly to `Row`/`Column`, but Figma frames can have fixed pixel sizes that cause overflow in Flutter when the device is narrower than the design canvas. The fix is to replace fixed widths with `Expanded` or `double.infinity` and let `MediaQuery` govern adaptive dimensions. Custom fonts declared in Figma also require explicit `pubspec.yaml` setup; until that is done, the fallback system font can shift vertical rhythm slightly.
+
+**How did responsive techniques maintain usability?**
+Gating the layout switch at 600 dp via `MediaQuery` ensures tablets always show the sidebar dashboard while phones get a focused single-column view. `OrientationBuilder` handles the phone-landscape case by switching from stacked to side-by-side panels transparently. `LayoutBuilder` inside the card grid determines column count from the actual rendered box width — making the grid correct even inside a drawer or split-screen window where the widget's available width differs from the screen width.
+
+---
+
 ## Project Overview
 
 | Feature | Status |
@@ -1023,6 +1244,7 @@ Every add, update, or delete in Firestore **instantly** reflects in the UI witho
 | `welcome_screen.dart` | Sprint #2 — StatefulWidget state management |
 | `responsive_home.dart` | Sprint #3 — MediaQuery · LayoutBuilder responsive layout |
 | `responsive_layout.dart` | Sprint #3 — Container · Row · Column · MediaQuery basics |
+| `design_system_screen.dart` | Sprint #4 — Figma → Flutter · Design Thinking · Design tokens · Adaptive layout |
 
 ---
 
