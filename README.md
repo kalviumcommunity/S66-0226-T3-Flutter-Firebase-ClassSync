@@ -7,13 +7,14 @@ ClassSync is a Flutter + Firebase mobile application built for coaching centers 
 ## Table of Contents
 
 1. [Setup Verification](#setup-verification)
-2. [Project Overview](#project-overview)
-3. [Firebase Setup](#firebase-setup)
-4. [Authentication](#authentication)
-5. [Cloud Firestore](#cloud-firestore)
-6. [App Screens](#app-screens)
-7. [Reflection](#reflection)
-8. [Team Members](#team-members)
+2. [Flutter Project Structure](#flutter-project-structure)
+3. [Project Overview](#project-overview)
+4. [Firebase Setup](#firebase-setup)
+5. [Authentication](#authentication)
+6. [Cloud Firestore](#cloud-firestore)
+7. [App Screens](#app-screens)
+8. [Reflection](#reflection)
+9. [Team Members](#team-members)
 
 ---
 
