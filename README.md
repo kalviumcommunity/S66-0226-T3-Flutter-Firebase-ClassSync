@@ -6,14 +6,108 @@ ClassSync is a Flutter + Firebase mobile application built for coaching centers 
 
 ## Table of Contents
 
-1. [Project Overview](#project-overview)
-2. [Firebase Setup](#firebase-setup)
-3. [Authentication](#authentication)
-4. [Cloud Firestore](#cloud-firestore)
-5. [App Screens](#app-screens)
-6. [Screenshots](#screenshots)
+1. [Setup Verification](#setup-verification)
+2. [Project Overview](#project-overview)
+3. [Firebase Setup](#firebase-setup)
+4. [Authentication](#authentication)
+5. [Cloud Firestore](#cloud-firestore)
+6. [App Screens](#app-screens)
 7. [Reflection](#reflection)
 8. [Team Members](#team-members)
+
+---
+
+## Setup Verification
+
+### Flutter SDK Installation Steps
+
+**1. Download Flutter SDK**
+
+Visit [flutter.dev/docs/get-started/install](https://docs.flutter.dev/get-started/install) and download the stable channel SDK for your OS.
+
+On macOS (used in this project):
+```bash
+# Extract to a preferred directory
+cd ~/Kalvium/Sem\ 3/Livebook/Simulated\ Work/
+unzip flutter_macos_arm64.zip   # or use git clone
+
+# Add to PATH in ~/.zshrc
+export PATH="$PATH:$HOME/Kalvium/Sem\ 3/Livebook/Simulated\ Work/Flutter/flutter/bin"
+
+# Reload shell
+source ~/.zshrc
+```
+
+**2. Install Android Studio**
+
+- Download from [developer.android.com/studio](https://developer.android.com/studio)
+- During setup, check: **Android SDK**, **Android SDK Platform**, **Android Virtual Device (AVD)**
+- Open Android Studio → **Plugins** → install **Flutter** and **Dart** plugins
+
+**3. Configure Emulator (AVD)**
+
+- Android Studio → **Device Manager** → **Create Virtual Device**
+- Selected: **Pixel 6**, System Image: **Android 13 (API 33)**
+- Launch emulator, then verify:
+
+```bash
+flutter devices
+```
+
+```
+Found 2 connected devices:
+  macOS (desktop) • macos  • darwin-arm64   • macOS 26.3
+  Chrome (web)    • chrome • web-javascript • Google Chrome 145.0
+```
+
+**4. Verify with flutter doctor**
+
+```bash
+flutter doctor -v
+```
+
+```
+[✓] Flutter (Channel stable, 3.41.2, on macOS 26.3 darwin-arm64)
+    • Flutter version 3.41.2 on channel stable
+    • Dart version 3.11.0
+    • DevTools version 2.54.1
+
+[✓] Android toolchain - develop for Android devices (Android SDK version 36.1.0)
+    • Android SDK at /Users/shebin.cee/Library/Android/sdk
+    • Platform android-36.1, build-tools 36.1.0
+    • Java version OpenJDK 21 (bundled with Android Studio)
+    • All Android licenses accepted.
+
+[!] Xcode - develop for iOS and macOS (Xcode 26.3)
+    • Xcode at /Applications/Xcode.app/Contents/Developer
+    ✗ CocoaPods not installed (needed only for iOS/macOS plugins)
+
+[✓] Chrome - develop for the web
+    • Chrome at /Applications/Google Chrome.app
+
+[✓] Connected device (2 available)
+    • macOS (desktop) • macos  • darwin-arm64
+    • Chrome (web)    • chrome • web-javascript
+
+[✓] Network resources
+    • All expected network resources are available.
+```
+
+> **Note:** The Xcode CocoaPods warning only affects iOS/macOS native plugins. Android and web targets work fully.
+
+**5. Create and run first Flutter app**
+
+```bash
+# Create new project
+flutter create first_flutter_app
+cd first_flutter_app
+
+# Run on Chrome (web) or connected Android device
+flutter run -d chrome
+flutter run -d emulator
+```
+
+The default counter app launches successfully on the emulator.
 
 ---
 
@@ -293,6 +387,21 @@ flutter run
 ---
 
 ## Reflection
+
+### Flutter Environment Setup
+
+**Challenges faced during installation:**
+
+- **PATH configuration on macOS:** The Flutter binary directory needed to be manually added to `~/.zshrc`. Running `flutter` in a new terminal tab initially failed until the shell profile was reloaded with `source ~/.zshrc`.
+- **Android NDK corruption:** The NDK directory at `sdk/ndk/28.2.13676358` was missing a `source.properties` file, causing Gradle build failures. Fixed by removing the corrupted directory (`rm -rf ~/Library/Android/sdk/ndk/28.2.13676358`) and allowing a clean re-download.
+- **Android licenses:** Running `flutter doctor --android-licenses` was required before the Android toolchain showed as healthy.
+- **CocoaPods (iOS):** Not installed since this sprint targets Android and web. Will be needed when adding iOS support.
+
+**How this setup prepares you for building real mobile apps:**
+
+The `flutter doctor` workflow teaches a systematic approach to dependency management — each check maps to a real runtime requirement (JDK for Gradle, Chrome for web debugging, Xcode for iOS). Getting the emulator running early means every code change can be tested on a realistic device frame with the correct screen density, safe area insets, and platform behaviors. The AVD Manager's ability to simulate different Android API levels lets you catch compatibility issues before shipping to real devices.
+
+---
 
 ### How does Firebase simplify backend management in mobile apps?
 
