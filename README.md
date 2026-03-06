@@ -1,83 +1,328 @@
-# ClassSync
+# ClassSync — Firebase Integration
 
-ClassSync is a mobile application built using Flutter and Firebase that helps small coaching centers distribute study materials and track assignment completion efficiently.
+ClassSync is a Flutter + Firebase mobile application built for coaching centers to manage study materials and track assignment completion. This project demonstrates a complete Firebase integration including Authentication, Cloud Firestore CRUD, and Cloud Storage.
+
+---
+
+## Table of Contents
+
+1. [Project Overview](#project-overview)
+2. [Firebase Setup](#firebase-setup)
+3. [Authentication](#authentication)
+4. [Cloud Firestore](#cloud-firestore)
+5. [App Screens](#app-screens)
+6. [Screenshots](#screenshots)
+7. [Reflection](#reflection)
+8. [Team Members](#team-members)
+
+---
+
+## Project Overview
+
+| Feature | Status |
+|---|---|
+| Firebase Authentication (email/password) | ✅ |
+| Signup with user profile saved to Firestore | ✅ |
+| Login with session persistence | ✅ |
+| Logout + auth state stream | ✅ |
+| Firestore CRUD (Create, Read, Update, Delete) | ✅ |
+| Real-time data sync with StreamBuilder | ✅ |
+| Firebase Storage (image upload) | ✅ |
+| Responsive UI (MediaQuery) | ✅ |
+
+---
+
+## Firebase Setup
+
+### Step 1 — Create Firebase project
+
+1. Go to [console.firebase.google.com](https://console.firebase.google.com)
+2. Click **Add project** → name it `classsync`
+3. Enable **Authentication** → Email/Password provider
+4. Enable **Cloud Firestore** → Start in test mode
+5. Enable **Cloud Storage** → Start in test mode
+
+### Step 2 — Connect Flutter app
+
+```bash
+# Install FlutterFire CLI
+dart pub global activate flutterfire_cli
+
+# Authenticate Firebase CLI
+firebase login
+
+# Link your Firebase project (auto-generates lib/firebase_options.dart)
+flutterfire configure
+```
+
+### Step 3 — Add dependencies
+
+```yaml
+# pubspec.yaml
+dependencies:
+  firebase_core: ^3.0.0
+  firebase_auth: ^5.0.0
+  cloud_firestore: ^5.0.0
+  firebase_storage: ^12.0.0
+```
+
+```bash
+flutter pub get
+```
+
+### Step 4 — Initialize Firebase in main.dart
+
+```dart
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  runApp(const ClassSyncApp());
+}
+```
+
+### Step 5 — Run the app
+
+```bash
+flutter run                 # Default device
+flutter run -d chrome       # Web browser
+flutter run -d emulator     # Android emulator
+```
+
+---
+
+## Authentication
+
+### auth_service.dart
+
+All Firebase Auth calls are wrapped in `AuthService` under `lib/services/`:
+
+```dart
+class AuthService {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  // Expose auth state as a stream — StreamBuilder listens to this
+  Stream<User?> get authStateChanges => _auth.authStateChanges();
+
+  // Sign up with email and password
+  Future<String?> signUp(String email, String password) async {
+    try {
+      await _auth.createUserWithEmailAndPassword(
+        email: email.trim(),
+        password: password.trim(),
+      );
+      return null; // null means success
+    } on FirebaseAuthException catch (e) {
+      return _friendlyError(e.code);
+    }
+  }
+
+  // Log in existing user
+  Future<String?> signIn(String email, String password) async {
+    try {
+      await _auth.signInWithEmailAndPassword(
+        email: email.trim(),
+        password: password.trim(),
+      );
+      return null;
+    } on FirebaseAuthException catch (e) {
+      return _friendlyError(e.code);
+    }
+  }
+
+  Future<void> signOut() async => _auth.signOut();
+}
+```
+
+### Auth Flow
+
+`main.dart` uses `StreamBuilder` to reactively route the user:
+
+```dart
+StreamBuilder<User?>(
+  stream: FirebaseAuth.instance.authStateChanges(),
+  builder: (context, snapshot) {
+    if (snapshot.connectionState == ConnectionState.waiting) {
+      return const SessionSplashScreen(); // loading
+    }
+    if (snapshot.hasData) {
+      return const HomeScreen();   // logged in → dashboard
+    }
+    return const LoginScreen();   // logged out → login
+  },
+)
+```
+
+### Screens
+
+| Screen | File | Description |
+|---|---|---|
+| Login | `lib/screens/login_screen.dart` | Email + password sign-in form |
+| Signup | `lib/screens/signup_screen.dart` | Registration form + saves profile to Firestore |
+| Dashboard | `lib/screens/home_screen.dart` | Shown after successful login |
+
+**Signup also saves user profile data to Firestore:**
+
+```dart
+// After Firebase Auth account is created:
+await FirestoreService().addUserData(user.uid, {
+  'name': nameCtrl.text.trim(),
+  'email': emailCtrl.text.trim(),
+  'createdAt': DateTime.now().toIso8601String(),
+  'role': 'student',
+});
+```
+
+---
+
+## Cloud Firestore
+
+### firestore_service.dart
+
+Full CRUD operations under `lib/services/firestore_service.dart`:
+
+```dart
+class FirestoreService {
+  final CollectionReference _tasks =
+      FirebaseFirestore.instance.collection('tasks');
+  final CollectionReference _users =
+      FirebaseFirestore.instance.collection('users');
+
+  // CREATE — add a new task
+  Future<void> addTask(String title) => _tasks.add({
+    'title': title,
+    'completed': false,
+    'createdAt': Timestamp.now(),
+  });
+
+  // READ — real-time stream (UI updates automatically)
+  Stream<QuerySnapshot> getTasks() =>
+      _tasks.orderBy('createdAt', descending: true).snapshots();
+
+  // UPDATE — edit task title
+  Future<void> updateTask(String id, String newTitle) =>
+      _tasks.doc(id).update({'title': newTitle});
+
+  // UPDATE — toggle completion status
+  Future<void> toggleTask(String id, bool current) =>
+      _tasks.doc(id).update({'completed': !current});
+
+  // DELETE — remove a task
+  Future<void> deleteTask(String id) => _tasks.doc(id).delete();
+
+  // CREATE (users) — save user profile after signup
+  Future<void> addUserData(String uid, Map<String, dynamic> data) =>
+      _users.doc(uid).set(data);
+}
+```
+
+### Real-Time Sync with StreamBuilder
+
+```dart
+StreamBuilder<QuerySnapshot>(
+  stream: FirestoreService().getTasks(),
+  builder: (context, snapshot) {
+    if (snapshot.connectionState == ConnectionState.waiting) {
+      return const CircularProgressIndicator();
+    }
+    final docs = snapshot.data?.docs ?? [];
+    return ListView.builder(
+      itemCount: docs.length,
+      itemBuilder: (context, index) {
+        final data = docs[index].data()! as Map<String, dynamic>;
+        return Text(data['title']);
+      },
+    );
+  },
+)
+```
+
+Every add, update, or delete in Firestore **instantly** reflects in the UI without any manual refresh.
+
+---
+
+## App Screens
+
+| Screen | Purpose |
+|---|---|
+| `login_screen.dart` | Firebase Auth — sign in |
+| `signup_screen.dart` | Firebase Auth — register + save Firestore profile |
+| `home_screen.dart` | Dashboard after successful login |
+| `firestore_screen.dart` | Full CRUD demo with live sync + edit dialog |
+| `auth_screen.dart` | Combined login/signup demo screen |
+| `storage_screen.dart` | Image upload to Firebase Storage |
+| `welcome_screen.dart` | Sprint #2 — StatefulWidget state management |
+| `responsive_home.dart` | Sprint #3 — MediaQuery responsive layout |
+
+---
 
 ## Problem
 
-Coaching centers often rely on WhatsApp or manual methods to share study materials and assignments. This leads to disorganized communication and difficulty tracking student progress.
+Coaching centers rely on WhatsApp or manual methods to share study materials and assignments. This leads to disorganized communication and difficulty tracking student progress.
 
 ## Solution
 
 ClassSync provides a centralized platform where teachers can upload study materials and assignments while students can view them and mark tasks as completed.
 
-## Features
-
-- User Authentication (Firebase Auth)
-- Upload and view study materials
-- Assignment creation and tracking
-- Real-time database updates
-- Responsive mobile UI
-
 ## Tech Stack
 
-**Frontend:**
-Flutter
-Dart
+**Frontend:** Flutter, Dart  
+**Backend:** Firebase Authentication, Cloud Firestore, Firebase Storage  
+**Tools:** Android Studio, GitHub, FlutterFire CLI
 
-**Backend:**
-Firebase Authentication
-Cloud Firestore
-Firebase Storage
-
-**Tools:**
-Android Studio
-GitHub
-Figma
-
-## App Screens
-
-- Splash Screen
-- Login / Signup
-- Dashboard
-- Study Materials
-- Assignments
-- Profile Page
-
-## MVP Features
-
-- Secure login and signup
-- Study material sharing
-- Assignment tracking
-- Real-time data sync
-- Working APK build
+---
 
 ## Installation
 
-1. Clone the repository
+```bash
+# 1. Clone the repository
+git clone https://github.com/yourusername/ClassSync.git
+cd ClassSync
 
-`git clone https://github.com/yourusername/ClassSync.git`
+# 2. Install dependencies
+flutter pub get
 
-2. Install dependencies
+# 3. Connect Firebase (generates lib/firebase_options.dart)
+flutterfire configure
 
-`flutter pub get`
+# 4. Run the application
+flutter run
+```
 
-3. Run the application
+---
 
-`flutter run`
+## Reflection
+
+### How does Firebase simplify backend management in mobile apps?
+
+Firebase eliminates the need to build and maintain a custom backend server. Authentication, database, and storage are available as managed services — you write only client-side Dart code. Firestore's real-time `snapshots()` stream means zero polling logic: the UI reacts to database changes automatically. This dramatically reduces the time from idea to working app.
+
+### What did you learn about connecting Flutter with Cloud Services?
+
+- **FlutterFire CLI** auto-generates platform config files (`firebase_options.dart`, `google-services.json`) — no manual JSON editing.
+- **`StreamBuilder`** is the idiomatic Flutter pattern for reactive Firebase data: wrap any `Stream` (auth state or Firestore snapshot) and the widget tree rebuilds automatically.
+- **Error handling** must be explicit: `FirebaseAuthException.code` gives machine-readable codes (`weak-password`, `email-already-in-use`) that map to user-friendly messages.
+- **Auth state as a stream** means navigation is declarative — instead of manually pushing routes on login, `main.dart`'s `StreamBuilder` always renders the correct screen based on the current `User?`.
+- **Firestore's update()** method does a partial write — only the specified fields change, leaving others untouched. This is more efficient than `set()` which overwrites the entire document.
+
+---
 
 ## Team Members
 
-**UI Lead**: Shebin
+| Role | Name |
+|---|---|
+| UI Lead | Shebin |
+| Firebase Lead | Arbin |
+| Testing & Deployment Lead | Yashasvi |
 
-**Firebase Lead**: Arbin
-
-**Testing & Deployment Lead**: Yashasvi
+---
 
 ## Future Improvements
 
-- Push notifications
-- Analytics dashboard
-- Video lectures integration
+- Push notifications for new assignments
+- Analytics dashboard for teacher insights
+- Video lecture integration
 - Multi-center support
 
 ---

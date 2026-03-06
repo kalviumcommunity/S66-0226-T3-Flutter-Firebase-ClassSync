@@ -1,10 +1,13 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'architecture_screen.dart';
+import 'auth_screen.dart';
 import 'counter_screen.dart';
 import 'dart_basics_screen.dart';
 import 'firestore_screen.dart';
 import 'hello_flutter_screen.dart';
+import 'login_screen.dart';
+import 'signup_screen.dart';
 import 'storage_screen.dart';
 import 'responsive_home.dart';
 import 'welcome_screen.dart';
@@ -35,6 +38,48 @@ class HomeScreen extends StatelessWidget {
         screen: const WelcomeScreen(),
       ),
 
+      // ── Firebase Auth Demos ──────────────────────────────────────────────
+      _DemoCard(
+        title: '🔐 Login Screen',
+        subtitle: 'Firebase Auth · Sign in with email & password',
+        icon: Icons.login,
+        color: const Color(0xFF7C3AED),
+        screen: const LoginScreen(),
+        highlight: true,
+      ),
+      _DemoCard(
+        title: '📝 Signup Screen',
+        subtitle: 'Firebase Auth · Register · Save profile to Firestore',
+        icon: Icons.person_add_alt_1,
+        color: const Color(0xFF059669),
+        screen: const SignupScreen(),
+        highlight: true,
+      ),
+      _DemoCard(
+        title: 'Auth Demo (Combined)',
+        subtitle: 'Login + Signup in one screen with state switching',
+        icon: Icons.verified_user_outlined,
+        color: Colors.deepOrange,
+        screen: const AuthScreen(),
+      ),
+
+      // ── Firestore & Storage ──────────────────────────────────────────────
+      _DemoCard(
+        title: 'Firestore CRUD',
+        subtitle: 'Create · Read · Update · Delete — real-time sync',
+        icon: Icons.sync,
+        color: Colors.blue,
+        screen: const FirestoreScreen(),
+      ),
+      _DemoCard(
+        title: 'Firebase Storage',
+        subtitle: 'Pick an image · Upload · Get download URL',
+        icon: Icons.cloud_upload_outlined,
+        color: Colors.green,
+        screen: const StorageScreen(),
+      ),
+
+      // ── Flutter Fundamentals ─────────────────────────────────────────────
       _DemoCard(
         title: 'Flutter Architecture',
         subtitle: 'Framework · Engine · Embedder layers explained',
@@ -62,21 +107,6 @@ class HomeScreen extends StatelessWidget {
         icon: Icons.code,
         color: Colors.orange,
         screen: const DartBasicsScreen(),
-      ),
-
-      _DemoCard(
-        title: 'Firestore Real-Time',
-        subtitle: 'Live task list — StreamBuilder + Firestore snapshots',
-        icon: Icons.sync,
-        color: Colors.blue,
-        screen: const FirestoreScreen(),
-      ),
-      _DemoCard(
-        title: 'Firebase Storage',
-        subtitle: 'Pick an image · Upload · Get download URL',
-        icon: Icons.cloud_upload_outlined,
-        color: Colors.green,
-        screen: const StorageScreen(),
       ),
     ];
 
