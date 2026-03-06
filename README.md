@@ -12,13 +12,14 @@ ClassSync is a Flutter + Firebase mobile application built for coaching centers 
 4. [Widget Tree & Reactive UI](#widget-tree--reactive-ui)
 5. [Hot Reload & DevTools](#hot-reload--devtools)
 6. [Navigator & Routes](#navigator--routes)
-7. [Project Overview](#project-overview)
-8. [Firebase Setup](#firebase-setup)
-9. [Authentication](#authentication)
-10. [Cloud Firestore](#cloud-firestore)
-11. [App Screens](#app-screens)
-12. [Reflection](#reflection)
-13. [Team Members](#team-members)
+7. [Responsive Layout Design](#responsive-layout-design)
+8. [Project Overview](#project-overview)
+9. [Firebase Setup](#firebase-setup)
+10. [Authentication](#authentication)
+11. [Cloud Firestore](#cloud-firestore)
+12. [App Screens](#app-screens)
+13. [Reflection](#reflection)
+14. [Team Members](#team-members)
 
 ---
 
@@ -575,6 +576,215 @@ Navigator is a widget that maintains an ordered list of `Route` objects. Each `R
 
 ---
 
+## Responsive Layout Design
+
+### Sprint #3 — Container · Row · Column · MediaQuery
+
+`lib/screens/responsive_layout.dart` demonstrates all the core Flutter layout widgets and how to use `MediaQuery` to make the layout adapt to the device's screen size and orientation.
+
+---
+
+### Core Layout Widgets
+
+#### Container
+
+`Container` is the most versatile layout widget. It wraps a single child and lets you control **padding**, **margin**, **size**, **color**, **border-radius**, and **decoration**.
+
+```dart
+Container(
+  padding: const EdgeInsets.all(16),
+  color: Colors.blue,
+  child: const Text('This is inside a Container'),
+);
+```
+
+Use `decoration` for gradients, shadows, and rounded corners:
+
+```dart
+Container(
+  width: double.infinity,
+  height: 60,
+  decoration: BoxDecoration(
+    gradient: const LinearGradient(
+      colors: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
+    ),
+    borderRadius: BorderRadius.circular(30),
+  ),
+  child: const Center(
+    child: Text('Gradient Container', style: TextStyle(color: Colors.white)),
+  ),
+);
+```
+
+#### Row
+
+`Row` arranges its children **horizontally**. Use `mainAxisAlignment` to control spacing and `crossAxisAlignment` for vertical alignment.
+
+```dart
+Row(
+  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+  children: [
+    Icon(Icons.home),
+    Icon(Icons.search),
+    Icon(Icons.person),
+  ],
+);
+```
+
+| `mainAxisAlignment` value | Behaviour |
+|---|---|
+| `start` | Pack children at the left |
+| `end` | Pack children at the right |
+| `center` | Pack children in the middle |
+| `spaceBetween` | Even gaps between children, no edge gap |
+| `spaceEvenly` | Equal gaps between and around children |
+| `spaceAround` | Half-gap at edges, full gap between children |
+
+#### Column
+
+`Column` arranges its children **vertically**. Mirrors `Row`'s API for the vertical axis.
+
+```dart
+Column(
+  mainAxisAlignment: MainAxisAlignment.center,
+  children: [
+    const Text('Welcome!'),
+    const SizedBox(height: 10),
+    ElevatedButton(onPressed: () {}, child: const Text('Click Me')),
+  ],
+);
+```
+
+---
+
+### Combining Layout Widgets
+
+The screen uses all three widgets together to build a header + two-panel layout:
+
+```dart
+Column(
+  children: [
+    // Header
+    Container(
+      width: double.infinity,
+      height: 80,
+      color: const Color(0xFFEDE9FE),
+      child: const Center(child: Text('Header Section')),
+    ),
+    const SizedBox(height: 10),
+    // Two-column body (Row with Expanded children)
+    Row(
+      children: [
+        Expanded(
+          child: Container(
+            height: 120,
+            color: const Color(0xFFFEF3C7),
+            child: const Center(child: Text('Left Panel')),
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Container(
+            height: 120,
+            color: const Color(0xFFD1FAE5),
+            child: const Center(child: Text('Right Panel')),
+          ),
+        ),
+      ],
+    ),
+  ],
+);
+```
+
+---
+
+### Making the Layout Responsive with MediaQuery
+
+`MediaQuery.of(context)` provides the screen's current **width**, **height**, and **orientation**. Use these values to conditionally change layout structure, padding, or widget size.
+
+```dart
+final double screenWidth = MediaQuery.of(context).size.width;
+final bool isLandscape =
+    MediaQuery.of(context).orientation == Orientation.landscape;
+final bool isTablet = screenWidth >= 600;
+
+// Responsive padding
+final double hPadding = isTablet ? 32 : 16;
+
+// Width capped on tablet, full-width on phone
+Container(
+  width: screenWidth > 600 ? 500 : double.infinity,
+  color: Colors.blueGrey,
+  child: const Text('Responsive width based on screen size'),
+);
+```
+
+#### Adaptive layout switch
+
+```dart
+// Tablet / landscape → side-by-side Row
+// Phone portrait → stacked Column
+if (isTablet || isLandscape) {
+  return Row(
+    children: [
+      Expanded(child: leftPanel),
+      const SizedBox(width: 10),
+      Expanded(child: rightPanel),
+    ],
+  );
+}
+return Column(
+  children: [
+    leftPanel,
+    const SizedBox(height: 10),
+    rightPanel,
+  ],
+);
+```
+
+---
+
+### Expanded for Proportional Columns
+
+`Expanded` distributes available space among Row/Column children in proportion to their `flex` value.
+
+```dart
+// 1 : 2 : 1 split
+Row(
+  children: [
+    Expanded(flex: 1, child: Container(color: Colors.blue)),
+    Expanded(flex: 2, child: Container(color: Colors.sky)),
+    Expanded(flex: 1, child: Container(color: Colors.green)),
+  ],
+);
+```
+
+---
+
+### Screenshots
+
+> **Phone portrait** — sections stack vertically; containers fill full width  
+> **Tablet / landscape** — left panel and right panel sit side-by-side in a `Row`
+
+| Phone (portrait) | Tablet / Landscape |
+|:---:|:---:|
+| Layout stacks vertically | Layout shows side-by-side panels |
+
+---
+
+### Reflection
+
+**Why is responsiveness important in mobile apps?**  
+Mobile users access apps on an enormous range of devices — from compact 360 dp phones to 1280 dp tablets and foldables. A responsive layout ensures that content is always readable and usable without horizontal scrolling, clipped text, or awkward whitespace. It also future-proofs the app, as the same codebase runs acceptably on new screen sizes without code changes.
+
+**What challenges did you face while managing layout proportions?**  
+The trickiest part was using `Expanded` correctly inside unbounded parents. A `Column` inside `SingleChildScrollView` has an infinite main-axis height, so placing an `Expanded` child inside it throws a layout error. The fix is to either use `Flexible` instead of `Expanded` or to ensure the scroll view child is not setting `height: double.infinity`. Getting the `crossAxisAlignment` right for `Row` children of different heights also required experimentation.
+
+**How can you improve your layout for different screen orientations?**  
+Beyond the `isLandscape` flag used here, `LayoutBuilder` provides the available `BoxConstraints` without depending on the global screen size — making it safer for nested widgets. For complex apps, dedicated "phone portrait", "phone landscape", and "tablet" widget trees can be returned from a single `OrientationBuilder` + `LayoutBuilder` combination, each fully optimised for its context rather than adapting a phone layout with minor tweaks.
+
+---
+
 ## Project Overview
 
 | Feature | Status |
@@ -811,7 +1021,8 @@ Every add, update, or delete in Firestore **instantly** reflects in the UI witho
 | `auth_screen.dart` | Combined login/signup demo screen |
 | `storage_screen.dart` | Image upload to Firebase Storage |
 | `welcome_screen.dart` | Sprint #2 — StatefulWidget state management |
-| `responsive_home.dart` | Sprint #3 — MediaQuery responsive layout |
+| `responsive_home.dart` | Sprint #3 — MediaQuery · LayoutBuilder responsive layout |
+| `responsive_layout.dart` | Sprint #3 — Container · Row · Column · MediaQuery basics |
 
 ---
 

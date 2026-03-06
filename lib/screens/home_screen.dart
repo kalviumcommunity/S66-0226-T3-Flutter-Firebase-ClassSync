@@ -10,6 +10,7 @@ import 'login_screen.dart';
 import 'signup_screen.dart';
 import 'storage_screen.dart';
 import 'responsive_home.dart';
+import 'responsive_layout.dart';
 import 'welcome_screen.dart';
 import 'devtools_demo_screen.dart';
 import 'navigation_demo_screen.dart';
@@ -31,6 +32,14 @@ class HomeScreen extends StatelessWidget {
         icon: Icons.devices_outlined,
         color: const Color(0xFF0EA5E9),
         screen: const ResponsiveHomeScreen(),
+        highlight: true,
+      ),
+      _DemoCard(
+        title: 'Container · Row · Column 🧱',
+        subtitle: 'Sprint #3 • Core layout widgets · MediaQuery responsiveness',
+        icon: Icons.dashboard_outlined,
+        color: const Color(0xFF10B981),
+        screen: const ResponsiveLayoutScreen(),
         highlight: true,
       ),
 
