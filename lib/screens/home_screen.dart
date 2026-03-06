@@ -9,6 +9,7 @@ import 'hello_flutter_screen.dart';
 import 'login_screen.dart';
 import 'signup_screen.dart';
 import 'storage_screen.dart';
+import 'design_system_screen.dart';
 import 'responsive_home.dart';
 import 'responsive_layout.dart';
 import 'welcome_screen.dart';
@@ -26,6 +27,14 @@ class HomeScreen extends StatelessWidget {
     final user = FirebaseAuth.instance.currentUser;
 
     final demos = [
+      _DemoCard(
+        title: 'Design System 🎨',
+        subtitle: 'Sprint #4 • Figma → Flutter · Design Thinking · Tokens',
+        icon: Icons.design_services_outlined,
+        color: const Color(0xFF7C3AED),
+        screen: const DesignSystemScreen(),
+        highlight: true,
+      ),
       _DemoCard(
         title: 'Responsive Layout 📐',
         subtitle: 'Sprint #3 • MediaQuery · LayoutBuilder · Adaptive UI',
