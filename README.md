@@ -11,13 +11,14 @@ ClassSync is a Flutter + Firebase mobile application built for coaching centers 
 3. [Stateless vs Stateful Widgets](#stateless-vs-stateful-widgets)
 4. [Widget Tree & Reactive UI](#widget-tree--reactive-ui)
 5. [Hot Reload & DevTools](#hot-reload--devtools)
-6. [Project Overview](#project-overview)
-7. [Firebase Setup](#firebase-setup)
-8. [Authentication](#authentication)
-9. [Cloud Firestore](#cloud-firestore)
-10. [App Screens](#app-screens)
-11. [Reflection](#reflection)
-12. [Team Members](#team-members)
+6. [Navigator & Routes](#navigator--routes)
+7. [Project Overview](#project-overview)
+8. [Firebase Setup](#firebase-setup)
+9. [Authentication](#authentication)
+10. [Cloud Firestore](#cloud-firestore)
+11. [App Screens](#app-screens)
+12. [Reflection](#reflection)
+13. [Team Members](#team-members)
 
 ---
 
@@ -456,6 +457,121 @@ Without Hot Reload, every UI tweak requires a full app restart (~10–30 seconds
 - **Code review:** Replace all `print()` calls with `debugPrint()` — it is safe to leave in debug builds and silenced in release builds automatically.
 - **CI check:** Run `flutter analyze` to catch performance anti-patterns (e.g., building expensive widgets inside `build()`) before merge.
 - **Performance budget:** Agree on a "no red frames in DevTools Performance" rule during sprint demos. If a PR introduces jank, identify the responsible widget via the flame chart and refactor before merging.
+
+---
+
+## Navigator & Routes
+
+### How Flutter navigation works
+
+Flutter manages screens using a **navigation stack**. Each new screen pushed onto the stack sits on top of the previous one — like a stack of cards. `pop()` removes the top card, revealing the one below.
+
+```
+Stack after pushNamed('/second'):
+┌──────────────────────┐  ← top (visible)
+│    Second Screen     │
+├──────────────────────┤
+│     Home Screen      │
+└──────────────────────┘
+
+After pop():
+┌──────────────────────┐  ← top (visible)
+│     Home Screen      │
+└──────────────────────┘
+```
+
+### Defining named routes in `main.dart`
+
+Centralizing routes in `MaterialApp` means every screen in the app can navigate by name — no need to import target screens at the call site.
+
+```dart
+MaterialApp(
+  debugShowCheckedModeBanner: false,
+  initialRoute: '/',
+  routes: {
+    '/':        (context) => const HomeScreen(),
+    '/second':  (context) => const SecondScreen(),
+    '/profile': (context) => const ProfileScreen(),
+  },
+)
+```
+
+### `home_screen.dart` — push to a new screen
+
+```dart
+ElevatedButton(
+  onPressed: () {
+    Navigator.pushNamed(context, '/second');
+  },
+  child: const Text('Go to Second Screen'),
+)
+```
+
+### `second_screen.dart` — go back
+
+```dart
+ElevatedButton(
+  onPressed: () {
+    Navigator.pop(context);
+  },
+  child: const Text('Back to Home'),
+)
+```
+
+### Passing arguments between screens
+
+```dart
+// Sender — HomeScreen
+Navigator.pushNamed(
+  context,
+  '/profile',
+  arguments: 'Hello from Home!',
+);
+
+// Receiver — ProfileScreen
+@override
+Widget build(BuildContext context) {
+  final message =
+      ModalRoute.of(context)!.settings.arguments as String?;
+  return Scaffold(
+    body: Center(child: Text(message ?? 'No data received')),
+  );
+}
+```
+
+### Navigation method reference
+
+| Method | Effect | When to use |
+|---|---|---|
+| `Navigator.push(context, route)` | Pushes a `MaterialPageRoute` | Anonymous, one-off screens |
+| `Navigator.pushNamed(context, '/x')` | Pushes a named route | Most common — decoupled navigation |
+| `Navigator.pushNamed(…, arguments: data)` | Pushes with payload | Passing IDs, messages, objects |
+| `Navigator.pop(context)` | Removes top screen | Back buttons, dialog dismissal |
+| `Navigator.pushReplacementNamed(context, '/x')` | Replaces current screen | Login → Dashboard (no back) |
+| `Navigator.pushNamedAndRemoveUntil(…)` | Clears stack to a route | Logout → Login |
+
+### Demo in `navigation_demo_screen.dart`
+
+The demo uses a **nested `Navigator` widget** so the three inner screens run in their own navigation stack inside a phone-frame UI, without affecting the root app navigator. This is the same pattern Flutter uses for bottom navigation tabs and nested flows.
+
+| Screen | Route | What it shows |
+|---|---|---|
+| Home page | `/nav/home` | `pushNamed('/nav/second')` and `pushNamed('/nav/profile', arguments: …)` |
+| Second page | `/nav/second` | `Navigator.pop(context)` — back to home |
+| Profile page | `/nav/profile` | Reads and displays the passed `String` argument |
+
+A live **stack indicator** on each page shows which screens are currently on the stack (e.g., `Home › Profile`).
+
+### Reflection
+
+**How does Navigator manage the screen stack?**
+Navigator is a widget that maintains an ordered list of `Route` objects. Each `Route` wraps a builder that produces the screen widget. `push()` appends a route; `pop()` removes the top one. Because it's a widget, you can nest Navigators — tabs, drawers, and bottom sheets all do this internally.
+
+**Benefits of named routes in larger apps:**
+- **Decoupling**: The calling screen doesn't need to import the target screen class — it just knows the string path.
+- **Centralized route map**: A single place in `main.dart` (or a dedicated `app_router.dart`) lists every navigable destination, making refactoring and auditing easier.
+- **Deep linking**: Named routes map naturally to URL paths, enabling web and mobile deep-link support with minimal extra code.
+- **Argument contracts**: Defining argument types at the route level documents the data contract between screens, reducing bugs from silent type mismatches.
 
 ---
 
