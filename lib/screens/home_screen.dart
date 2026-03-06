@@ -108,9 +108,35 @@ class HomeScreen extends StatelessWidget {
       ),
       body: ListView.separated(
         padding: const EdgeInsets.all(16),
-        itemCount: demos.length,
+        itemCount: demos.length + 1,
         separatorBuilder: (_, _) => const SizedBox(height: 12),
-        itemBuilder: (context, index) => _buildCard(context, demos[index]),
+        itemBuilder: (context, index) {
+          if (index == 0) {
+            return Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: color.primaryContainer,
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.verified_user, color: color.onPrimaryContainer),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      'Persistent login is active. Close and reopen the app to stay signed in.',
+                      style: TextStyle(
+                        color: color.onPrimaryContainer,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }
+          return _buildCard(context, demos[index - 1]);
+        },
       ),
     );
   }

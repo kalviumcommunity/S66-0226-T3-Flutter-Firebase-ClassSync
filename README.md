@@ -1009,3 +1009,47 @@ await FirebaseAuth.instance.signOut();
 - Firebase simplifies auth by handling secure identity APIs, token/session lifecycle, and backend sync.
 - Compared to custom auth, Firebase reduces risk around password handling and session security.
 - Main implementation challenge is provider/environment setup consistency across local machines.
+
+---
+
+## Module 3.30: Persistent Session and Auto-Login with Firebase Auth
+
+### Overview
+Implemented persistent login behavior so authenticated users stay signed in after app restart and are routed automatically.
+
+### Root session gate (`main.dart`)
+
+```dart
+home: StreamBuilder<User?>(
+  stream: FirebaseAuth.instance.authStateChanges(),
+  builder: (context, snapshot) {
+    if (snapshot.connectionState == ConnectionState.waiting) {
+      return const SessionSplashScreen();
+    }
+    if (snapshot.hasData) {
+      return const HomeScreen();
+    }
+    return const AuthScreen();
+  },
+),
+```
+
+### Session behavior
+- Logged in user -> app opens directly to HomeScreen after restart.
+- Logged out user -> app opens on AuthScreen.
+- Logout action (`signOut`) clears session and redirects automatically.
+
+### What to verify
+1. Login -> HomeScreen shown.
+2. Copy localhost URL from `flutter run`, open same link in another tab or refresh tab -> still HomeScreen.
+3. Logout -> AuthScreen shown.
+4. Close and reopen app -> stays on AuthScreen.
+
+### Web testing note
+- Session persistence works when reopening the same localhost link while app is running.
+- Refreshing the tab should also preserve login state.
+
+### Reflection
+- Persistent login is essential for user convenience and production UX.
+- Firebase simplifies this by restoring sessions and refreshing tokens automatically.
+- `authStateChanges()` with `StreamBuilder` removes manual route checks and keeps state-driven navigation clean.
