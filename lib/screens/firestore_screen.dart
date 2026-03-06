@@ -34,6 +34,39 @@ class _FirestoreScreenState extends State<FirestoreScreen> {
     if (mounted) setState(() => _adding = false);
   }
 
+  // UPDATE: shows an edit dialog to rename a task
+  Future<void> _showEditDialog(String id, String currentTitle) async {
+    final ctrl = TextEditingController(text: currentTitle);
+    final newTitle = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Edit Task'),
+        content: TextField(
+          controller: ctrl,
+          autofocus: true,
+          decoration: const InputDecoration(
+            labelText: 'Task title',
+            border: OutlineInputBorder(),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, ctrl.text.trim()),
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+    ctrl.dispose();
+    if (newTitle != null && newTitle.isNotEmpty && newTitle != currentTitle) {
+      await _service.updateTask(id, newTitle);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -265,10 +298,23 @@ class _FirestoreScreenState extends State<FirestoreScreen> {
                             style: TextStyle(
                                 fontSize: 11,
                                 color: Colors.grey.shade400)),
-                        trailing: IconButton(
-                          icon: Icon(Icons.delete_outline,
-                              color: Colors.red.shade300, size: 20),
-                          onPressed: () => _service.deleteTask(doc.id),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: Icon(Icons.edit_outlined,
+                                  color: Colors.blue.shade300, size: 20),
+                              tooltip: 'Edit',
+                              onPressed: () =>
+                                  _showEditDialog(doc.id, title),
+                            ),
+                            IconButton(
+                              icon: Icon(Icons.delete_outline,
+                                  color: Colors.red.shade300, size: 20),
+                              tooltip: 'Delete',
+                              onPressed: () => _service.deleteTask(doc.id),
+                            ),
+                          ],
                         ),
                       ),
                     );
