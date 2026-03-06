@@ -12,6 +12,7 @@ import 'storage_screen.dart';
 import 'responsive_home.dart';
 import 'welcome_screen.dart';
 import 'devtools_demo_screen.dart';
+import 'navigation_demo_screen.dart';
 import 'stateless_stateful_demo.dart';
 import 'widget_tree_screen.dart';
 
@@ -46,6 +47,15 @@ class HomeScreen extends StatelessWidget {
         icon: Icons.developer_mode,
         color: const Color(0xFFF59E0B),
         screen: const DevToolsDemoScreen(),
+        highlight: true,
+      ),
+
+      _DemoCard(
+        title: 'Navigator & Routes 🗺',
+        subtitle: 'Sprint #2 • push · pop · pushNamed · arguments',
+        icon: Icons.alt_route_rounded,
+        color: const Color(0xFF1E3A5F),
+        screen: const NavigationDemoScreen(),
         highlight: true,
       ),
 
