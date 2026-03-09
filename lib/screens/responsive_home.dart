@@ -1,13 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// ResponsiveHomeScreen — Sprint #3 Deliverable
-///
-/// Demonstrates:
-/// • MediaQuery for device dimensions and orientation detection
-/// • LayoutBuilder for constraint-based responsiveness
-/// • Expanded, Flexible, FittedBox, AspectRatio widgets
-/// • Wrap, GridView.builder for adaptive positioning
-/// • Conditional layouts: phone single-column vs tablet two-column
 class ResponsiveHomeScreen extends StatefulWidget {
   const ResponsiveHomeScreen({super.key});
 
@@ -39,7 +31,6 @@ class _ResponsiveHomeScreenState extends State<ResponsiveHomeScreen>
     super.dispose();
   }
 
-  // ── Responsive breakpoints ─────────────────────────────────────────────────
   static const double _tabletBreakpoint = 600.0;
   static const double _desktopBreakpoint = 900.0;
 
@@ -55,7 +46,6 @@ class _ResponsiveHomeScreenState extends State<ResponsiveHomeScreen>
     return Icons.phone_android_outlined;
   }
 
-  // ── Feature data ───────────────────────────────────────────────────────────
   final List<_FeatureItem> _features = const [
     _FeatureItem(
       icon: Icons.search,
@@ -95,7 +85,6 @@ class _ResponsiveHomeScreenState extends State<ResponsiveHomeScreen>
     ),
   ];
 
-  // ── Stats data ─────────────────────────────────────────────────────────────
   final List<_StatItem> _stats = const [
     _StatItem(value: '12', label: 'Classes'),
     _StatItem(value: '5', label: 'Assignments'),
@@ -105,7 +94,6 @@ class _ResponsiveHomeScreenState extends State<ResponsiveHomeScreen>
 
   @override
   Widget build(BuildContext context) {
-    // ── MediaQuery values ──────────────────────────────────────────────────
     final mediaQuery = MediaQuery.of(context);
     final double screenWidth = mediaQuery.size.width;
     final double screenHeight = mediaQuery.size.height;
@@ -114,7 +102,6 @@ class _ResponsiveHomeScreenState extends State<ResponsiveHomeScreen>
     final bool isTablet = screenWidth >= _tabletBreakpoint;
     final bool isDesktop = screenWidth >= _desktopBreakpoint;
 
-    // Adaptive padding & font scale
     final double horizontalPadding = isDesktop
         ? 48
         : isTablet
@@ -127,7 +114,6 @@ class _ResponsiveHomeScreenState extends State<ResponsiveHomeScreen>
             : 20;
     final double bodyFontSize = isTablet ? 15 : 13;
 
-    // Adaptive grid columns for feature cards
     final int gridColumns = isDesktop
         ? 3
         : isTablet
@@ -138,7 +124,6 @@ class _ResponsiveHomeScreenState extends State<ResponsiveHomeScreen>
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
-      // ── AppBar / Custom Header ─────────────────────────────────────────
       appBar: _buildAppBar(
         context,
         screenWidth,
@@ -174,7 +159,6 @@ class _ResponsiveHomeScreenState extends State<ResponsiveHomeScreen>
                 ),
         ),
       ),
-      // ── Footer / Bottom action bar ────────────────────────────────────
       bottomNavigationBar: _buildFooter(
         context,
         isTablet,
@@ -184,7 +168,6 @@ class _ResponsiveHomeScreenState extends State<ResponsiveHomeScreen>
     );
   }
 
-  // ── Custom AppBar ──────────────────────────────────────────────────────────
   PreferredSizeWidget _buildAppBar(
     BuildContext context,
     double screenWidth,
@@ -244,7 +227,6 @@ class _ResponsiveHomeScreenState extends State<ResponsiveHomeScreen>
     );
   }
 
-  // ── Phone / Landscape layout (single-column) ───────────────────────────────
   Widget _buildPhoneLayout(
     BuildContext context,
     double screenWidth,
@@ -257,7 +239,6 @@ class _ResponsiveHomeScreenState extends State<ResponsiveHomeScreen>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Device info banner
         _DeviceInfoBanner(
           width: screenWidth,
           height: screenHeight,
@@ -266,7 +247,6 @@ class _ResponsiveHomeScreenState extends State<ResponsiveHomeScreen>
         ),
         const SizedBox(height: 20),
 
-        // Hero / greeting section
         _HeroSection(
           titleFontSize: titleFontSize,
           bodyFontSize: bodyFontSize,
@@ -274,11 +254,9 @@ class _ResponsiveHomeScreenState extends State<ResponsiveHomeScreen>
         ),
         const SizedBox(height: 20),
 
-        // Stats row
         _StatsRow(stats: _stats, isTablet: false),
         const SizedBox(height: 24),
 
-        // Section title
         Text(
           'Features',
           style: TextStyle(
@@ -289,7 +267,6 @@ class _ResponsiveHomeScreenState extends State<ResponsiveHomeScreen>
         ),
         const SizedBox(height: 12),
 
-        // Feature grid — uses LayoutBuilder for column count
         _FeatureGrid(
           features: _features,
           columns: gridColumns,
@@ -297,18 +274,15 @@ class _ResponsiveHomeScreenState extends State<ResponsiveHomeScreen>
         ),
         const SizedBox(height: 24),
 
-        // Wrap demo — chips
         _WrapChipSection(bodyFontSize: bodyFontSize),
         const SizedBox(height: 24),
 
-        // Aspect-ratio card
         _AspectRatioCard(titleFontSize: titleFontSize),
         const SizedBox(height: 16),
       ],
     );
   }
 
-  // ── Tablet portrait layout (two-column side-by-side) ─────────────────────
   Widget _buildTabletPortraitLayout(
     BuildContext context,
     double screenWidth,
@@ -329,11 +303,9 @@ class _ResponsiveHomeScreenState extends State<ResponsiveHomeScreen>
         ),
         const SizedBox(height: 20),
 
-        // Two-column layout for tablet
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Left column — hero + stats
             Expanded(
               flex: 4,
               child: Column(
@@ -352,7 +324,6 @@ class _ResponsiveHomeScreenState extends State<ResponsiveHomeScreen>
               ),
             ),
             const SizedBox(width: 24),
-            // Right column — features + aspect ratio
             Expanded(
               flex: 6,
               child: Column(
@@ -384,7 +355,6 @@ class _ResponsiveHomeScreenState extends State<ResponsiveHomeScreen>
     );
   }
 
-  // ── Footer / Bottom nav bar ────────────────────────────────────────────────
   Widget _buildFooter(
     BuildContext context,
     bool isTablet,
@@ -416,7 +386,6 @@ class _ResponsiveHomeScreenState extends State<ResponsiveHomeScreen>
       child: SafeArea(
         top: false,
         child: isTablet
-            // Tablet footer: labelled text buttons side by side
             ? Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: actions
@@ -436,7 +405,6 @@ class _ResponsiveHomeScreenState extends State<ResponsiveHomeScreen>
                     )
                     .toList(),
               )
-            // Phone footer: icon-only bottom nav
             : Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: actions
@@ -464,9 +432,7 @@ class _ResponsiveHomeScreenState extends State<ResponsiveHomeScreen>
   }
 }
 
-// ── Sub-widgets ───────────────────────────────────────────────────────────────
 
-/// Banner showing current device info from MediaQuery
 class _DeviceInfoBanner extends StatelessWidget {
   final double width;
   final double height;
@@ -549,7 +515,6 @@ class _DeviceInfoBanner extends StatelessWidget {
   }
 }
 
-/// Hero greeting section, switches between Row (landscape) and Column (portrait)
 class _HeroSection extends StatelessWidget {
   final double titleFontSize;
   final double bodyFontSize;
@@ -605,7 +570,6 @@ class _HeroSection extends StatelessWidget {
       ],
     );
 
-    // AspectRatio image-like card on hero
     final heroVisual = AspectRatio(
       aspectRatio: 16 / 9,
       child: Container(
@@ -649,7 +613,6 @@ class _HeroSection extends StatelessWidget {
   }
 }
 
-/// Stats row — Flexible so it wraps gracefully on small screens
 class _StatsRow extends StatelessWidget {
   final List<_StatItem> stats;
   final bool isTablet;
@@ -723,7 +686,6 @@ class _StatsRow extends StatelessWidget {
   }
 }
 
-/// Feature grid built with GridView.builder + LayoutBuilder
 class _FeatureGrid extends StatelessWidget {
   final List<_FeatureItem> features;
   final int columns;
@@ -818,7 +780,6 @@ class _FeatureCard extends StatelessWidget {
   }
 }
 
-/// Wrap chip demo — shows Wrap widget adapting to available width
 class _WrapChipSection extends StatelessWidget {
   final double bodyFontSize;
   const _WrapChipSection({required this.bodyFontSize});
@@ -882,7 +843,6 @@ class _WrapChipSection extends StatelessWidget {
   }
 }
 
-/// AspectRatio card demo
 class _AspectRatioCard extends StatelessWidget {
   final double titleFontSize;
   const _AspectRatioCard({required this.titleFontSize});
@@ -945,7 +905,6 @@ class _AspectRatioCard extends StatelessWidget {
   }
 }
 
-// ── Action Buttons ─────────────────────────────────────────────────────────
 
 class _PrimaryButton extends StatelessWidget {
   final String label;
@@ -993,7 +952,6 @@ class _OutlineButton extends StatelessWidget {
   }
 }
 
-// ── Data classes ───────────────────────────────────────────────────────────
 
 class _FeatureItem {
   final IconData icon;

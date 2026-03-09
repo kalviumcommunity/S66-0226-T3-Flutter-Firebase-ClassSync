@@ -2,11 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import '../services/firestore_service.dart';
 
-/// FirestoreScreen — demonstrates Cloud Firestore real-time data sync.
-///
-/// Key concept: StreamBuilder listens to a Firestore stream.
-/// When ANY user adds/deletes a task, ALL connected devices see the
-/// update instantly — no polling, no manual refresh.
 class FirestoreScreen extends StatefulWidget {
   const FirestoreScreen({super.key});
 
@@ -18,6 +13,19 @@ class _FirestoreScreenState extends State<FirestoreScreen> {
   final _service = FirestoreService();
   final _taskCtrl = TextEditingController();
   bool _adding = false;
+  late Future<DocumentSnapshot?> _latestTaskFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _latestTaskFuture = _service.getLatestTaskDocument();
+  }
+
+  void _reloadLatestTaskFuture() {
+    setState(() {
+      _latestTaskFuture = _service.getLatestTaskDocument();
+    });
+  }
 
   @override
   void dispose() {
@@ -31,10 +39,12 @@ class _FirestoreScreenState extends State<FirestoreScreen> {
     setState(() => _adding = true);
     await _service.addTask(title);
     _taskCtrl.clear();
-    if (mounted) setState(() => _adding = false);
+    if (mounted) {
+      setState(() => _adding = false);
+      _reloadLatestTaskFuture();
+    }
   }
 
-  // UPDATE: shows an edit dialog to rename a task
   Future<void> _showEditDialog(String id, String currentTitle) async {
     final ctrl = TextEditingController(text: currentTitle);
     final newTitle = await showDialog<String>(
@@ -64,6 +74,7 @@ class _FirestoreScreenState extends State<FirestoreScreen> {
     ctrl.dispose();
     if (newTitle != null && newTitle.isNotEmpty && newTitle != currentTitle) {
       await _service.updateTask(id, newTitle);
+      _reloadLatestTaskFuture();
     }
   }
 
@@ -76,21 +87,27 @@ class _FirestoreScreenState extends State<FirestoreScreen> {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: const [
-            Text('Firestore Real-Time',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
-            Text('Live data sync — no refresh needed',
-                style: TextStyle(fontSize: 12)),
+            Text(
+              'Firestore Real-Time',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+            ),
+            Text(
+              'Live data sync — no refresh needed',
+              style: TextStyle(fontSize: 12),
+            ),
           ],
         ),
         actions: [
-          // LIVE indicator
           Padding(
             padding: const EdgeInsets.only(right: 12),
             child: Row(
               children: [
                 _PulseDot(),
                 const SizedBox(width: 4),
-                const Text('LIVE', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                const Text(
+                  'LIVE',
+                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                ),
               ],
             ),
           ),
@@ -98,7 +115,6 @@ class _FirestoreScreenState extends State<FirestoreScreen> {
       ),
       body: Column(
         children: [
-          // ── Concept banner ───────────────────────────────────────────────
           Container(
             margin: const EdgeInsets.all(16),
             padding: const EdgeInsets.all(14),
@@ -117,16 +133,16 @@ class _FirestoreScreenState extends State<FirestoreScreen> {
                     'instantly. Open this screen on two devices — add a task '
                     'on one and watch it appear on the other without refreshing.',
                     style: TextStyle(
-                        fontSize: 13,
-                        color: Colors.blue.shade900,
-                        height: 1.4),
+                      fontSize: 13,
+                      color: Colors.blue.shade900,
+                      height: 1.4,
+                    ),
                   ),
                 ),
               ],
             ),
           ),
 
-          // ── Add task input ───────────────────────────────────────────────
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
@@ -138,11 +154,14 @@ class _FirestoreScreenState extends State<FirestoreScreen> {
                       hintText: 'Type a task and tap Add…',
                       prefixIcon: const Icon(Icons.task_alt_outlined),
                       border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12)),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                       filled: true,
                       fillColor: Colors.grey.shade50,
                       contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 12),
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
                     ),
                     onSubmitted: (_) => _addTask(),
                   ),
@@ -155,7 +174,8 @@ class _FirestoreScreenState extends State<FirestoreScreen> {
                       backgroundColor: Colors.blue.shade700,
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12)),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                       padding: const EdgeInsets.symmetric(horizontal: 18),
                     ),
                     onPressed: _adding ? null : _addTask,
@@ -164,7 +184,9 @@ class _FirestoreScreenState extends State<FirestoreScreen> {
                             width: 18,
                             height: 18,
                             child: CircularProgressIndicator(
-                                strokeWidth: 2, color: Colors.white),
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
                           )
                         : const Icon(Icons.add),
                   ),
@@ -175,11 +197,11 @@ class _FirestoreScreenState extends State<FirestoreScreen> {
 
           const SizedBox(height: 12),
 
-          // ── Code snippet ─────────────────────────────────────────────────
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: _CodeBlock(
-              code: 'StreamBuilder<QuerySnapshot>(\n'
+              code:
+                  'StreamBuilder<QuerySnapshot>(\n'
                   '  stream: tasks.snapshots(), // real-time!\n'
                   '  builder: (ctx, snapshot) {\n'
                   '    final docs = snapshot.data!.docs;\n'
@@ -188,6 +210,62 @@ class _FirestoreScreenState extends State<FirestoreScreen> {
                   '    );\n'
                   '  },\n'
                   ')',
+            ),
+          ),
+
+          const SizedBox(height: 12),
+
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: StreamBuilder<QuerySnapshot>(
+              stream: _service.getPendingTasks(),
+              builder: (context, snapshot) {
+                final pendingCount = snapshot.data?.docs.length ?? 0;
+                return Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.orange.shade50,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.orange.shade200),
+                  ),
+                  child: Text(
+                    'Pending tasks (filtered read): $pendingCount',
+                    style: TextStyle(
+                      color: Colors.orange.shade900,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+
+          const SizedBox(height: 12),
+
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: FutureBuilder<DocumentSnapshot?>(
+              future: _latestTaskFuture,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const LinearProgressIndicator();
+                }
+                if (snapshot.hasError) {
+                  return const Text('Could not read latest task document.');
+                }
+                final doc = snapshot.data;
+                if (doc == null || !doc.exists) {
+                  return const Text('Latest task (one-time read): no data');
+                }
+                final data = doc.data() as Map<String, dynamic>?;
+                final title = data?['title'] as String? ?? 'Untitled task';
+                final completed = data?['completed'] as bool? ?? false;
+                return Text(
+                  'Latest task (one-time document read): $title | completed: $completed',
+                  style: const TextStyle(fontSize: 12),
+                );
+              },
             ),
           ),
 
@@ -206,7 +284,6 @@ class _FirestoreScreenState extends State<FirestoreScreen> {
 
           const SizedBox(height: 6),
 
-          // ── StreamBuilder reads Firestore live ───────────────────────────
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
               stream: _service.getTasks(),
@@ -226,12 +303,19 @@ class _FirestoreScreenState extends State<FirestoreScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.inbox_outlined,
-                            size: 64, color: Colors.grey.shade300),
+                        Icon(
+                          Icons.inbox_outlined,
+                          size: 64,
+                          color: Colors.grey.shade300,
+                        ),
                         const SizedBox(height: 12),
-                        Text('No tasks yet. Add one above!',
-                            style: TextStyle(
-                                color: Colors.grey.shade500, fontSize: 15)),
+                        Text(
+                          'No tasks yet. Add one above!',
+                          style: TextStyle(
+                            color: Colors.grey.shade500,
+                            fontSize: 15,
+                          ),
+                        ),
                       ],
                     ),
                   );
@@ -248,18 +332,19 @@ class _FirestoreScreenState extends State<FirestoreScreen> {
                     final title = data['title'] as String? ?? '';
                     final completed = data['completed'] as bool? ?? false;
                     final ts = data['createdAt'] as Timestamp?;
-                    final time = ts != null
-                        ? _formatTime(ts.toDate())
-                        : '';
+                    final time = ts != null ? _formatTime(ts.toDate()) : '';
 
                     return Card(
                       elevation: 1,
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12)),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                       child: ListTile(
                         leading: GestureDetector(
-                          onTap: () =>
-                              _service.toggleTask(doc.id, completed),
+                          onTap: () async {
+                            await _service.toggleTask(doc.id, completed);
+                            _reloadLatestTaskFuture();
+                          },
                           child: AnimatedContainer(
                             duration: const Duration(milliseconds: 200),
                             width: 28,
@@ -277,8 +362,11 @@ class _FirestoreScreenState extends State<FirestoreScreen> {
                               ),
                             ),
                             child: completed
-                                ? const Icon(Icons.check,
-                                    size: 16, color: Colors.white)
+                                ? const Icon(
+                                    Icons.check,
+                                    size: 16,
+                                    color: Colors.white,
+                                  )
                                 : null,
                           ),
                         ),
@@ -294,25 +382,36 @@ class _FirestoreScreenState extends State<FirestoreScreen> {
                             fontWeight: FontWeight.w500,
                           ),
                         ),
-                        subtitle: Text(time,
-                            style: TextStyle(
-                                fontSize: 11,
-                                color: Colors.grey.shade400)),
+                        subtitle: Text(
+                          time,
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Colors.grey.shade400,
+                          ),
+                        ),
                         trailing: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             IconButton(
-                              icon: Icon(Icons.edit_outlined,
-                                  color: Colors.blue.shade300, size: 20),
+                              icon: Icon(
+                                Icons.edit_outlined,
+                                color: Colors.blue.shade300,
+                                size: 20,
+                              ),
                               tooltip: 'Edit',
-                              onPressed: () =>
-                                  _showEditDialog(doc.id, title),
+                              onPressed: () => _showEditDialog(doc.id, title),
                             ),
                             IconButton(
-                              icon: Icon(Icons.delete_outline,
-                                  color: Colors.red.shade300, size: 20),
+                              icon: Icon(
+                                Icons.delete_outline,
+                                color: Colors.red.shade300,
+                                size: 20,
+                              ),
                               tooltip: 'Delete',
-                              onPressed: () => _service.deleteTask(doc.id),
+                              onPressed: () async {
+                                await _service.deleteTask(doc.id);
+                                _reloadLatestTaskFuture();
+                              },
                             ),
                           ],
                         ),
@@ -335,7 +434,6 @@ class _FirestoreScreenState extends State<FirestoreScreen> {
   }
 }
 
-// ── Supporting widgets ───────────────────────────────────────────────────────
 
 class _PulseDot extends StatefulWidget {
   @override
@@ -351,8 +449,9 @@ class _PulseDotState extends State<_PulseDot>
   void initState() {
     super.initState();
     _ctrl = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 800))
-      ..repeat(reverse: true);
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    )..repeat(reverse: true);
     _anim = Tween(begin: 0.5, end: 1.0).animate(_ctrl);
   }
 
@@ -418,9 +517,10 @@ class _ErrorWidget extends StatelessWidget {
           children: [
             const Icon(Icons.cloud_off_outlined, size: 56, color: Colors.grey),
             const SizedBox(height: 12),
-            const Text('Firebase not configured yet',
-                style:
-                    TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            const Text(
+              'Firebase not configured yet',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
             const SizedBox(height: 8),
             Text(
               'Run "flutterfire configure" to connect to a real Firebase project.\n\n$message',

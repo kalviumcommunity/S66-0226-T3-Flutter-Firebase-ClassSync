@@ -1,17 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// WidgetTreeScreen — demonstrates the Flutter widget tree and reactive UI.
-///
-/// Concepts demonstrated:
-///  - Widget tree: every UI element is a node in a parent→child hierarchy
-///  - StatefulWidget + setState(): state change triggers selective rebuilds
-///  - Reactive model: Flutter diffs the widget tree and repaints only what changed
-///
-/// Interactive demos:
-///  1. Profile card — shows parent/child widget nesting visually with highlights
-///  2. Color tapper — background color cycles on tap (setState visual proof)
-///  3. Counter — classic increment/decrement showing number state rebuild
-///  4. Visibility toggle — widget appears/disappears without full screen repaint
 class WidgetTreeScreen extends StatefulWidget {
   const WidgetTreeScreen({super.key});
 
@@ -20,7 +8,6 @@ class WidgetTreeScreen extends StatefulWidget {
 }
 
 class _WidgetTreeScreenState extends State<WidgetTreeScreen> {
-  // ── State variables ───────────────────────────────────────────────────────
   int _counter = 0;
   int _colorIndex = 0;
   bool _cardVisible = true;
@@ -54,10 +41,6 @@ class _WidgetTreeScreenState extends State<WidgetTreeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // ── Widget tree root ──────────────────────────────────────────────────
-    // MaterialApp → Scaffold → AppBar / body
-    //                body → AnimatedContainer → SingleChildScrollView
-    //                         → Column → [sections…]
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
       appBar: AppBar(
@@ -87,9 +70,6 @@ class _WidgetTreeScreenState extends State<WidgetTreeScreen> {
         ],
       ),
 
-      // ── Reactive body ─────────────────────────────────────────────────────
-      // AnimatedContainer re-renders smoothly when _colorIndex changes.
-      // Only THIS container and its children rebuild — not the AppBar.
       body: AnimatedContainer(
         duration: const Duration(milliseconds: 400),
         color: _bgColors[_colorIndex],
@@ -98,18 +78,15 @@ class _WidgetTreeScreenState extends State<WidgetTreeScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // 1 ── Concept explanation ──────────────────────────────────
               _ConceptBanner(),
 
               const SizedBox(height: 16),
 
-              // 2 ── Widget tree diagram (toggleable) ────────────────────
               if (_showTreeOverlay) ...[
                 _TreeDiagramCard(),
                 const SizedBox(height: 16),
               ],
 
-              // 3 ── Profile card demo ───────────────────────────────────
               _SectionHeader(
                 label: 'Demo 1 — Widget Nesting',
                 sublabel: 'Scaffold → Column → Card → Row → Text',
@@ -121,7 +98,6 @@ class _WidgetTreeScreenState extends State<WidgetTreeScreen> {
 
               const SizedBox(height: 20),
 
-              // 4 ── Color tapper ────────────────────────────────────────
               _SectionHeader(
                 label: 'Demo 2 — setState() Color Change',
                 sublabel:
@@ -138,7 +114,6 @@ class _WidgetTreeScreenState extends State<WidgetTreeScreen> {
 
               const SizedBox(height: 20),
 
-              // 5 ── Counter demo ────────────────────────────────────────
               _SectionHeader(
                 label: 'Demo 3 — Reactive Counter',
                 sublabel: 'count changes → only Text widget rebuilds',
@@ -155,7 +130,6 @@ class _WidgetTreeScreenState extends State<WidgetTreeScreen> {
 
               const SizedBox(height: 20),
 
-              // 6 ── Visibility toggle ───────────────────────────────────
               _SectionHeader(
                 label: 'Demo 4 — Toggle Widget Visibility',
                 sublabel: 'setState() adds/removes a widget from the tree',
@@ -170,7 +144,6 @@ class _WidgetTreeScreenState extends State<WidgetTreeScreen> {
 
               const SizedBox(height: 20),
 
-              // 7 ── Reactive model explainer ────────────────────────────
               _ReactiveModelCard(),
 
               const SizedBox(height: 24),
@@ -182,9 +155,6 @@ class _WidgetTreeScreenState extends State<WidgetTreeScreen> {
   }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// Supporting widgets — each is its own node in the widget tree
-// ═══════════════════════════════════════════════════════════════════════════
 
 class _ConceptBanner extends StatelessWidget {
   @override
@@ -266,7 +236,6 @@ class _SectionHeader extends StatelessWidget {
   }
 }
 
-// ── Widget tree diagram ──────────────────────────────────────────────────
 class _TreeDiagramCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -372,12 +341,9 @@ class _TreeNode extends StatelessWidget {
   }
 }
 
-// ── Demo 1: Profile card showing widget nesting ──────────────────────────
 class _ProfileCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    // Card → Padding → Column → Row + Text + ElevatedButton
-    // Each widget is a child node of the one above it.
     return Card(
       elevation: 3,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -385,7 +351,6 @@ class _ProfileCard extends StatelessWidget {
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-            // Row → CircleAvatar + Column(name, role)
             Row(
               children: [
                 CircleAvatar(
@@ -420,7 +385,6 @@ class _ProfileCard extends StatelessWidget {
             const SizedBox(height: 14),
             const Divider(),
             const SizedBox(height: 10),
-            // Row of stat chips
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
@@ -430,7 +394,6 @@ class _ProfileCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 14),
-            // Widget tree path label
             Container(
               padding:
                   const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -478,7 +441,6 @@ class _StatChip extends StatelessWidget {
   }
 }
 
-// ── Demo 2: Color tap card ────────────────────────────────────────────────
 class _ColorTapCard extends StatelessWidget {
   const _ColorTapCard({
     required this.colorName,
@@ -561,7 +523,6 @@ class _ColorTapCard extends StatelessWidget {
   }
 }
 
-// ── Demo 3: Counter card ──────────────────────────────────────────────────
 class _CounterCard extends StatelessWidget {
   const _CounterCard({
     required this.count,
@@ -592,7 +553,6 @@ class _CounterCard extends StatelessWidget {
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-            // Count display — only THIS Text rebuilds when count changes
             AnimatedSwitcher(
               duration: const Duration(milliseconds: 200),
               transitionBuilder: (child, anim) =>
@@ -683,7 +643,6 @@ class _CircleButton extends StatelessWidget {
   }
 }
 
-// ── Demo 4: Visibility toggle ─────────────────────────────────────────────
 class _VisibilityCard extends StatelessWidget {
   const _VisibilityCard({required this.visible, required this.onToggle});
 
@@ -785,7 +744,6 @@ class _VisibilityCard extends StatelessWidget {
   }
 }
 
-// ── Reactive model explainer card ─────────────────────────────────────────
 class _ReactiveModelCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {

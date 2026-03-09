@@ -1,30 +1,18 @@
 import 'package:flutter/material.dart';
 
-/// ResponsiveLayoutScreen — Sprint #3 Deliverable
-///
-/// Demonstrates:
-/// • Container  — flexible box with padding, margin, color, and sizing
-/// • Row        — horizontal child arrangement with mainAxisAlignment
-/// • Column     — vertical child arrangement with crossAxisAlignment
-/// • MediaQuery — reading screen width/height and orientation at runtime
-/// • Expanded   — proportional space distribution inside Row / Column
-/// • Conditional layout — phone single-column vs tablet two-column
 class ResponsiveLayoutScreen extends StatelessWidget {
   const ResponsiveLayoutScreen({super.key});
 
-  // ── Breakpoints ────────────────────────────────────────────────────────────
   static const double _tabletBreakpoint = 600.0;
 
   @override
   Widget build(BuildContext context) {
-    // ── MediaQuery ─────────────────────────────────────────────────────────
     final double screenWidth = MediaQuery.of(context).size.width;
     final double screenHeight = MediaQuery.of(context).size.height;
     final bool isLandscape =
         MediaQuery.of(context).orientation == Orientation.landscape;
     final bool isTablet = screenWidth >= _tabletBreakpoint;
 
-    // Responsive padding: wider on tablet/landscape
     final double hPadding = isTablet ? 32 : 16;
 
     return Scaffold(
@@ -52,7 +40,6 @@ class ResponsiveLayoutScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ── Device info banner ──────────────────────────────────────────
             _DeviceBanner(
               screenWidth: screenWidth,
               screenHeight: screenHeight,
@@ -61,25 +48,21 @@ class ResponsiveLayoutScreen extends StatelessWidget {
             ),
             const SizedBox(height: 20),
 
-            // ── Section 1: Container demo ────────────────────────────────────
             _SectionTitle(title: '1. Container'),
             const SizedBox(height: 10),
             _ContainerDemo(screenWidth: screenWidth, isTablet: isTablet),
             const SizedBox(height: 24),
 
-            // ── Section 2: Row demo ──────────────────────────────────────────
             _SectionTitle(title: '2. Row — mainAxisAlignment'),
             const SizedBox(height: 10),
             const _RowDemo(),
             const SizedBox(height: 24),
 
-            // ── Section 3: Column demo ───────────────────────────────────────
             _SectionTitle(title: '3. Column — crossAxisAlignment'),
             const SizedBox(height: 10),
             const _ColumnDemo(),
             const SizedBox(height: 24),
 
-            // ── Section 4: Combined responsive layout ────────────────────────
             _SectionTitle(
               title: isTablet
                   ? '4. Tablet — two-column layout'
@@ -91,7 +74,6 @@ class ResponsiveLayoutScreen extends StatelessWidget {
             _CombinedLayout(isTablet: isTablet, isLandscape: isLandscape),
             const SizedBox(height: 24),
 
-            // ── Section 5: Expanded proportional columns ─────────────────────
             _SectionTitle(title: '5. Expanded — proportional columns'),
             const SizedBox(height: 10),
             const _ExpandedDemo(),
@@ -103,7 +85,6 @@ class ResponsiveLayoutScreen extends StatelessWidget {
   }
 }
 
-// ── Device info banner ─────────────────────────────────────────────────────────
 class _DeviceBanner extends StatelessWidget {
   final double screenWidth;
   final double screenHeight;
@@ -174,7 +155,6 @@ class _DeviceBanner extends StatelessWidget {
   }
 }
 
-// ── Section title ──────────────────────────────────────────────────────────────
 class _SectionTitle extends StatelessWidget {
   final String title;
   const _SectionTitle({required this.title});
@@ -192,9 +172,6 @@ class _SectionTitle extends StatelessWidget {
   }
 }
 
-// ── 1. Container demo ──────────────────────────────────────────────────────────
-/// Shows container sizing, padding, margin, color, and border-radius.
-/// Width adapts to screen with MediaQuery.
 class _ContainerDemo extends StatelessWidget {
   final double screenWidth;
   final bool isTablet;
@@ -203,14 +180,12 @@ class _ContainerDemo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Responsive width: full-width on phone, capped on tablet
     final double containerWidth =
         screenWidth > 600 ? 500 : double.infinity;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Basic container — full/capped width
         Container(
           width: containerWidth,
           padding: const EdgeInsets.all(16),
@@ -225,7 +200,6 @@ class _ContainerDemo extends StatelessWidget {
         ),
         const SizedBox(height: 10),
 
-        // Container with margin and padding callout
         Row(
           children: [
             Expanded(
@@ -282,8 +256,6 @@ class _ContainerDemo extends StatelessWidget {
   }
 }
 
-// ── 2. Row demo ────────────────────────────────────────────────────────────────
-/// Demonstrates mainAxisAlignment and crossAxisAlignment in Row.
 class _RowDemo extends StatelessWidget {
   const _RowDemo();
 
@@ -292,7 +264,6 @@ class _RowDemo extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // spaceEvenly
         _labelledRow(
           label: 'spaceEvenly',
           alignment: MainAxisAlignment.spaceEvenly,
@@ -304,7 +275,6 @@ class _RowDemo extends StatelessWidget {
         ),
         const SizedBox(height: 8),
 
-        // spaceBetween
         _labelledRow(
           label: 'spaceBetween',
           alignment: MainAxisAlignment.spaceBetween,
@@ -316,7 +286,6 @@ class _RowDemo extends StatelessWidget {
         ),
         const SizedBox(height: 8),
 
-        // center
         _labelledRow(
           label: 'center',
           alignment: MainAxisAlignment.center,
@@ -374,8 +343,6 @@ class _RowDemo extends StatelessWidget {
   }
 }
 
-// ── 3. Column demo ─────────────────────────────────────────────────────────────
-/// Demonstrates column arrangement and crossAxisAlignment.
 class _ColumnDemo extends StatelessWidget {
   const _ColumnDemo();
 
@@ -384,7 +351,6 @@ class _ColumnDemo extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // start-aligned column
         Expanded(
           child: Container(
             padding: const EdgeInsets.all(10),
@@ -416,7 +382,6 @@ class _ColumnDemo extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 10),
-        // end-aligned column
         Expanded(
           child: Container(
             padding: const EdgeInsets.all(10),
@@ -448,7 +413,6 @@ class _ColumnDemo extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 10),
-        // center-aligned column
         Expanded(
           child: Container(
             padding: const EdgeInsets.all(10),
@@ -502,9 +466,6 @@ class _ColumnDemo extends StatelessWidget {
   }
 }
 
-// ── 4. Combined responsive layout ─────────────────────────────────────────────
-/// Phone portrait: stacked Column layout.
-/// Phone landscape / tablet: two-column Row layout.
 class _CombinedLayout extends StatelessWidget {
   final bool isTablet;
   final bool isLandscape;
@@ -529,7 +490,6 @@ class _CombinedLayout extends StatelessWidget {
       icon: Icons.assignment_outlined,
     );
 
-    // Tablet or landscape → side-by-side Row layout
     if (isTablet || isLandscape) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -548,7 +508,6 @@ class _CombinedLayout extends StatelessWidget {
       );
     }
 
-    // Phone portrait → stacked Column layout
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -641,8 +600,6 @@ class _SidePanel extends StatelessWidget {
   }
 }
 
-// ── 5. Expanded proportional columns ──────────────────────────────────────────
-/// Shows how Expanded distributes available horizontal space in a Row.
 class _ExpandedDemo extends StatelessWidget {
   const _ExpandedDemo();
 
@@ -651,21 +608,18 @@ class _ExpandedDemo extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // flex 1 : 2 : 1
         _FlexRow(
           flexValues: const [1, 2, 1],
           colors: const [Color(0xFF4F46E5), Color(0xFF0EA5E9), Color(0xFF10B981)],
           labels: const ['1x', '2x', '1x'],
         ),
         const SizedBox(height: 8),
-        // flex 1 : 1 : 1
         _FlexRow(
           flexValues: const [1, 1, 1],
           colors: const [Color(0xFFF59E0B), Color(0xFFEF4444), Color(0xFF8B5CF6)],
           labels: const ['1x', '1x', '1x'],
         ),
         const SizedBox(height: 8),
-        // flex 3 : 1
         _FlexRow(
           flexValues: const [3, 1],
           colors: const [Color(0xFF0EA5E9), Color(0xFF4F46E5)],

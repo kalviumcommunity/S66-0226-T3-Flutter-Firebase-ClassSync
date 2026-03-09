@@ -2,13 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../services/storage_service.dart';
 
-/// StorageScreen — demonstrates Firebase Cloud Storage.
-///
-/// Features:
-///  - Pick an image from gallery using image_picker
-///  - Upload to Firebase Storage with real progress bar
-///  - Display the returned public download URL
-///  - Preview the uploaded image from its URL
 class StorageScreen extends StatefulWidget {
   const StorageScreen({super.key});
 
@@ -95,7 +88,6 @@ class _StorageScreenState extends State<StorageScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // ── Concept banner ─────────────────────────────────────────────
             Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
@@ -125,7 +117,6 @@ class _StorageScreenState extends State<StorageScreen> {
 
             const SizedBox(height: 20),
 
-            // ── Step 1: Pick image ─────────────────────────────────────────
             _StepCard(
               step: '1',
               title: 'Pick an Image',
@@ -156,7 +147,6 @@ class _StorageScreenState extends State<StorageScreen> {
 
             const SizedBox(height: 12),
 
-            // ── Step 2: Upload ─────────────────────────────────────────────
             _StepCard(
               step: '2',
               title: 'Upload to Firebase Storage',
@@ -190,7 +180,6 @@ class _StorageScreenState extends State<StorageScreen> {
                     ),
                   ),
 
-                  // Progress bar
                   if (_uploadProgress != null) ...[
                     const SizedBox(height: 12),
                     ClipRRect(
@@ -216,7 +205,6 @@ class _StorageScreenState extends State<StorageScreen> {
 
             const SizedBox(height: 12),
 
-            // ── Step 3: Download URL ───────────────────────────────────────
             _StepCard(
               step: '3',
               title: 'Download URL (stored in Firestore)',
@@ -272,7 +260,6 @@ class _StorageScreenState extends State<StorageScreen> {
                     ),
             ),
 
-            // ── Error display ──────────────────────────────────────────────
             if (_error != null) ...[
               const SizedBox(height: 12),
               Container(
@@ -307,7 +294,6 @@ class _StorageScreenState extends State<StorageScreen> {
 
             const SizedBox(height: 20),
 
-            // ── Code snippet ───────────────────────────────────────────────
             Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(

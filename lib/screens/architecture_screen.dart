@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// ArchitectureScreen — StatelessWidget explaining Flutter's 3 core layers.
 class ArchitectureScreen extends StatelessWidget {
   const ArchitectureScreen({super.key});
 
@@ -25,7 +24,6 @@ class ArchitectureScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ── Key Idea ───────────────────────────────────────────────
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -63,7 +61,6 @@ class ArchitectureScreen extends StatelessWidget {
             ),
             const SizedBox(height: 12),
 
-            // ── Layer cards ────────────────────────────────────────────
             _LayerCard(
               number: '1',
               name: 'Framework Layer',
@@ -112,7 +109,6 @@ class ArchitectureScreen extends StatelessWidget {
 
             const SizedBox(height: 24),
 
-            // ── Widget Tree section ────────────────────────────────────
             const Text(
               'Widget Tree',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),

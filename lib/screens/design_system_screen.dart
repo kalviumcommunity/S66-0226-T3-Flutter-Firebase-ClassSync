@@ -1,14 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// DesignSystemScreen — Sprint #4 Deliverable
-///
-/// Demonstrates the Figma → Flutter translation workflow:
-/// • Design Thinking (5 stages) visualised
-/// • Figma design token mapping (color, type, spacing)
-/// • Every common Figma component translated to its Flutter widget
-/// • Responsive / adaptive layout via MediaQuery, LayoutBuilder,
-///   OrientationBuilder, Flexible, and Expanded
-/// • Platform-adaptive styling (Material 3 / Cupertino cues)
 class DesignSystemScreen extends StatefulWidget {
   const DesignSystemScreen({super.key});
 
@@ -96,7 +87,6 @@ class _DesignSystemScreenState extends State<DesignSystemScreen>
   }
 }
 
-// ── Design constants (mirrors Figma tokens) ────────────────────────────────────
 abstract final class DSColors {
   static const Color primary = Color(0xFF4F46E5);
   static const Color primaryLight = Color(0xFF818CF8);
@@ -127,7 +117,6 @@ abstract final class DSRadius {
   static const double full = 999;
 }
 
-// ── Helper: section heading ────────────────────────────────────────────────────
 class _SectionHeading extends StatelessWidget {
   final String text;
   const _SectionHeading(this.text);
@@ -148,7 +137,6 @@ class _SectionHeading extends StatelessWidget {
   }
 }
 
-// ── Helper: card container ─────────────────────────────────────────────────────
 class _Card extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry? padding;
@@ -176,9 +164,6 @@ class _Card extends StatelessWidget {
   }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// TAB 1 — Design Thinking
-// ═══════════════════════════════════════════════════════════════════════════════
 class _DesignThinkingTab extends StatelessWidget {
   const _DesignThinkingTab();
 
@@ -238,7 +223,6 @@ class _DesignThinkingTab extends StatelessWidget {
     return ListView(
       padding: EdgeInsets.symmetric(horizontal: hPad, vertical: DSSpacing.lg),
       children: [
-        // Intro banner
         _Card(
           child: Row(
             children: [
@@ -299,7 +283,6 @@ class _StageCard extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Step circle
             Container(
               width: 44,
               height: 44,
@@ -373,9 +356,6 @@ class _StageCard extends StatelessWidget {
   }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// TAB 2 — Design Tokens
-// ═══════════════════════════════════════════════════════════════════════════════
 class _DesignTokensTab extends StatelessWidget {
   const _DesignTokensTab();
 
@@ -659,9 +639,6 @@ class _RadiusSample extends StatelessWidget {
   }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// TAB 3 — Widget Catalog (Figma → Flutter mapping)
-// ═══════════════════════════════════════════════════════════════════════════════
 class _WidgetCatalogTab extends StatefulWidget {
   const _WidgetCatalogTab();
 
@@ -689,7 +666,6 @@ class _WidgetCatalogTabState extends State<_WidgetCatalogTab> {
     return ListView(
       padding: EdgeInsets.symmetric(horizontal: hPad, vertical: DSSpacing.lg),
       children: [
-        // Mapping table header
         _Card(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -717,7 +693,6 @@ class _WidgetCatalogTabState extends State<_WidgetCatalogTab> {
         ),
         const SizedBox(height: DSSpacing.lg),
 
-        // ── Buttons ──────────────────────────────────────────────────────────
         const _SectionHeading('Buttons'),
         _Card(
           child: Wrap(
@@ -772,7 +747,6 @@ class _WidgetCatalogTabState extends State<_WidgetCatalogTab> {
         ),
         const SizedBox(height: DSSpacing.lg),
 
-        // ── Text Field ────────────────────────────────────────────────────────
         const _SectionHeading('TextField (Input Field)'),
         _Card(
           child: Column(
@@ -819,7 +793,6 @@ class _WidgetCatalogTabState extends State<_WidgetCatalogTab> {
         ),
         const SizedBox(height: DSSpacing.lg),
 
-        // ── Cards ─────────────────────────────────────────────────────────────
         const _SectionHeading('Cards'),
         _Card(
           padding: EdgeInsets.zero,
@@ -850,7 +823,6 @@ class _WidgetCatalogTabState extends State<_WidgetCatalogTab> {
         ),
         const SizedBox(height: DSSpacing.lg),
 
-        // ── Chips ─────────────────────────────────────────────────────────────
         const _SectionHeading('Filter Chips'),
         _Card(
           child: Wrap(
@@ -881,7 +853,6 @@ class _WidgetCatalogTabState extends State<_WidgetCatalogTab> {
         ),
         const SizedBox(height: DSSpacing.lg),
 
-        // ── Switch & Slider ───────────────────────────────────────────────────
         const _SectionHeading('Toggle & Slider'),
         _Card(
           child: Column(
@@ -946,7 +917,6 @@ class _MappingRow extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 5),
       child: Row(
         children: [
-          // Figma side
           Expanded(
             child: Row(
               children: [
@@ -966,7 +936,6 @@ class _MappingRow extends StatelessWidget {
             ),
           ),
           const Icon(Icons.arrow_forward, size: 14, color: DSColors.onSurfaceMuted),
-          // Flutter side
           Expanded(
             child: Padding(
               padding: const EdgeInsets.only(left: 8),
@@ -1047,9 +1016,6 @@ class _TaskRow extends StatelessWidget {
   }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// TAB 4 — Adaptive Layout
-// ═══════════════════════════════════════════════════════════════════════════════
 class _AdaptiveLayoutTab extends StatelessWidget {
   const _AdaptiveLayoutTab();
 
@@ -1064,7 +1030,6 @@ class _AdaptiveLayoutTab extends StatelessWidget {
     return ListView(
       padding: EdgeInsets.symmetric(horizontal: hPad, vertical: DSSpacing.lg),
       children: [
-        // Live device info
         _Card(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -1113,7 +1078,6 @@ class _AdaptiveLayoutTab extends StatelessWidget {
         ),
         const SizedBox(height: DSSpacing.lg),
 
-        // ── OrientationBuilder demo ──────────────────────────────────────────
         const _SectionHeading('OrientationBuilder'),
         _Card(
           child: OrientationBuilder(
@@ -1183,7 +1147,6 @@ class _AdaptiveLayoutTab extends StatelessWidget {
         ),
         const SizedBox(height: DSSpacing.lg),
 
-        // ── LayoutBuilder demo ───────────────────────────────────────────────
         const _SectionHeading('LayoutBuilder'),
         _Card(
           child: LayoutBuilder(
@@ -1235,7 +1198,6 @@ class _AdaptiveLayoutTab extends StatelessWidget {
         ),
         const SizedBox(height: DSSpacing.lg),
 
-        // ── Flexible vs Expanded ─────────────────────────────────────────────
         const _SectionHeading('Flexible vs Expanded'),
         _Card(
           child: Column(
@@ -1311,7 +1273,6 @@ class _AdaptiveLayoutTab extends StatelessWidget {
         ),
         const SizedBox(height: DSSpacing.lg),
 
-        // ── Responsive dashboard preview ─────────────────────────────────────
         const _SectionHeading('Responsive Dashboard Preview'),
         _DashboardPreview(isTablet: isTablet),
         const SizedBox(height: DSSpacing.md),
@@ -1381,8 +1342,6 @@ class _MiniPanel extends StatelessWidget {
   }
 }
 
-/// A miniature app dashboard that switches between phone (Column) and
-/// tablet (Row with sidebar) layouts based on [isTablet].
 class _DashboardPreview extends StatelessWidget {
   final bool isTablet;
   const _DashboardPreview({required this.isTablet});
@@ -1567,9 +1526,6 @@ class _PreviewTaskList extends StatelessWidget {
   }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// Data classes
-// ═══════════════════════════════════════════════════════════════════════════════
 class _TabItem {
   final IconData icon;
   final String label;

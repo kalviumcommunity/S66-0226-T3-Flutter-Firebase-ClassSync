@@ -1,14 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// DevToolsDemoScreen — live demonstration of Hot Reload, Debug Console,
-/// and Flutter DevTools profiling tools.
-///
-/// What this screen shows:
-///  - [_HotReloadCard]    : editable widget property (text/color) to demo hot reload
-///  - [_DebugConsoleCard] : buttons that emit debugPrint() logs visible in Debug Console
-///  - [_DevToolsCard]     : explains DevTools panels with a launch guide
-///  - [_PerformanceCard]  : a list + animation that generates widget rebuilds to
-///                          profile in DevTools > Performance
 class DevToolsDemoScreen extends StatelessWidget {
   const DevToolsDemoScreen({super.key});
 
@@ -79,31 +70,14 @@ class DevToolsDemoScreen extends StatelessWidget {
   }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// 1. HOT RELOAD DEMO CARD
-// ═══════════════════════════════════════════════════════════════════════════
 
-/// ── HOT RELOAD INSTRUCTIONS ─────────────────────────────────────────────
-///
-/// To demonstrate Hot Reload:
-///   1. Run `flutter run` in the terminal (or use VS Code Run & Debug).
-///   2. Find the line marked  ← CHANGE ME  in the code below.
-///   3. Edit the text or color value.
-///   4. Save the file (⌘ S).
-///   5. Press  r  in the terminal (or click the ⚡ icon in VS Code).
-///   Watch the widget update instantly — app state (counter, scroll) is preserved.
-///
-/// Before:  Text('Hello, Flutter!')   color: Color(0xFF4F46E5)
-/// After:   Text('Welcome to Hot Reload!')   color: Color(0xFF059669)
 class _HotReloadCard extends StatelessWidget {
   const _HotReloadCard();
 
   @override
   Widget build(BuildContext context) {
-    // ── CHANGE ME for Hot Reload demo ─────────────────────────────────────
     const String demoText = 'Hello, Flutter!'; // ← try: 'Welcome to Hot Reload!'
     const Color demoColor = Color(0xFF4F46E5); // ← try: Color(0xFF059669)
-    // ──────────────────────────────────────────────────────────────────────
 
     return _Card(
       child: Column(
@@ -192,9 +166,6 @@ class _HotReloadCard extends StatelessWidget {
   }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// 2. DEBUG CONSOLE CARD
-// ═══════════════════════════════════════════════════════════════════════════
 
 class _DebugConsoleCard extends StatefulWidget {
   const _DebugConsoleCard();
@@ -252,7 +223,6 @@ class _DebugConsoleCardState extends State<_DebugConsoleCard> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ── code snippet ───────────────────────────────────────────────
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
@@ -309,7 +279,6 @@ class _DebugConsoleCardState extends State<_DebugConsoleCard> {
           ),
           const SizedBox(height: 14),
 
-          // ── action buttons ────────────────────────────────────────────
           Wrap(
             spacing: 8,
             runSpacing: 8,
@@ -342,7 +311,6 @@ class _DebugConsoleCardState extends State<_DebugConsoleCard> {
           ),
           const SizedBox(height: 14),
 
-          // ── simulated console output ──────────────────────────────────
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -431,9 +399,6 @@ class _LogEntry {
   const _LogEntry(this.message, this.level);
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// 3. DEVTOOLS PANEL CARD
-// ═══════════════════════════════════════════════════════════════════════════
 
 class _DevToolsCard extends StatelessWidget {
   const _DevToolsCard();
@@ -483,7 +448,6 @@ class _DevToolsCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ── launch command ────────────────────────────────────────────
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
@@ -520,7 +484,6 @@ class _DevToolsCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          // ── panel grid ────────────────────────────────────────────────
           ..._panels.map((p) => Padding(
                 padding: const EdgeInsets.only(bottom: 12),
                 child: Row(
@@ -579,9 +542,6 @@ class _Panel {
       required this.description});
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// 4. PERFORMANCE WIDGET (generates measurable rebuilds)
-// ═══════════════════════════════════════════════════════════════════════════
 
 class _PerformanceCard extends StatefulWidget {
   const _PerformanceCard();
@@ -644,7 +604,6 @@ class _PerformanceCardState extends State<_PerformanceCard>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ── rebuild counter ────────────────────────────────────────────
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -686,7 +645,6 @@ class _PerformanceCardState extends State<_PerformanceCard>
           ),
           const SizedBox(height: 14),
 
-          // ── animated indicator ─────────────────────────────────────────
           AnimatedBuilder(
             animation: _animation,
             builder: (context, _) => Container(
@@ -711,7 +669,6 @@ class _PerformanceCardState extends State<_PerformanceCard>
           ),
           const SizedBox(height: 16),
 
-          // ── DevTools panels list ────────────────────────────────────────
           const Text(
             'DevTools panels to open while animating:',
             style: TextStyle(
@@ -751,9 +708,6 @@ class _PerformanceCardState extends State<_PerformanceCard>
   }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// SHARED WIDGETS (all StatelessWidgets)
-// ═══════════════════════════════════════════════════════════════════════════
 
 class _SectionHeader extends StatelessWidget {
   final IconData icon;

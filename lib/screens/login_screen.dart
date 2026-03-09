@@ -2,14 +2,6 @@ import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 import 'signup_screen.dart';
 
-/// LoginScreen — dedicated user authentication screen.
-///
-/// Demonstrates:
-///  - Form validation (email format, non-empty password)
-///  - Firebase Auth: signInWithEmailAndPassword via AuthService
-///  - Navigation to SignupScreen for new users
-///  - On success, main.dart's StreamBuilder detects auth change
-///    and automatically navigates to HomeScreen.
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -33,7 +25,6 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  // ── Login ────────────────────────────────────────────────────────────────
   Future<void> _login() async {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _loading = true);
@@ -51,7 +42,6 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       );
     }
-    // On success: main.dart StreamBuilder detects User → shows HomeScreen
   }
 
   @override
@@ -67,7 +57,6 @@ class _LoginScreenState extends State<LoginScreen> {
             constraints: const BoxConstraints(maxWidth: 420),
             child: Column(
               children: [
-                // ── Header ───────────────────────────────────────────────
                 Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
@@ -103,7 +92,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 32),
 
-                // ── Form card ────────────────────────────────────────────
                 Card(
                   elevation: 4,
                   shape: RoundedRectangleBorder(
@@ -115,7 +103,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       key: _formKey,
                       child: Column(
                         children: [
-                          // Email
                           TextFormField(
                             controller: _emailCtrl,
                             keyboardType: TextInputType.emailAddress,
@@ -137,7 +124,6 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           const SizedBox(height: 16),
 
-                          // Password
                           TextFormField(
                             controller: _passCtrl,
                             obscureText: _obscurePass,
@@ -166,7 +152,6 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           const SizedBox(height: 28),
 
-                          // Submit button
                           SizedBox(
                             width: double.infinity,
                             height: 52,
@@ -199,7 +184,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 24),
 
-                // ── Sign up link ─────────────────────────────────────────
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [

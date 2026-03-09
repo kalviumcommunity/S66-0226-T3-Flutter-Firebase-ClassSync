@@ -1,12 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// CounterScreen — demonstrates a StatefulWidget.
-///
-/// How it works:
-///  1. _CounterScreenState holds mutable state: [count].
-///  2. increment() and decrement() call setState(), notifying
-///     Flutter that the widget tree must be re-evaluated.
-///  3. Flutter re-runs build() and repaints only the affected parts.
 class CounterScreen extends StatefulWidget {
   const CounterScreen({super.key});
 
@@ -15,7 +8,6 @@ class CounterScreen extends StatefulWidget {
 }
 
 class _CounterScreenState extends State<CounterScreen> {
-  // Mutable state — any change here must go through setState().
   int count = 0;
 
   void increment() {
@@ -63,7 +55,6 @@ class _CounterScreenState extends State<CounterScreen> {
         padding: const EdgeInsets.all(24),
         child: Column(
           children: [
-            // ── Explanation banner ──────────────────────────────────────
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -81,7 +72,6 @@ class _CounterScreenState extends State<CounterScreen> {
 
             const SizedBox(height: 48),
 
-            // ── Counter display ─────────────────────────────────────────
             Text(
               'Count',
               style: TextStyle(fontSize: 18, color: Colors.grey.shade600),
@@ -104,7 +94,6 @@ class _CounterScreenState extends State<CounterScreen> {
 
             const SizedBox(height: 48),
 
-            // ── Buttons ─────────────────────────────────────────────────
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -126,7 +115,6 @@ class _CounterScreenState extends State<CounterScreen> {
 
             const SizedBox(height: 48),
 
-            // ── Code snippet ────────────────────────────────────────────
             _CodeSnippet(
               code: 'void increment() {\n'
                   '  setState(() {\n'
