@@ -95,7 +95,6 @@ class HomeScreen extends StatelessWidget {
         highlight: true,
       ),
 
-      // ── Firebase Auth Demos ──────────────────────────────────────────────
       _DemoCard(
         title: '🔐 Login Screen',
         subtitle: 'Firebase Auth · Sign in with email & password',
@@ -120,7 +119,6 @@ class HomeScreen extends StatelessWidget {
         screen: const AuthScreen(),
       ),
 
-      // ── Firestore & Storage ──────────────────────────────────────────────
       _DemoCard(
         title: 'Firestore CRUD',
         subtitle: 'Create · Read · Update · Delete — real-time sync',
@@ -136,7 +134,6 @@ class HomeScreen extends StatelessWidget {
         screen: const StorageScreen(),
       ),
 
-      // ── Flutter Fundamentals ─────────────────────────────────────────────
       _DemoCard(
         title: 'Flutter Architecture',
         subtitle: 'Framework · Engine · Embedder layers explained',

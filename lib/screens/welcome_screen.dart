@@ -1,12 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// WelcomeScreen — Sprint #2 deliverable screen.
-///
-/// Demonstrates:
-///  - Scaffold + AppBar
-///  - Column layout with Text widget, Icon, and ElevatedButton
-///  - StatefulWidget: onPressed toggles greeting text and theme color
-///  - Dart syntax: lists, string interpolation, conditional expressions
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
 
@@ -15,11 +8,9 @@ class WelcomeScreen extends StatefulWidget {
 }
 
 class _WelcomeScreenState extends State<WelcomeScreen> {
-  // ── Mutable state ────────────────────────────────────────────────────────
   int _tapCount = 0;
   bool _isDark = false;
 
-  // List of greeting messages that cycle on each tap
   final List<String> _greetings = [
     'Welcome to ClassSync! 👋',
     'Ready to learn Flutter? 🚀',
@@ -36,7 +27,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     Colors.green,
   ];
 
-  // Derived state — cycle through greetings and colors
   String get _currentGreeting => _greetings[_tapCount % _greetings.length];
   Color get _currentColor => _colors[_tapCount % _colors.length];
 
@@ -54,7 +44,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Re-theme based on state
     final bg = _isDark ? const Color(0xFF1A1A2E) : Colors.white;
     final textColor = _isDark ? Colors.white : Colors.black87;
     final subColor = _isDark ? Colors.white60 : Colors.grey.shade600;
@@ -82,7 +71,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             ],
           ),
           actions: [
-            // Dark/light mode toggle — demonstrates state change in AppBar
             IconButton(
               tooltip: _isDark ? 'Light mode' : 'Dark mode',
               icon: AnimatedSwitcher(
@@ -102,7 +90,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // ── Animated app icon ──────────────────────────────────────
               AnimatedContainer(
                 duration: const Duration(milliseconds: 400),
                 curve: Curves.easeInOut,
@@ -121,7 +108,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
               const SizedBox(height: 32),
 
-              // ── Greeting text — changes on each tap ───────────────────
               AnimatedSwitcher(
                 duration: const Duration(milliseconds: 350),
                 transitionBuilder: (child, animation) => FadeTransition(
@@ -149,7 +135,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
               const SizedBox(height: 14),
 
-              // ── Sub-text ───────────────────────────────────────────────
               Text(
                 'A platform for coaches and students to\n'
                 'share materials and track assignments.',
@@ -159,7 +144,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
               const SizedBox(height: 10),
 
-              // ── Tap counter badge ──────────────────────────────────────
               if (_tapCount > 0)
                 AnimatedContainer(
                   duration: const Duration(milliseconds: 300),
@@ -181,8 +165,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
               const SizedBox(height: 40),
 
-              // ── Main CTA button ────────────────────────────────────────
-              // onPressed toggles greeting text + accent color (setState)
               SizedBox(
                 width: double.infinity,
                 height: 54,
@@ -208,7 +190,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
               const SizedBox(height: 16),
 
-              // ── Secondary action ───────────────────────────────────────
               TextButton(
                 onPressed: () => Navigator.pop(context),
                 child: Text(
@@ -219,7 +200,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
               const SizedBox(height: 32),
 
-              // ── State explanation card ─────────────────────────────────
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(

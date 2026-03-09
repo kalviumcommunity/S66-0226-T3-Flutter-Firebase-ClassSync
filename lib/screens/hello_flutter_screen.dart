@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// HelloFlutterScreen — demonstrates a pure StatelessWidget.
-/// The UI is static: no internal state, no setState needed.
 class HelloFlutterScreen extends StatelessWidget {
   const HelloFlutterScreen({super.key});
 

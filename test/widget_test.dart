@@ -15,14 +15,11 @@ void main() {
   testWidgets('Counter starts at 0 and increments', (WidgetTester tester) async {
     await tester.pumpWidget(const ClassSyncApp());
 
-    // Navigate to Counter App
     await tester.tap(find.text('Counter App'));
     await tester.pumpAndSettle();
 
-    // Counter should start at 0
     expect(find.text('0'), findsOneWidget);
 
-    // Tap increment
     await tester.tap(find.byIcon(Icons.add));
     await tester.pumpAndSettle();
 

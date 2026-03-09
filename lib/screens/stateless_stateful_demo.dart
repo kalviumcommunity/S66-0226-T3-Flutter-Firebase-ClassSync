@@ -1,18 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// StatelessStatefulDemo — side-by-side demonstration of both widget types.
-///
-/// Concepts demonstrated:
-///  - StatelessWidget: receives data via constructor, never rebuilds on its own
-///  - StatefulWidget: owns mutable state; setState() triggers selective rebuilds
-///  - How Flutter rebuilds only the dirty subtree, not the whole screen
-///
-/// Layout:
-///  - [_AppBanner]          → StatelessWidget — static title / description
-///  - [_CounterSection]     → StatefulWidget  — tap to increment / decrement
-///  - [_ColorToggleSection] → StatefulWidget  — toggle between two theme colors
-///  - [_VisibilitySection]  → StatefulWidget  — show / hide a message card
-///  - [_SummaryCard]        → StatelessWidget — comparison table, always static
 class StatelessStatefulDemo extends StatelessWidget {
   const StatelessStatefulDemo({super.key});
 
@@ -32,11 +19,9 @@ class StatelessStatefulDemo extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // ── static banner (StatelessWidget) ─────────────────────────
             _AppBanner(),
             SizedBox(height: 16),
 
-            // ── interactive demos (StatefulWidget) ──────────────────────
             _CounterSection(),
             SizedBox(height: 16),
             _ColorToggleSection(),
@@ -44,7 +29,6 @@ class StatelessStatefulDemo extends StatelessWidget {
             _VisibilitySection(),
             SizedBox(height: 20),
 
-            // ── comparison summary (StatelessWidget) ────────────────────
             _SummaryCard(),
             SizedBox(height: 16),
           ],
@@ -54,12 +38,7 @@ class StatelessStatefulDemo extends StatelessWidget {
   }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// STATELESS: App Banner
-// ═══════════════════════════════════════════════════════════════════════════
 
-/// Pure display widget — rendered once, never mutates.
-/// All data is passed in via the constructor (here hardcoded as constants).
 class _AppBanner extends StatelessWidget {
   const _AppBanner();
 
@@ -129,9 +108,6 @@ class _AppBanner extends StatelessWidget {
   }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// STATEFUL: Counter Section
-// ═══════════════════════════════════════════════════════════════════════════
 
 class _CounterSection extends StatefulWidget {
   const _CounterSection();
@@ -220,9 +196,6 @@ class _CounterSectionState extends State<_CounterSection> {
   }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// STATEFUL: Color Toggle Section
-// ═══════════════════════════════════════════════════════════════════════════
 
 class _ColorToggleSection extends StatefulWidget {
   const _ColorToggleSection();
@@ -332,9 +305,6 @@ class _ThemeOption {
   const _ThemeOption(this.name, this.accent, this.bg);
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// STATEFUL: Visibility Toggle Section
-// ═══════════════════════════════════════════════════════════════════════════
 
 class _VisibilitySection extends StatefulWidget {
   const _VisibilitySection();
@@ -428,9 +398,6 @@ class _VisibilitySectionState extends State<_VisibilitySection> {
   }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// STATELESS: Summary Comparison Card
-// ═══════════════════════════════════════════════════════════════════════════
 
 class _SummaryCard extends StatelessWidget {
   const _SummaryCard();
@@ -580,12 +547,7 @@ class _Tag extends StatelessWidget {
   }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// SHARED UTILITIES (StatelessWidgets used by stateful sections)
-// ═══════════════════════════════════════════════════════════════════════════
 
-/// Shell card wrapping each demo section — itself a StatelessWidget.
-/// The mutable state lives in the child widget passed to it.
 class _DemoShell extends StatelessWidget {
   final String label;
   final Color labelColor;
@@ -620,7 +582,6 @@ class _DemoShell extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ── header ────────────────────────────────────────────────
             Row(
               children: [
                 Container(
@@ -660,7 +621,6 @@ class _DemoShell extends StatelessWidget {
                   fontSize: 12, color: Color(0xFF6B7280), height: 1.45),
             ),
             const SizedBox(height: 16),
-            // ── interactive content ───────────────────────────────────
             child,
           ],
         ),
@@ -669,7 +629,6 @@ class _DemoShell extends StatelessWidget {
   }
 }
 
-/// Circular icon button used in the counter section.
 class _ActionButton extends StatelessWidget {
   final IconData icon;
   final Color color;

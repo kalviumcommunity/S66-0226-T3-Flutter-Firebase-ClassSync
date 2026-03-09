@@ -1,28 +1,8 @@
 import 'package:flutter/material.dart';
 
-/// NavigationDemoScreen — demonstrates Flutter's Navigator and named routes.
-///
-/// Concepts demonstrated:
-///  - Navigator push/pop: adding and removing screens from the navigation stack
-///  - Named routes: mapping string paths to screens via onGenerateRoute
-///  - Route arguments: passing data between screens with settings.arguments
-///  - Navigation stack: visualized live inside the demo as you navigate
-///
-/// Architecture:
-///  NavigationDemoScreen (root, in main Navigator)
-///  └── Column
-///      ├── _ConceptBanner   — StatelessWidget explaining Navigator
-///      └── _PhoneFrame
-///          └── nested Navigator (owns its own stack)
-///              ├── '/nav/home'    → _NavHomePage
-///              ├── '/nav/second'  → _NavSecondPage
-///              └── '/nav/profile' → _NavProfilePage(message)
 class NavigationDemoScreen extends StatelessWidget {
   const NavigationDemoScreen({super.key});
 
-  // ── Route table ──────────────────────────────────────────────────────────
-  // Named routes are defined here, analogous to MaterialApp's routes: map.
-  // The nested Navigator uses onGenerateRoute to resolve route names.
   static Route<dynamic> _onGenerateRoute(RouteSettings settings) {
     final args = settings.arguments;
     switch (settings.name) {
@@ -66,10 +46,8 @@ class NavigationDemoScreen extends StatelessWidget {
       ),
       body: Column(
         children: [
-          // ── concept banner ───────────────────────────────────────────────
           const _ConceptBanner(),
 
-          // ── phone frame containing the nested navigator ──────────────────
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
@@ -96,9 +74,6 @@ class NavigationDemoScreen extends StatelessWidget {
   }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// CONCEPT BANNER (StatelessWidget — never rebuilds)
-// ═══════════════════════════════════════════════════════════════════════════
 
 class _ConceptBanner extends StatelessWidget {
   const _ConceptBanner();
@@ -155,9 +130,6 @@ class _PillLabel extends StatelessWidget {
   }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// PHONE FRAME wrapper
-// ═══════════════════════════════════════════════════════════════════════════
 
 class _PhoneFrame extends StatelessWidget {
   final Widget child;
@@ -184,9 +156,6 @@ class _PhoneFrame extends StatelessWidget {
   }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// SCREEN 1: Nav Home Page
-// ═══════════════════════════════════════════════════════════════════════════
 
 class _NavHomePage extends StatelessWidget {
   const _NavHomePage();
@@ -216,11 +185,9 @@ class _NavHomePage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // ── stack indicator ──────────────────────────────────────────
             _StackIndicator(routes: const ['Home']),
             const SizedBox(height: 14),
 
-            // ── push to second ───────────────────────────────────────────
             _ActionCard(
               color: const Color(0xFF3B82F6),
               method: 'Navigator.pushNamed(context, \'/nav/second\')',
@@ -231,7 +198,6 @@ class _NavHomePage extends StatelessWidget {
             ),
             const SizedBox(height: 10),
 
-            // ── push with arguments ──────────────────────────────────────
             _ActionCard(
               color: const Color(0xFFEC4899),
               method:
@@ -248,7 +214,6 @@ class _NavHomePage extends StatelessWidget {
             ),
             const SizedBox(height: 14),
 
-            // ── explanation box ──────────────────────────────────────────
             _CodeBox(
               lines: const [
                 _CodeLine('// main.dart — define routes once', isComment: true),
@@ -269,9 +234,6 @@ class _NavHomePage extends StatelessWidget {
   }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// SCREEN 2: Nav Second Page
-// ═══════════════════════════════════════════════════════════════════════════
 
 class _NavSecondPage extends StatelessWidget {
   const _NavSecondPage();
@@ -301,11 +263,9 @@ class _NavSecondPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // ── stack indicator ──────────────────────────────────────────
             _StackIndicator(routes: const ['Home', 'Second']),
             const SizedBox(height: 14),
 
-            // ── back / pop ───────────────────────────────────────────────
             _ActionCard(
               color: const Color(0xFF10B981),
               method: 'Navigator.pop(context)',
@@ -344,9 +304,6 @@ class _NavSecondPage extends StatelessWidget {
   }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// SCREEN 3: Nav Profile Page (receives arguments)
-// ═══════════════════════════════════════════════════════════════════════════
 
 class _NavProfilePage extends StatelessWidget {
   final String message;
@@ -377,11 +334,9 @@ class _NavProfilePage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // ── stack indicator ──────────────────────────────────────────
             _StackIndicator(routes: const ['Home', 'Profile']),
             const SizedBox(height: 14),
 
-            // ── received argument ────────────────────────────────────────
             Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
@@ -420,7 +375,6 @@ class _NavProfilePage extends StatelessWidget {
             ),
             const SizedBox(height: 10),
 
-            // ── back button ──────────────────────────────────────────────
             _ActionCard(
               color: const Color(0xFF10B981),
               method: 'Navigator.pop(context)',
@@ -455,11 +409,7 @@ class _NavProfilePage extends StatelessWidget {
   }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// SHARED WIDGETS
-// ═══════════════════════════════════════════════════════════════════════════
 
-/// Displays the current navigation stack as breadcrumb chips.
 class _StackIndicator extends StatelessWidget {
   final List<String> routes;
   const _StackIndicator({required this.routes});
@@ -524,7 +474,6 @@ class _StackIndicator extends StatelessWidget {
   }
 }
 
-/// Card showing a navigation method with a button to trigger it.
 class _ActionCard extends StatelessWidget {
   final Color color;
   final String method;
@@ -598,7 +547,6 @@ class _ActionCard extends StatelessWidget {
   }
 }
 
-/// Dark code block.
 class _CodeBox extends StatelessWidget {
   final List<_CodeLine> lines;
   const _CodeBox({required this.lines});
@@ -639,7 +587,6 @@ class _CodeLine {
   const _CodeLine(this.text, {this.isComment = false});
 }
 
-/// Info tile with icon + description text.
 class _InfoTile extends StatelessWidget {
   final IconData icon;
   final Color color;

@@ -3,14 +3,6 @@ import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 import '../services/firestore_service.dart';
 
-/// SignupScreen — dedicated user registration screen.
-///
-/// Demonstrates:
-///  - Form validation with GlobalKey(FormState)
-///  - Firebase Auth: createUserWithEmailAndPassword via AuthService
-///  - Firestore: saves user profile data after successful signup
-///  - On success, main.dart's StreamBuilder detects the new auth state
-///    and automatically navigates to HomeScreen (no manual push needed).
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
 
@@ -40,12 +32,10 @@ class _SignupScreenState extends State<SignupScreen> {
     super.dispose();
   }
 
-  // ── Sign Up ──────────────────────────────────────────────────────────────
   Future<void> _signUp() async {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _loading = true);
 
-    // Step 1: Create Firebase Auth account
     final error = await _auth.signUp(_emailCtrl.text, _passCtrl.text);
 
     if (!mounted) return;
@@ -61,7 +51,6 @@ class _SignupScreenState extends State<SignupScreen> {
       return;
     }
 
-    // Step 2: Save user profile to Firestore 'users' collection
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       await _firestoreService.addUserData(user.uid, {
@@ -72,7 +61,6 @@ class _SignupScreenState extends State<SignupScreen> {
       });
     }
 
-    // Step 3: main.dart StreamBuilder detects auth change → shows HomeScreen
   }
 
   @override
@@ -88,7 +76,6 @@ class _SignupScreenState extends State<SignupScreen> {
             constraints: const BoxConstraints(maxWidth: 420),
             child: Column(
               children: [
-                // ── Header ───────────────────────────────────────────────
                 Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
@@ -128,7 +115,6 @@ class _SignupScreenState extends State<SignupScreen> {
                 ),
                 const SizedBox(height: 32),
 
-                // ── Form card ────────────────────────────────────────────
                 Card(
                   elevation: 4,
                   shape: RoundedRectangleBorder(
@@ -140,7 +126,6 @@ class _SignupScreenState extends State<SignupScreen> {
                       key: _formKey,
                       child: Column(
                         children: [
-                          // Full Name
                           TextFormField(
                             controller: _nameCtrl,
                             textCapitalization: TextCapitalization.words,
@@ -159,7 +144,6 @@ class _SignupScreenState extends State<SignupScreen> {
                           ),
                           const SizedBox(height: 16),
 
-                          // Email
                           TextFormField(
                             controller: _emailCtrl,
                             keyboardType: TextInputType.emailAddress,
@@ -181,7 +165,6 @@ class _SignupScreenState extends State<SignupScreen> {
                           ),
                           const SizedBox(height: 16),
 
-                          // Password
                           TextFormField(
                             controller: _passCtrl,
                             obscureText: _obscurePass,
@@ -209,7 +192,6 @@ class _SignupScreenState extends State<SignupScreen> {
                           ),
                           const SizedBox(height: 16),
 
-                          // Confirm Password
                           TextFormField(
                             controller: _confirmCtrl,
                             obscureText: _obscureConfirm,
@@ -238,7 +220,6 @@ class _SignupScreenState extends State<SignupScreen> {
                           ),
                           const SizedBox(height: 28),
 
-                          // Submit button
                           SizedBox(
                             width: double.infinity,
                             height: 52,
@@ -271,7 +252,6 @@ class _SignupScreenState extends State<SignupScreen> {
                 ),
                 const SizedBox(height: 24),
 
-                // ── Already have account ─────────────────────────────────
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [

@@ -4,13 +4,14 @@ ClassSync is a Flutter + Firebase app for coaching centers to manage classrooms,
 
 ## What the app provides
 
-| Feature | Description |
-|---|---|
-| Authentication | Email/password signup, login, and logout |
-| Session persistence | Auto-login with Firebase Auth session restore |
-| Auth routing | Screen switching using `authStateChanges()` |
-| Firestore workflows | Task and classroom-oriented data flows |
-| Storage integration | Firebase Storage-ready media handling |
+| Feature | Module | Description |
+|---|---|---|
+| Authentication | 3.28, 3.29 | Email/password signup, login, and logout |
+| Session persistence | 3.30 | Auto-login with Firebase Auth session restore |
+| Auth routing | 3.29 | Screen switching using `authStateChanges()` |
+| Firestore data model | 3.31 | Schema design for scalable app data |
+| Firestore read operations | 3.32 | Collection and document reads with real-time streams |
+| Storage integration | - | Firebase Storage-ready media handling |
 
 ## Tech stack
 
@@ -87,7 +88,7 @@ flutter run -d chrome
 flutter run -d emulator
 ```
 
-## Authentication and session flow
+## 3.30 Authentication and session flow
 
 The app uses Firebase Auth stream-based routing in `lib/main.dart`:
 
@@ -108,7 +109,7 @@ home: StreamBuilder<User?>(
 )
 ```
 
-## Firestore data model (schema overview)
+## 3.31 Firestore data model (schema overview)
 
 Primary collections:
 
@@ -145,6 +146,62 @@ Sample document (`assignments/{assignmentId}`):
   "updatedAt": "serverTimestamp"
 }
 ```
+
+## 3.32 Firestore read operations
+
+The app reads Firestore data in three practical ways:
+
+| Read type | Where used | Widget |
+|---|---|---|
+| Collection stream | Tasks list (`tasks`) | `StreamBuilder` |
+| Filtered stream | Pending tasks (`completed == false`) | `StreamBuilder` |
+| Single document (one-time) | Latest task document | `FutureBuilder` |
+
+Collection stream example:
+
+```dart
+StreamBuilder<QuerySnapshot>(
+  stream: FirebaseFirestore.instance.collection('tasks').snapshots(),
+  builder: (context, snapshot) {
+    if (!snapshot.hasData) return const CircularProgressIndicator();
+    final docs = snapshot.data!.docs;
+    return ListView.builder(
+      itemCount: docs.length,
+      itemBuilder: (context, index) {
+        final data = docs[index].data() as Map<String, dynamic>;
+        return ListTile(title: Text(data['title'] ?? 'Untitled'));
+      },
+    );
+  },
+)
+```
+
+Single document read example:
+
+```dart
+FutureBuilder<DocumentSnapshot?>(
+  future: service.getLatestTaskDocument(),
+  builder: (context, snapshot) {
+    if (!snapshot.hasData) return const CircularProgressIndicator();
+    final doc = snapshot.data;
+    if (doc == null || !doc.exists) return const Text('No data available');
+    final data = doc.data() as Map<String, dynamic>;
+    return Text(data['title'] ?? 'Untitled');
+  },
+)
+```
+
+Why streams are useful:
+
+- UI updates instantly when Firestore data changes
+- No manual refresh logic needed
+- Better fit for dashboards, feeds, and task lists
+
+Suggested screenshots for documentation:
+
+- Firestore Console data (`tasks` collection)
+- App UI showing task list from Firestore
+- UI update after editing Firestore document
 
 ## Project structure
 

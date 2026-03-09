@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/student.dart';
 
-/// DartBasicsScreen — demonstrates Dart language fundamentals.
-/// Uses the Student model to show: Classes, Null Safety, Async/Await,
-/// Type Inference, and String Interpolation — all live in the UI.
 class DartBasicsScreen extends StatefulWidget {
   const DartBasicsScreen({super.key});
 
@@ -12,7 +9,6 @@ class DartBasicsScreen extends StatefulWidget {
 }
 
 class _DartBasicsScreenState extends State<DartBasicsScreen> {
-  // Type inference — Dart infers these as List<Student>
   final students = [
     Student('Aanya', 20, subject: 'Mathematics'),
     Student('Rohan', 22, subject: 'Physics'),
@@ -29,7 +25,6 @@ class _DartBasicsScreenState extends State<DartBasicsScreen> {
       _asyncResult = 'Fetching…';
     });
 
-    // Await the async method — mirrors how Firebase data fetching works
     final result = await students[_selectedIndex].fetchProfile();
 
     setState(() {
@@ -47,10 +42,14 @@ class _DartBasicsScreenState extends State<DartBasicsScreen> {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: const [
-            Text('Dart Basics',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
-            Text('Classes · Null Safety · Async · Type Inference',
-                style: TextStyle(fontSize: 12)),
+            Text(
+              'Dart Basics',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+            ),
+            Text(
+              'Classes · Null Safety · Async · Type Inference',
+              style: TextStyle(fontSize: 12),
+            ),
           ],
         ),
       ),
@@ -59,11 +58,11 @@ class _DartBasicsScreenState extends State<DartBasicsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ── Section 1: Classes & Objects ───────────────────────────
             _SectionHeader(title: '1. Classes & Objects', color: Colors.orange),
             const SizedBox(height: 8),
             _ConceptBox(
-              code: 'class Student {\n'
+              code:
+                  'class Student {\n'
                   '  final String name;  // non-nullable\n'
                   '  final int age;\n'
                   '  String? subject;    // nullable\n\n'
@@ -77,26 +76,25 @@ class _DartBasicsScreenState extends State<DartBasicsScreen> {
             ),
             const SizedBox(height: 16),
 
-            // ── Student list (live objects) ───────────────────────────
             const Text(
               'Live Student Objects:',
               style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
             ),
             const SizedBox(height: 8),
             ...students.asMap().entries.map(
-                  (e) => _StudentTile(
-                    student: e.value,
-                    isSelected: _selectedIndex == e.key,
-                    onTap: () => setState(() => _selectedIndex = e.key),
-                  ),
-                ),
+              (e) => _StudentTile(
+                student: e.value,
+                isSelected: _selectedIndex == e.key,
+                onTap: () => setState(() => _selectedIndex = e.key),
+              ),
+            ),
             const SizedBox(height: 24),
 
-            // ── Section 2: Null Safety ─────────────────────────────────
             _SectionHeader(title: '2. Null Safety', color: Colors.red.shade400),
             const SizedBox(height: 8),
             _ConceptBox(
-              code: 'String? subject;          // nullable\n'
+              code:
+                  'String? subject;          // nullable\n'
                   'String currentSubject() {\n'
                   '  return subject ?? "No subject assigned";\n'
                   '}',
@@ -107,12 +105,14 @@ class _DartBasicsScreenState extends State<DartBasicsScreen> {
             ),
             const SizedBox(height: 24),
 
-            // ── Section 3: Type Inference ──────────────────────────────
             _SectionHeader(
-                title: '3. Type Inference', color: Colors.purple.shade400),
+              title: '3. Type Inference',
+              color: Colors.purple.shade400,
+            ),
             const SizedBox(height: 8),
             _ConceptBox(
-              code: '// Dart infers the type — no explicit type needed\n'
+              code:
+                  '// Dart infers the type — no explicit type needed\n'
                   'var name = "Aanya";        // inferred: String\n'
                   'final age = 20;            // inferred: int\n'
                   'var students = [...];      // inferred: List<Student>',
@@ -123,12 +123,14 @@ class _DartBasicsScreenState extends State<DartBasicsScreen> {
             ),
             const SizedBox(height: 24),
 
-            // ── Section 4: Async / Await ───────────────────────────────
             _SectionHeader(
-                title: '4. Async / Await', color: Colors.green.shade600),
+              title: '4. Async / Await',
+              color: Colors.green.shade600,
+            ),
             const SizedBox(height: 8),
             _ConceptBox(
-              code: 'Future<String> fetchProfile() async {\n'
+              code:
+                  'Future<String> fetchProfile() async {\n'
                   '  await Future.delayed(Duration(seconds: 1));\n'
                   '  return "Profile loaded for \$name";\n'
                   '}',
@@ -139,7 +141,6 @@ class _DartBasicsScreenState extends State<DartBasicsScreen> {
             ),
             const SizedBox(height: 16),
 
-            // ── Async demo ─────────────────────────────────────────────
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(16),
@@ -202,8 +203,6 @@ class _DartBasicsScreenState extends State<DartBasicsScreen> {
   }
 }
 
-// ── Supporting widgets ───────────────────────────────────────────────────────
-
 class _SectionHeader extends StatelessWidget {
   final String title;
   final Color color;
@@ -213,8 +212,11 @@ class _SectionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Container(width: 4, height: 20, color: color,
-            decoration: BoxDecoration(borderRadius: BorderRadius.circular(2))),
+        Container(
+          width: 4,
+          height: 20,
+          decoration: BoxDecoration(color: color,borderRadius: BorderRadius.circular(2)),
+        ),
         const SizedBox(width: 8),
         Text(
           title,
@@ -240,7 +242,6 @@ class _ConceptBox extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Code block
         Container(
           width: double.infinity,
           padding: const EdgeInsets.all(14),
@@ -261,7 +262,6 @@ class _ConceptBox extends StatelessWidget {
             ),
           ),
         ),
-        // Explanation block
         Container(
           width: double.infinity,
           padding: const EdgeInsets.all(12),
@@ -308,8 +308,7 @@ class _StudentTile extends StatelessWidget {
               : Colors.grey.shade50,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color:
-                isSelected ? Colors.orange : Colors.grey.shade200,
+            color: isSelected ? Colors.orange : Colors.grey.shade200,
             width: isSelected ? 2 : 1,
           ),
         ),
@@ -333,7 +332,9 @@ class _StudentTile extends StatelessWidget {
                   Text(
                     student.introduce(),
                     style: const TextStyle(
-                        fontSize: 14, fontWeight: FontWeight.w500),
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                   Text(
                     'Subject: ${student.currentSubject()}',
