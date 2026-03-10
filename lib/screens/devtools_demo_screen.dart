@@ -361,8 +361,7 @@ class _DebugConsoleCardState extends State<_DebugConsoleCard> {
                                 style: TextStyle(
                                   color: e.level.color,
                                   fontSize: 11,
-                                  fontFamily: 'monospace',
-                                  height: 1.4,
+                                                                    height: 1.4,
                                 ),
                               ),
                             ))

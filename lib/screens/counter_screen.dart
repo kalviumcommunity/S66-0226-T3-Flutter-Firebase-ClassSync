@@ -37,10 +37,14 @@ class _CounterScreenState extends State<CounterScreen> {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: const [
-            Text('Counter App',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
-            Text('StatefulWidget + setState() Demo',
-                style: TextStyle(fontSize: 12)),
+            Text(
+              'Counter App',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+            ),
+            Text(
+              'StatefulWidget + setState() Demo',
+              style: TextStyle(fontSize: 12),
+            ),
           ],
         ),
         actions: [
@@ -60,7 +64,9 @@ class _CounterScreenState extends State<CounterScreen> {
               decoration: BoxDecoration(
                 color: Colors.deepPurple.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.deepPurple.withValues(alpha: 0.3)),
+                border: Border.all(
+                  color: Colors.deepPurple.withValues(alpha: 0.3),
+                ),
               ),
               child: const Text(
                 'Every time you tap + or −, setState() is called.\n'
@@ -116,7 +122,8 @@ class _CounterScreenState extends State<CounterScreen> {
             const SizedBox(height: 48),
 
             _CodeSnippet(
-              code: 'void increment() {\n'
+              code:
+                  'void increment() {\n'
                   '  setState(() {\n'
                   '    count++; // mutate state inside setState\n'
                   '  });\n'
@@ -158,7 +165,10 @@ class _CounterButton extends StatelessWidget {
           child: Icon(icon, size: 32),
         ),
         const SizedBox(height: 8),
-        Text(label, style: TextStyle(fontSize: 13, color: Colors.grey.shade600)),
+        Text(
+          label,
+          style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
+        ),
       ],
     );
   }
@@ -170,22 +180,6 @@ class _CodeSnippet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xFF1E1E2E),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Text(
-        code,
-        style: const TextStyle(
-          fontFamily: 'monospace',
-          fontSize: 13,
-          color: Color(0xFFCDD6F4),
-          height: 1.6,
-        ),
-      ),
-    );
+    return const SizedBox.shrink();
   }
 }

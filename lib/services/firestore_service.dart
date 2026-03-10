@@ -8,12 +8,24 @@ class FirestoreService {
     'users',
   );
 
-  Future<void> addTask(String title) {
+  Future<void> addTask({
+    required String title,
+    required String description,
+    DateTime? deadline,
+  }) {
+    final now = Timestamp.now();
     return _tasks.add({
       'title': title,
+      'description': description,
       'completed': false,
-      'createdAt': Timestamp.now(),
+      'dueAt': deadline != null ? Timestamp.fromDate(deadline) : null,
+      'createdAt': now,
+      'updatedAt': now,
     });
+  }
+
+  Future<void> mergeTaskFields(String taskId, Map<String, dynamic> payload) {
+    return _tasks.doc(taskId).set(payload, SetOptions(merge: true));
   }
 
   Stream<QuerySnapshot> getTasks() {
@@ -33,12 +45,23 @@ class FirestoreService {
     return snapshot.docs.first;
   }
 
-  Future<void> updateTask(String id, String newTitle) {
-    return _tasks.doc(id).update({'title': newTitle});
+  Future<void> updateTask(
+    String id, {
+    String? title,
+    String? description,
+    bool? completed,
+    DateTime? deadline,
+  }) {
+    final payload = <String, dynamic>{'updatedAt': Timestamp.now()};
+    if (title != null) payload['title'] = title;
+    if (description != null) payload['description'] = description;
+    if (completed != null) payload['completed'] = completed;
+    if (deadline != null) payload['dueAt'] = Timestamp.fromDate(deadline);
+    return _tasks.doc(id).update(payload);
   }
 
   Future<void> toggleTask(String id, bool current) {
-    return _tasks.doc(id).update({'completed': !current});
+    return updateTask(id, completed: !current);
   }
 
   Future<void> deleteTask(String id) {
