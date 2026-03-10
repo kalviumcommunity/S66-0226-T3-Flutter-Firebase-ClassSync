@@ -13,6 +13,7 @@ ClassSync is a Flutter + Firebase app for coaching centers to manage classrooms,
 | Firestore read operations | 3.32 | Collection and document reads with real-time streams |
 | Firestore write/update operations | 3.33 | Safe add, set-merge, and update writes with validation |
 | Firestore real-time sync | 3.34 | Snapshot listeners for live collection/document updates |
+| Firestore query optimization | 3.35 | where filters, ordering, and limits for efficient reads |
 | Storage integration | - | Firebase Storage-ready media handling |
 
 ## Tech stack
@@ -296,6 +297,32 @@ Why this improves UX:
 - No manual refresh required
 - Multiple clients stay synced instantly
 - UI stays consistent during rapid changes
+
+## 3.35 Structuring Firestore queries, filters, and ordering data
+
+This module adds query controls so the app reads only relevant task data.
+
+| Query type | Example in app |
+|---|---|
+| Filter (`where`) | `where('completed', isEqualTo: false)` |
+| Sort (`orderBy`) | `orderBy('createdAt', descending: true/false)` |
+| Limit (`limit`) | `limit(5/10/20/50)` |
+
+Query stream example:
+
+```dart
+stream: service.queryTasks(
+  onlyPending: onlyPending,
+  newestFirst: newestFirst,
+  limit: resultLimit,
+)
+```
+
+Why this helps:
+
+- Faster screen rendering with smaller result sets
+- Cleaner UX with user-controlled filters and sorting
+- Lower read/bandwidth usage for large collections
 
 ## Project structure
 

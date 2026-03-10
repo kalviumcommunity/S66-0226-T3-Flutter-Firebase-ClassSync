@@ -41,4 +41,5 @@ class DefaultFirebaseOptions {
     storageBucket: 'classsync-df2de.firebasestorage.app',
     iosBundleId: 'com.classsync.classsync',
   );
+
 }

@@ -15,16 +15,21 @@ class _FirestoreScreenState extends State<FirestoreScreen> {
   final _service = FirestoreService();
   final _titleCtrl = TextEditingController();
   final _descCtrl = TextEditingController();
+  TextEditingController? _limitCtrl;
   bool _adding = false;
   DateTime? _selectedDeadline;
   String? _selectedTaskId;
   String _lastChangeMessage = 'Waiting for live changes...';
+  bool _onlyPending = false;
+  bool _newestFirst = true;
+  int _resultLimit = 10;
   StreamSubscription<QuerySnapshot>? _taskChangesSub;
   late Future<DocumentSnapshot?> _latestTaskFuture;
 
   @override
   void initState() {
     super.initState();
+    _limitCtrl = TextEditingController(text: _resultLimit.toString());
     _latestTaskFuture = _service.getLatestTaskDocument();
     _taskChangesSub = _service.getTasks().listen((snapshot) {
       if (!mounted || snapshot.docChanges.isEmpty) return;
@@ -53,7 +58,24 @@ class _FirestoreScreenState extends State<FirestoreScreen> {
     _taskChangesSub?.cancel();
     _titleCtrl.dispose();
     _descCtrl.dispose();
+    _limitCtrl?.dispose();
     super.dispose();
+  }
+
+  TextEditingController get _limitController {
+    return _limitCtrl ??= TextEditingController(text: _resultLimit.toString());
+  }
+
+  void _applyLimitInput() {
+    final parsed = int.tryParse(_limitController.text.trim());
+    if (parsed == null || parsed <= 0) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Enter a valid limit (1 or more)')),
+      );
+      return;
+    }
+    setState(() => _resultLimit = parsed);
   }
 
   Future<void> _addTask() async {
@@ -321,252 +343,342 @@ class _FirestoreScreenState extends State<FirestoreScreen> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          Container(
-            margin: const EdgeInsets.all(16),
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: Colors.blue.shade50,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.blue.shade200),
-            ),
-            child: Row(
-              children: [
-                Icon(Icons.sync, color: Colors.blue.shade700),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    'Firestore streams push updates to ALL connected clients '
-                    'instantly. Open this screen on two devices — add a task '
-                    'on one and watch it appear on the other without refreshing.',
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: Colors.blue.shade900,
-                      height: 1.4,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
+      body: StreamBuilder<QuerySnapshot>(
+        stream: _service.queryTasks(
+          onlyPending: _onlyPending,
+          newestFirst: _newestFirst,
+          limit: _resultLimit,
+        ),
+        builder: (context, snapshot) {
+          final docs = (snapshot.data?.docs ?? []).toList();
+          if (_onlyPending) {
+            docs.sort((a, b) {
+              final aTs =
+                  (a.data()! as Map<String, dynamic>)['createdAt']
+                      as Timestamp?;
+              final bTs =
+                  (b.data()! as Map<String, dynamic>)['createdAt']
+                      as Timestamp?;
+              final aMs = aTs?.millisecondsSinceEpoch ?? 0;
+              final bMs = bTs?.millisecondsSinceEpoch ?? 0;
+              return _newestFirst ? bMs.compareTo(aMs) : aMs.compareTo(bMs);
+            });
+            if (docs.length > _resultLimit) {
+              docs.removeRange(_resultLimit, docs.length);
+            }
+          }
 
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Column(
-              children: [
-                TextField(
-                  controller: _titleCtrl,
-                  decoration: InputDecoration(
-                    hintText: 'Task title',
-                    prefixIcon: const Icon(Icons.task_alt_outlined),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    filled: true,
-                    fillColor: Colors.grey.shade50,
-                  ),
+          return ListView(
+            padding: const EdgeInsets.only(bottom: 16),
+            children: [
+              Container(
+                margin: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: Colors.blue.shade50,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.blue.shade200),
                 ),
-                const SizedBox(height: 10),
-                TextField(
-                  controller: _descCtrl,
-                  maxLines: 2,
-                  decoration: InputDecoration(
-                    hintText: 'Task description',
-                    prefixIcon: const Icon(Icons.description_outlined),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    filled: true,
-                    fillColor: Colors.grey.shade50,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Row(
+                child: Row(
                   children: [
+                    Icon(Icons.sync, color: Colors.blue.shade700),
+                    const SizedBox(width: 10),
                     Expanded(
                       child: Text(
-                        _selectedDeadline == null
-                            ? 'No deadline selected'
-                            : 'Deadline: ${_formatDateTime(_selectedDeadline!)}',
-                        style: const TextStyle(fontSize: 12),
+                        'Firestore streams push updates to ALL connected clients '
+                        'instantly. Open this screen on two devices — add a task '
+                        'on one and watch it appear on the other without refreshing.',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Colors.blue.shade900,
+                          height: 1.4,
+                        ),
                       ),
-                    ),
-                    TextButton(
-                      onPressed: _pickCreateDeadline,
-                      child: const Text('Pick date & time'),
                     ),
                   ],
                 ),
-                const SizedBox(height: 8),
-                SizedBox(
-                  width: double.infinity,
-                  height: 46,
-                  child: ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue.shade700,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Column(
+                  children: [
+                    TextField(
+                      controller: _titleCtrl,
+                      decoration: InputDecoration(
+                        hintText: 'Task title',
+                        prefixIcon: const Icon(Icons.task_alt_outlined),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        filled: true,
+                        fillColor: Colors.grey.shade50,
                       ),
                     ),
-                    onPressed: _adding ? null : _addTask,
-                    icon: _adding
-                        ? const SizedBox(
-                            width: 16,
-                            height: 16,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          )
-                        : const Icon(Icons.add),
-                    label: Text(_adding ? 'Saving...' : 'Add Task'),
-                  ),
+                    const SizedBox(height: 10),
+                    TextField(
+                      controller: _descCtrl,
+                      maxLines: 2,
+                      decoration: InputDecoration(
+                        hintText: 'Task description',
+                        prefixIcon: const Icon(Icons.description_outlined),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        filled: true,
+                        fillColor: Colors.grey.shade50,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            _selectedDeadline == null
+                                ? 'No deadline selected'
+                                : 'Deadline: ${_formatDateTime(_selectedDeadline!)}',
+                            style: const TextStyle(fontSize: 12),
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: _pickCreateDeadline,
+                          child: const Text('Pick date & time'),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 46,
+                      child: ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blue.shade700,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        onPressed: _adding ? null : _addTask,
+                        icon: _adding
+                            ? const SizedBox(
+                                width: 16,
+                                height: 16,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : const Icon(Icons.add),
+                        label: Text(_adding ? 'Saving...' : 'Add Task'),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 12),
-
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.teal.shade50,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.teal.shade200),
               ),
-              child: Text(
-                'Live activity: $_lastChangeMessage',
-                style: TextStyle(
-                  color: Colors.teal.shade900,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ),
-
-          const SizedBox(height: 12),
-
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: _selectedTaskId == null
-                ? const Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text('Tap a task to view live document updates.'),
-                  )
-                : StreamBuilder<DocumentSnapshot>(
-                    stream: _service.watchTaskDocument(_selectedTaskId!),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const LinearProgressIndicator();
-                      }
-                      final data =
-                          snapshot.data?.data() as Map<String, dynamic>?;
-                      if (data == null) {
-                        return const Text('Selected task document not found.');
-                      }
-                      final liveTitle = data['title'] as String? ?? 'Untitled';
-                      final liveDone = data['completed'] as bool? ?? false;
-                      return Text(
-                        'Live document: $liveTitle | completed: $liveDone',
-                        style: const TextStyle(fontSize: 12),
-                      );
-                    },
-                  ),
-          ),
-
-          const SizedBox(height: 12),
-
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: StreamBuilder<QuerySnapshot>(
-              stream: _service.getPendingTasks(),
-              builder: (context, snapshot) {
-                final pendingCount = snapshot.data?.docs.length ?? 0;
-                return Container(
+              const SizedBox(height: 12),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.orange.shade50,
+                    color: Colors.indigo.shade50,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.orange.shade200),
+                    border: Border.all(color: Colors.indigo.shade200),
+                  ),
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          const Expanded(child: Text('Only pending tasks')),
+                          Switch(
+                            value: _onlyPending,
+                            onChanged: (value) {
+                              setState(() => _onlyPending = value);
+                            },
+                          ),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          const Expanded(child: Text('Sort by createdAt')),
+                          DropdownButton<bool>(
+                            value: _newestFirst,
+                            items: const [
+                              DropdownMenuItem(
+                                value: true,
+                                child: Text('Newest first'),
+                              ),
+                              DropdownMenuItem(
+                                value: false,
+                                child: Text('Oldest first'),
+                              ),
+                            ],
+                            onChanged: (value) {
+                              if (value == null) return;
+                              setState(() => _newestFirst = value);
+                            },
+                          ),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          const Expanded(child: Text('Limit results')),
+                          SizedBox(
+                            width: 96,
+                            child: TextField(
+                              controller: _limitController,
+                              keyboardType: TextInputType.number,
+                              textAlign: TextAlign.center,
+                              decoration: const InputDecoration(
+                                isDense: true,
+                                hintText: 'e.g. 10',
+                              ),
+                              onSubmitted: (_) => _applyLimitInput(),
+                            ),
+                          ),
+                          IconButton(
+                            onPressed: _applyLimitInput,
+                            icon: const Icon(Icons.check),
+                            tooltip: 'Apply limit',
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.teal.shade50,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.teal.shade200),
                   ),
                   child: Text(
-                    'Pending tasks (filtered read): $pendingCount',
+                    'Live activity: $_lastChangeMessage',
                     style: TextStyle(
-                      color: Colors.orange.shade900,
+                      color: Colors.teal.shade900,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                );
-              },
-            ),
-          ),
-
-          const SizedBox(height: 12),
-
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: FutureBuilder<DocumentSnapshot?>(
-              future: _latestTaskFuture,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const LinearProgressIndicator();
-                }
-                if (snapshot.hasError) {
-                  return const Text('Could not read latest task document.');
-                }
-                final doc = snapshot.data;
-                if (doc == null || !doc.exists) {
-                  return const Text('Latest task (one-time read): no data');
-                }
-                final data = doc.data() as Map<String, dynamic>?;
-                final title = data?['title'] as String? ?? 'Untitled task';
-                final completed = data?['completed'] as bool? ?? false;
-                return Text(
-                  'Latest task (one-time document read): $title | completed: $completed',
-                  style: const TextStyle(fontSize: 12),
-                );
-              },
-            ),
-          ),
-
-          const SizedBox(height: 12),
-
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                'Tasks (synced in real time)',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                ),
               ),
-            ),
-          ),
-
-          const SizedBox(height: 6),
-
-          Expanded(
-            child: StreamBuilder<QuerySnapshot>(
-              stream: _service.getTasks(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-
-                if (snapshot.hasError) {
-                  return _ErrorWidget(message: snapshot.error.toString());
-                }
-
-                final docs = snapshot.data?.docs ?? [];
-
-                if (docs.isEmpty) {
-                  return Center(
+              const SizedBox(height: 12),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: _selectedTaskId == null
+                    ? const Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'Tap a task to view live document updates.',
+                        ),
+                      )
+                    : StreamBuilder<DocumentSnapshot>(
+                        stream: _service.watchTaskDocument(_selectedTaskId!),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const LinearProgressIndicator();
+                          }
+                          final data =
+                              snapshot.data?.data() as Map<String, dynamic>?;
+                          if (data == null) {
+                            return const Text(
+                              'Selected task document not found.',
+                            );
+                          }
+                          final liveTitle =
+                              data['title'] as String? ?? 'Untitled';
+                          final liveDone = data['completed'] as bool? ?? false;
+                          return Text(
+                            'Live document: $liveTitle | completed: $liveDone',
+                            style: const TextStyle(fontSize: 12),
+                          );
+                        },
+                      ),
+              ),
+              const SizedBox(height: 12),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: StreamBuilder<QuerySnapshot>(
+                  stream: _service.getPendingTasks(),
+                  builder: (context, snapshot) {
+                    final pendingCount = snapshot.data?.docs.length ?? 0;
+                    return Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.orange.shade50,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.orange.shade200),
+                      ),
+                      child: Text(
+                        'Pending tasks (filtered read): $pendingCount',
+                        style: TextStyle(
+                          color: Colors.orange.shade900,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: 12),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: FutureBuilder<DocumentSnapshot?>(
+                  future: _latestTaskFuture,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const LinearProgressIndicator();
+                    }
+                    if (snapshot.hasError) {
+                      return const Text('Could not read latest task document.');
+                    }
+                    final doc = snapshot.data;
+                    if (doc == null || !doc.exists) {
+                      return const Text('Latest task (one-time read): no data');
+                    }
+                    final data = doc.data() as Map<String, dynamic>?;
+                    final title = data?['title'] as String? ?? 'Untitled task';
+                    final completed = data?['completed'] as bool? ?? false;
+                    return Text(
+                      'Latest task (one-time document read): $title | completed: $completed',
+                      style: const TextStyle(fontSize: 12),
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: 12),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Tasks (synced in real time)',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 6),
+              if (snapshot.connectionState == ConnectionState.waiting)
+                const Padding(
+                  padding: EdgeInsets.all(16),
+                  child: Center(child: CircularProgressIndicator()),
+                )
+              else if (snapshot.hasError)
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: _ErrorWidget(message: snapshot.error.toString()),
+                )
+              else if (docs.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -585,29 +697,24 @@ class _FirestoreScreenState extends State<FirestoreScreen> {
                         ),
                       ],
                     ),
-                  );
-                }
-
-                return ListView.separated(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  itemCount: docs.length,
-                  separatorBuilder: (context, index) =>
-                      const SizedBox(height: 8),
-                  itemBuilder: (context, index) {
-                    final doc = docs[index];
-                    final data = doc.data()! as Map<String, dynamic>;
-                    final title = data['title'] as String? ?? '';
-                    final completed = data['completed'] as bool? ?? false;
-                    final description =
-                        data['description'] as String? ?? 'No description';
-                    final ts = data['createdAt'] as Timestamp?;
-                    final dueTs = data['dueAt'] as Timestamp?;
-                    final time = ts != null ? _formatTime(ts.toDate()) : '';
-                    final due = dueTs != null
-                        ? 'Due: ${_formatDateTime(dueTs.toDate())}'
-                        : 'Due: not set';
-
-                    return Card(
+                  ),
+                )
+              else
+                ...docs.map((doc) {
+                  final data = doc.data()! as Map<String, dynamic>;
+                  final title = data['title'] as String? ?? '';
+                  final completed = data['completed'] as bool? ?? false;
+                  final description =
+                      data['description'] as String? ?? 'No description';
+                  final ts = data['createdAt'] as Timestamp?;
+                  final dueTs = data['dueAt'] as Timestamp?;
+                  final time = ts != null ? _formatTime(ts.toDate()) : '';
+                  final due = dueTs != null
+                      ? 'Due: ${_formatDateTime(dueTs.toDate())}'
+                      : 'Due: not set';
+                  return Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                    child: Card(
                       elevation: 1,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -701,13 +808,12 @@ class _FirestoreScreenState extends State<FirestoreScreen> {
                           ],
                         ),
                       ),
-                    );
-                  },
-                );
-              },
-            ),
-          ),
-        ],
+                    ),
+                  );
+                }),
+            ],
+          );
+        },
       ),
     );
   }
@@ -780,6 +886,16 @@ class _ErrorWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isIndexError =
+        message.contains('failed-precondition') &&
+        message.toLowerCase().contains('requires an index');
+    final title = isIndexError
+        ? 'Missing Firestore index'
+        : 'Could not load tasks';
+    final detail = isIndexError
+        ? 'This query needs a Firestore composite index. Open the link in the error text to create it, then reload the page.'
+        : message;
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(20),
@@ -788,13 +904,13 @@ class _ErrorWidget extends StatelessWidget {
           children: [
             const Icon(Icons.cloud_off_outlined, size: 56, color: Colors.grey),
             const SizedBox(height: 12),
-            const Text(
-              'Firebase not configured yet',
+            Text(
+              title,
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
             const SizedBox(height: 8),
             Text(
-              'Run "flutterfire configure" to connect to a real Firebase project.\n\n$message',
+              detail,
               textAlign: TextAlign.center,
               style: const TextStyle(fontSize: 12, color: Colors.grey),
             ),
