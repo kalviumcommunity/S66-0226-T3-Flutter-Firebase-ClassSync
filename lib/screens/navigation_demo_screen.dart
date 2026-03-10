@@ -12,7 +12,9 @@ class NavigationDemoScreen extends StatelessWidget {
         return _slide(settings, const _NavSecondPage());
       case '/nav/profile':
         return _slide(
-            settings, _NavProfilePage(message: args as String? ?? ''));
+          settings,
+          _NavProfilePage(message: args as String? ?? ''),
+        );
       default:
         return _slide(settings, const _NavHomePage());
     }
@@ -22,13 +24,14 @@ class NavigationDemoScreen extends StatelessWidget {
     return PageRouteBuilder(
       settings: s,
       pageBuilder: (context, animation, secondaryAnimation) => page,
-      transitionsBuilder: (context, anim, secondaryAnim, child) => SlideTransition(
-        position: Tween<Offset>(
-          begin: const Offset(1, 0),
-          end: Offset.zero,
-        ).animate(CurvedAnimation(parent: anim, curve: Curves.easeInOut)),
-        child: child,
-      ),
+      transitionsBuilder: (context, anim, secondaryAnim, child) =>
+          SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(1, 0),
+              end: Offset.zero,
+            ).animate(CurvedAnimation(parent: anim, curve: Curves.easeInOut)),
+            child: child,
+          ),
       transitionDuration: const Duration(milliseconds: 280),
     );
   }
@@ -56,8 +59,7 @@ class NavigationDemoScreen extends StatelessWidget {
                   constraints: const BoxConstraints(maxWidth: 360),
                   child: _PhoneFrame(
                     child: HeroControllerScope(
-                      controller:
-                          MaterialApp.createMaterialHeroController(),
+                      controller: MaterialApp.createMaterialHeroController(),
                       child: Navigator(
                         initialRoute: '/nav/home',
                         onGenerateRoute: _onGenerateRoute,
@@ -74,7 +76,6 @@ class NavigationDemoScreen extends StatelessWidget {
   }
 }
 
-
 class _ConceptBanner extends StatelessWidget {
   const _ConceptBanner();
 
@@ -86,17 +87,13 @@ class _ConceptBanner extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _PillLabel(
-              text: 'push()', color: const Color(0xFF3B82F6)),
+          _PillLabel(text: 'push()', color: const Color(0xFF3B82F6)),
           const SizedBox(width: 6),
-          _PillLabel(
-              text: 'pop()', color: const Color(0xFF10B981)),
+          _PillLabel(text: 'pop()', color: const Color(0xFF10B981)),
           const SizedBox(width: 6),
-          _PillLabel(
-              text: 'pushNamed()', color: const Color(0xFFF59E0B)),
+          _PillLabel(text: 'pushNamed()', color: const Color(0xFFF59E0B)),
           const SizedBox(width: 6),
-          _PillLabel(
-              text: 'arguments', color: const Color(0xFFEC4899)),
+          _PillLabel(text: 'arguments', color: const Color(0xFFEC4899)),
         ],
       ),
     );
@@ -123,13 +120,11 @@ class _PillLabel extends StatelessWidget {
           color: color,
           fontSize: 11,
           fontWeight: FontWeight.w700,
-          fontFamily: 'monospace',
-        ),
+                  ),
       ),
     );
   }
 }
-
 
 class _PhoneFrame extends StatelessWidget {
   final Widget child;
@@ -143,19 +138,16 @@ class _PhoneFrame extends StatelessWidget {
         border: Border.all(color: const Color(0xFF334155), width: 3),
         boxShadow: const [
           BoxShadow(
-              color: Color(0x33000000),
-              blurRadius: 20,
-              offset: Offset(0, 8)),
+            color: Color(0x33000000),
+            blurRadius: 20,
+            offset: Offset(0, 8),
+          ),
         ],
       ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(25),
-        child: child,
-      ),
+      child: ClipRRect(borderRadius: BorderRadius.circular(25), child: child),
     );
   }
 }
-
 
 class _NavHomePage extends StatelessWidget {
   const _NavHomePage();
@@ -172,11 +164,17 @@ class _NavHomePage extends StatelessWidget {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Home Screen',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
-            Text('route: /nav/home',
-                style: TextStyle(
-                    fontSize: 10, color: Colors.white.withValues(alpha: 0.7))),
+            const Text(
+              'Home Screen',
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+            ),
+            Text(
+              'route: /nav/home',
+              style: TextStyle(
+                fontSize: 10,
+                color: Colors.white.withValues(alpha: 0.7),
+              ),
+            ),
           ],
         ),
       ),
@@ -234,7 +232,6 @@ class _NavHomePage extends StatelessWidget {
   }
 }
 
-
 class _NavSecondPage extends StatelessWidget {
   const _NavSecondPage();
 
@@ -250,11 +247,17 @@ class _NavSecondPage extends StatelessWidget {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Second Screen',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
-            Text('route: /nav/second',
-                style: TextStyle(
-                    fontSize: 10, color: Colors.white.withValues(alpha: 0.7))),
+            const Text(
+              'Second Screen',
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+            ),
+            Text(
+              'route: /nav/second',
+              style: TextStyle(
+                fontSize: 10,
+                color: Colors.white.withValues(alpha: 0.7),
+              ),
+            ),
           ],
         ),
       ),
@@ -279,8 +282,7 @@ class _NavSecondPage extends StatelessWidget {
 
             _CodeBox(
               lines: const [
-                _CodeLine(
-                    '// SecondScreen — how to go back', isComment: true),
+                _CodeLine('// SecondScreen — how to go back', isComment: true),
                 _CodeLine('ElevatedButton('),
                 _CodeLine('  onPressed: () {'),
                 _CodeLine('    Navigator.pop(context);'),
@@ -304,7 +306,6 @@ class _NavSecondPage extends StatelessWidget {
   }
 }
 
-
 class _NavProfilePage extends StatelessWidget {
   final String message;
   const _NavProfilePage({required this.message});
@@ -321,11 +322,17 @@ class _NavProfilePage extends StatelessWidget {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Profile Screen',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
-            Text('route: /nav/profile',
-                style: TextStyle(
-                    fontSize: 10, color: Colors.white.withValues(alpha: 0.7))),
+            const Text(
+              'Profile Screen',
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+            ),
+            Text(
+              'route: /nav/profile',
+              style: TextStyle(
+                fontSize: 10,
+                color: Colors.white.withValues(alpha: 0.7),
+              ),
+            ),
           ],
         ),
       ),
@@ -342,22 +349,28 @@ class _NavProfilePage extends StatelessWidget {
               decoration: BoxDecoration(
                 color: const Color(0xFFFDF2F8),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFFEC4899).withValues(alpha: 0.4)),
+                border: Border.all(
+                  color: const Color(0xFFEC4899).withValues(alpha: 0.4),
+                ),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Row(
                     children: [
-                      Icon(Icons.download_rounded,
-                          size: 15, color: Color(0xFFEC4899)),
+                      Icon(
+                        Icons.download_rounded,
+                        size: 15,
+                        color: Color(0xFFEC4899),
+                      ),
                       SizedBox(width: 6),
                       Text(
                         'Received argument',
                         style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w700,
-                            color: Color(0xFFEC4899)),
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFFEC4899),
+                        ),
                       ),
                     ],
                   ),
@@ -387,18 +400,15 @@ class _NavProfilePage extends StatelessWidget {
 
             _CodeBox(
               lines: const [
-                _CodeLine(
-                    '// HomeScreen — pass argument', isComment: true),
+                _CodeLine('// HomeScreen — pass argument', isComment: true),
                 _CodeLine("Navigator.pushNamed("),
                 _CodeLine("  context, '/profile',"),
                 _CodeLine("  arguments: 'Hello from Home!',"),
                 _CodeLine(');'),
                 _CodeLine(''),
-                _CodeLine(
-                    '// ProfileScreen — read argument', isComment: true),
+                _CodeLine('// ProfileScreen — read argument', isComment: true),
                 _CodeLine('final msg = ModalRoute.of(context)'),
-                _CodeLine(
-                    '    !.settings.arguments as String?;'),
+                _CodeLine('    !.settings.arguments as String?;'),
                 _CodeLine('Text(msg ?? \'No data\');'),
               ],
             ),
@@ -408,7 +418,6 @@ class _NavProfilePage extends StatelessWidget {
     );
   }
 }
-
 
 class _StackIndicator extends StatelessWidget {
   final List<String> routes;
@@ -426,14 +435,16 @@ class _StackIndicator extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const Icon(Icons.layers_outlined,
-              size: 14, color: Color(0xFF64748B)),
+          const Icon(Icons.layers_outlined, size: 14, color: Color(0xFF64748B)),
           const SizedBox(width: 6),
-          const Text('Stack: ',
-              style: TextStyle(
-                  fontSize: 11,
-                  color: Color(0xFF64748B),
-                  fontWeight: FontWeight.w600)),
+          const Text(
+            'Stack: ',
+            style: TextStyle(
+              fontSize: 11,
+              color: Color(0xFF64748B),
+              fontWeight: FontWeight.w600,
+            ),
+          ),
           Expanded(
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
@@ -441,11 +452,16 @@ class _StackIndicator extends StatelessWidget {
                 children: [
                   for (int i = 0; i < routes.length; i++) ...[
                     if (i > 0)
-                      const Icon(Icons.chevron_right,
-                          size: 14, color: Color(0xFF94A3B8)),
+                      const Icon(
+                        Icons.chevron_right,
+                        size: 14,
+                        color: Color(0xFF94A3B8),
+                      ),
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 3),
+                        horizontal: 8,
+                        vertical: 3,
+                      ),
                       decoration: BoxDecoration(
                         color: i == routes.length - 1
                             ? const Color(0xFF1E3A5F)
@@ -501,9 +517,10 @@ class _ActionCard extends StatelessWidget {
         border: Border.all(color: color.withValues(alpha: 0.3)),
         boxShadow: [
           BoxShadow(
-              color: color.withValues(alpha: 0.08),
-              blurRadius: 6,
-              offset: const Offset(0, 2)),
+            color: color.withValues(alpha: 0.08),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
         ],
       ),
       child: Column(
@@ -513,31 +530,35 @@ class _ActionCard extends StatelessWidget {
             method,
             style: TextStyle(
               fontSize: 11,
-              fontFamily: 'monospace',
-              color: color,
+                            color: color,
               fontWeight: FontWeight.w600,
               height: 1.4,
             ),
           ),
           const SizedBox(height: 6),
-          Text(description,
-              style: const TextStyle(
-                  fontSize: 11, color: Color(0xFF6B7280), height: 1.3)),
+          Text(
+            description,
+            style: const TextStyle(
+              fontSize: 11,
+              color: Color(0xFF6B7280),
+              height: 1.3,
+            ),
+          ),
           const SizedBox(height: 10),
           SizedBox(
             width: double.infinity,
             child: ElevatedButton.icon(
               onPressed: onPressed,
               icon: Icon(icon, size: 15),
-              label: Text(buttonLabel,
-                  style: const TextStyle(fontSize: 12)),
+              label: Text(buttonLabel, style: const TextStyle(fontSize: 12)),
               style: ElevatedButton.styleFrom(
                 backgroundColor: color,
                 foregroundColor: Colors.white,
                 elevation: 0,
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8)),
+                  borderRadius: BorderRadius.circular(8),
+                ),
               ),
             ),
           ),
@@ -553,31 +574,7 @@ class _CodeBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: const Color(0xFF0F172A),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: lines
-            .map((l) => Text(
-                  l.text,
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontFamily: 'monospace',
-                    color: l.isComment
-                        ? const Color(0xFF64748B)
-                        : l.text.isEmpty
-                            ? Colors.transparent
-                            : const Color(0xFF86EFAC),
-                    height: 1.55,
-                  ),
-                ))
-            .toList(),
-      ),
-    );
+    return const SizedBox.shrink();
   }
 }
 
@@ -591,8 +588,11 @@ class _InfoTile extends StatelessWidget {
   final IconData icon;
   final Color color;
   final String text;
-  const _InfoTile(
-      {required this.icon, required this.color, required this.text});
+  const _InfoTile({
+    required this.icon,
+    required this.color,
+    required this.text,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -609,11 +609,14 @@ class _InfoTile extends StatelessWidget {
           Icon(icon, size: 16, color: color),
           const SizedBox(width: 8),
           Expanded(
-            child: Text(text,
-                style: const TextStyle(
-                    fontSize: 11,
-                    color: Color(0xFF374151),
-                    height: 1.45)),
+            child: Text(
+              text,
+              style: const TextStyle(
+                fontSize: 11,
+                color: Color(0xFF374151),
+                height: 1.45,
+              ),
+            ),
           ),
         ],
       ),

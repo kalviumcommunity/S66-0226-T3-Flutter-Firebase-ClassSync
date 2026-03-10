@@ -11,8 +11,10 @@ class FirestoreScreen extends StatefulWidget {
 
 class _FirestoreScreenState extends State<FirestoreScreen> {
   final _service = FirestoreService();
-  final _taskCtrl = TextEditingController();
+  final _titleCtrl = TextEditingController();
+  final _descCtrl = TextEditingController();
   bool _adding = false;
+  DateTime? _selectedDeadline;
   late Future<DocumentSnapshot?> _latestTaskFuture;
 
   @override
@@ -29,53 +31,234 @@ class _FirestoreScreenState extends State<FirestoreScreen> {
 
   @override
   void dispose() {
-    _taskCtrl.dispose();
+    _titleCtrl.dispose();
+    _descCtrl.dispose();
     super.dispose();
   }
 
   Future<void> _addTask() async {
-    final title = _taskCtrl.text.trim();
-    if (title.isEmpty) return;
+    final title = _titleCtrl.text.trim();
+    final description = _descCtrl.text.trim();
+    if (title.isEmpty || description.isEmpty) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please fill all fields')));
+      return;
+    }
+
     setState(() => _adding = true);
-    await _service.addTask(title);
-    _taskCtrl.clear();
-    if (mounted) {
-      setState(() => _adding = false);
-      _reloadLatestTaskFuture();
+    try {
+      await _service.addTask(
+        title: title,
+        description: description,
+        deadline: _selectedDeadline,
+      );
+      _titleCtrl.clear();
+      _descCtrl.clear();
+      _selectedDeadline = null;
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Task added successfully')),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Could not add task right now')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _adding = false);
+        _reloadLatestTaskFuture();
+      }
     }
   }
 
-  Future<void> _showEditDialog(String id, String currentTitle) async {
-    final ctrl = TextEditingController(text: currentTitle);
-    final newTitle = await showDialog<String>(
+  Future<void> _showEditDialog(
+    String id,
+    String currentTitle,
+    String currentDescription,
+    Timestamp? currentDueAt,
+  ) async {
+    final titleCtrl = TextEditingController(text: currentTitle);
+    final descCtrl = TextEditingController(text: currentDescription);
+    DateTime? draftDeadline = currentDueAt?.toDate();
+    final updated = await showDialog<Map<String, dynamic>>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Edit Task'),
-        content: TextField(
-          controller: ctrl,
-          autofocus: true,
-          decoration: const InputDecoration(
-            labelText: 'Task title',
-            border: OutlineInputBorder(),
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) => AlertDialog(
+          title: const Text('Edit Task'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: titleCtrl,
+                autofocus: true,
+                decoration: const InputDecoration(
+                  labelText: 'Task title',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 10),
+              TextField(
+                controller: descCtrl,
+                maxLines: 2,
+                decoration: const InputDecoration(
+                  labelText: 'Description',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      draftDeadline == null
+                          ? 'No deadline'
+                          : 'Deadline: ${_formatDateTime(draftDeadline!)}',
+                      style: const TextStyle(fontSize: 12),
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () async {
+                      final picked = await _pickDateTime(
+                        initial: draftDeadline,
+                      );
+                      if (picked != null) {
+                        setDialogState(() => draftDeadline = picked);
+                      }
+                    },
+                    child: const Text('Pick date & time'),
+                  ),
+                ],
+              ),
+            ],
           ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(ctx, {
+                'title': titleCtrl.text.trim(),
+                'description': descCtrl.text.trim(),
+                'deadline': draftDeadline,
+              }),
+              child: const Text('Save'),
+            ),
+          ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(ctx, ctrl.text.trim()),
-            child: const Text('Save'),
-          ),
-        ],
       ),
     );
-    ctrl.dispose();
-    if (newTitle != null && newTitle.isNotEmpty && newTitle != currentTitle) {
-      await _service.updateTask(id, newTitle);
-      _reloadLatestTaskFuture();
+    titleCtrl.dispose();
+    descCtrl.dispose();
+
+    if (updated == null) return;
+    final newTitle = updated['title'] as String? ?? '';
+    final newDescription = updated['description'] as String? ?? '';
+    final newDeadline = updated['deadline'] as DateTime?;
+    if (newTitle.isEmpty || newDescription.isEmpty) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Title and description are required')),
+      );
+      return;
     }
+    if (newTitle == currentTitle && newDescription == currentDescription) {
+      return;
+    }
+
+    try {
+      await _service.updateTask(
+        id,
+        title: newTitle,
+        description: newDescription,
+        deadline: newDeadline,
+      );
+      _reloadLatestTaskFuture();
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Could not update task right now')),
+        );
+      }
+    }
+  }
+
+  Future<void> _mergeLatestTaskMetadata() async {
+    final latest = await _service.getLatestTaskDocument();
+    if (latest == null || !latest.exists) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No task found to merge metadata')),
+      );
+      return;
+    }
+    try {
+      await _service.mergeTaskFields(latest.id, {
+        'lastWriteMode': 'set-merge',
+        'updatedAt': Timestamp.now(),
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Set merge write applied to latest task'),
+          ),
+        );
+      }
+      _reloadLatestTaskFuture();
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Set merge write failed')));
+      }
+    }
+  }
+
+  Future<void> _pickCreateDeadline() async {
+    final picked = await _pickDateTime(initial: _selectedDeadline);
+    if (picked != null) {
+      setState(() => _selectedDeadline = picked);
+    }
+  }
+
+  Future<DateTime?> _pickDateTime({DateTime? initial}) async {
+    final now = DateTime.now();
+    final initialDate = initial ?? now;
+    final pickedDate = await showDatePicker(
+      context: context,
+      initialDate: initialDate,
+      firstDate: DateTime(2024),
+      lastDate: DateTime(2100),
+    );
+    if (pickedDate == null) return null;
+    if (!mounted) return null;
+
+    final pickedTime = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.fromDateTime(initialDate),
+    );
+    if (pickedTime == null) {
+      return DateTime(
+        pickedDate.year,
+        pickedDate.month,
+        pickedDate.day,
+        initialDate.hour,
+        initialDate.minute,
+      );
+    }
+
+    return DateTime(
+      pickedDate.year,
+      pickedDate.month,
+      pickedDate.day,
+      pickedTime.hour,
+      pickedTime.minute,
+    );
   }
 
   @override
@@ -98,6 +281,11 @@ class _FirestoreScreenState extends State<FirestoreScreen> {
           ],
         ),
         actions: [
+          IconButton(
+            onPressed: _mergeLatestTaskMetadata,
+            tooltip: 'Set merge write',
+            icon: const Icon(Icons.merge_type),
+          ),
           Padding(
             padding: const EdgeInsets.only(right: 12),
             child: Row(
@@ -145,71 +333,78 @@ class _FirestoreScreenState extends State<FirestoreScreen> {
 
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
+            child: Column(
               children: [
-                Expanded(
-                  child: TextField(
-                    controller: _taskCtrl,
-                    decoration: InputDecoration(
-                      hintText: 'Type a task and tap Add…',
-                      prefixIcon: const Icon(Icons.task_alt_outlined),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      filled: true,
-                      fillColor: Colors.grey.shade50,
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 12,
-                      ),
+                TextField(
+                  controller: _titleCtrl,
+                  decoration: InputDecoration(
+                    hintText: 'Task title',
+                    prefixIcon: const Icon(Icons.task_alt_outlined),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    onSubmitted: (_) => _addTask(),
+                    filled: true,
+                    fillColor: Colors.grey.shade50,
                   ),
                 ),
-                const SizedBox(width: 10),
+                const SizedBox(height: 10),
+                TextField(
+                  controller: _descCtrl,
+                  maxLines: 2,
+                  decoration: InputDecoration(
+                    hintText: 'Task description',
+                    prefixIcon: const Icon(Icons.description_outlined),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    filled: true,
+                    fillColor: Colors.grey.shade50,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        _selectedDeadline == null
+                            ? 'No deadline selected'
+                            : 'Deadline: ${_formatDateTime(_selectedDeadline!)}',
+                        style: const TextStyle(fontSize: 12),
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: _pickCreateDeadline,
+                      child: const Text('Pick date & time'),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
                 SizedBox(
-                  height: 50,
-                  child: ElevatedButton(
+                  width: double.infinity,
+                  height: 46,
+                  child: ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blue.shade700,
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      padding: const EdgeInsets.symmetric(horizontal: 18),
                     ),
                     onPressed: _adding ? null : _addTask,
-                    child: _adding
+                    icon: _adding
                         ? const SizedBox(
-                            width: 18,
-                            height: 18,
+                            width: 16,
+                            height: 16,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
                               color: Colors.white,
                             ),
                           )
                         : const Icon(Icons.add),
+                    label: Text(_adding ? 'Saving...' : 'Add Task'),
                   ),
                 ),
               ],
-            ),
-          ),
-
-          const SizedBox(height: 12),
-
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: _CodeBlock(
-              code:
-                  'StreamBuilder<QuerySnapshot>(\n'
-                  '  stream: tasks.snapshots(), // real-time!\n'
-                  '  builder: (ctx, snapshot) {\n'
-                  '    final docs = snapshot.data!.docs;\n'
-                  '    return ListView(children:\n'
-                  '      docs.map((d) => Text(d[\'title\'])).toList()\n'
-                  '    );\n'
-                  '  },\n'
-                  ')',
             ),
           ),
 
@@ -331,8 +526,14 @@ class _FirestoreScreenState extends State<FirestoreScreen> {
                     final data = doc.data()! as Map<String, dynamic>;
                     final title = data['title'] as String? ?? '';
                     final completed = data['completed'] as bool? ?? false;
+                    final description =
+                        data['description'] as String? ?? 'No description';
                     final ts = data['createdAt'] as Timestamp?;
+                    final dueTs = data['dueAt'] as Timestamp?;
                     final time = ts != null ? _formatTime(ts.toDate()) : '';
+                    final due = dueTs != null
+                        ? 'Due: ${_formatDateTime(dueTs.toDate())}'
+                        : 'Due: not set';
 
                     return Card(
                       elevation: 1,
@@ -383,7 +584,9 @@ class _FirestoreScreenState extends State<FirestoreScreen> {
                           ),
                         ),
                         subtitle: Text(
-                          time,
+                          '$description\n$due\n$time',
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             fontSize: 11,
                             color: Colors.grey.shade400,
@@ -399,7 +602,12 @@ class _FirestoreScreenState extends State<FirestoreScreen> {
                                 size: 20,
                               ),
                               tooltip: 'Edit',
-                              onPressed: () => _showEditDialog(doc.id, title),
+                              onPressed: () => _showEditDialog(
+                                doc.id,
+                                title,
+                                description,
+                                dueTs,
+                              ),
                             ),
                             IconButton(
                               icon: Icon(
@@ -432,8 +640,20 @@ class _FirestoreScreenState extends State<FirestoreScreen> {
     final min = dt.minute.toString().padLeft(2, '0');
     return '${dt.day}/${dt.month}/${dt.year} $hour:$min';
   }
-}
 
+  String _formatDate(DateTime dt) {
+    final month = dt.month.toString().padLeft(2, '0');
+    final day = dt.day.toString().padLeft(2, '0');
+    return '${dt.year}-$month-$day';
+  }
+
+  String _formatDateTime(DateTime dt) {
+    final date = _formatDate(dt);
+    final hour = dt.hour.toString().padLeft(2, '0');
+    final minute = dt.minute.toString().padLeft(2, '0');
+    return '$date $hour:$minute';
+  }
+}
 
 class _PulseDot extends StatefulWidget {
   @override
@@ -471,32 +691,6 @@ class _PulseDotState extends State<_PulseDot>
         decoration: const BoxDecoration(
           shape: BoxShape.circle,
           color: Colors.greenAccent,
-        ),
-      ),
-    );
-  }
-}
-
-class _CodeBlock extends StatelessWidget {
-  final String code;
-  const _CodeBlock({required this.code});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: const Color(0xFF1E1E2E),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Text(
-        code,
-        style: const TextStyle(
-          fontFamily: 'monospace',
-          fontSize: 12,
-          color: Color(0xFFCDD6F4),
-          height: 1.6,
         ),
       ),
     );

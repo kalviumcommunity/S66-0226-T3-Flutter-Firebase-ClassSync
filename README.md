@@ -11,6 +11,7 @@ ClassSync is a Flutter + Firebase app for coaching centers to manage classrooms,
 | Auth routing | 3.29 | Screen switching using `authStateChanges()` |
 | Firestore data model | 3.31 | Schema design for scalable app data |
 | Firestore read operations | 3.32 | Collection and document reads with real-time streams |
+| Firestore write/update operations | 3.33 | Safe add, set-merge, and update writes with validation |
 | Storage integration | - | Firebase Storage-ready media handling |
 
 ## Tech stack
@@ -202,6 +203,62 @@ Suggested screenshots for documentation:
 - Firestore Console data (`tasks` collection)
 - App UI showing task list from Firestore
 - UI update after editing Firestore document
+
+## 3.33 Writing and updating Firestore data
+
+The task form writes data to `tasks` with validation and timestamp tracking.
+
+| Operation | Usage in app |
+|---|---|
+| Add | Create task with auto document ID (`add`) |
+| Set merge | Merge metadata into existing document (`set` + `SetOptions(merge: true)`) |
+| Update | Update only changed fields (`update`) |
+
+Input form fields:
+
+- Title
+- Description
+
+Add operation:
+
+```dart
+await service.addTask(
+  title: title,
+  description: description,
+);
+```
+
+Set merge operation:
+
+```dart
+await service.mergeTaskFields(taskId, {
+  'lastWriteMode': 'set-merge',
+  'updatedAt': Timestamp.now(),
+});
+```
+
+Update operation:
+
+```dart
+await service.updateTask(
+  taskId,
+  title: newTitle,
+  description: newDescription,
+);
+```
+
+Why secure writes matter:
+
+- Input validation blocks empty or invalid writes
+- `update` prevents accidental full-document overwrite
+- `set` with merge allows controlled partial writes
+- timestamps help tracking and conflict debugging
+
+Suggested screenshots:
+
+- Task form in app
+- Firestore Console showing newly added task
+- Firestore Console after updating task fields
 
 ## Project structure
 

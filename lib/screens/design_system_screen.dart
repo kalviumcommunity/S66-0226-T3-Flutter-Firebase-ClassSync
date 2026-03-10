@@ -501,8 +501,7 @@ class _ColorSwatch extends StatelessWidget {
           style: const TextStyle(
             fontSize: 10,
             color: DSColors.onSurfaceMuted,
-            fontFamily: 'monospace',
-          ),
+                      ),
         ),
       ],
     );
@@ -535,8 +534,7 @@ class _TypeSample extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 10,
                 color: DSColors.onSurfaceMuted,
-                fontFamily: 'monospace',
-              ),
+                              ),
             ),
           ),
           Expanded(
@@ -574,8 +572,7 @@ class _SpacingSample extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 12,
                 color: DSColors.onSurfaceMuted,
-                fontFamily: 'monospace',
-              ),
+                              ),
             ),
           ),
           Text(
@@ -631,8 +628,7 @@ class _RadiusSample extends StatelessWidget {
           style: const TextStyle(
             fontSize: 10,
             color: DSColors.onSurfaceMuted,
-            fontFamily: 'monospace',
-          ),
+                      ),
         ),
       ],
     );
@@ -944,8 +940,7 @@ class _MappingRow extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 12,
                   color: DSColors.primary,
-                  fontFamily: 'monospace',
-                ),
+                                  ),
               ),
             ),
           ),

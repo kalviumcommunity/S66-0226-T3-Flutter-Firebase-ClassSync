@@ -271,8 +271,7 @@ class _WidgetRow extends StatelessWidget {
             child: Text(
               label,
               style: TextStyle(
-                fontFamily: 'monospace',
-                fontSize: 13,
+                                fontSize: 13,
                 color: color,
                 fontWeight: FontWeight.w600,
               ),

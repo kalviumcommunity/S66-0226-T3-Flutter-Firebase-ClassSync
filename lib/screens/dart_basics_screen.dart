@@ -215,7 +215,10 @@ class _SectionHeader extends StatelessWidget {
         Container(
           width: 4,
           height: 20,
-          decoration: BoxDecoration(color: color,borderRadius: BorderRadius.circular(2)),
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(2),
+          ),
         ),
         const SizedBox(width: 8),
         Text(
@@ -239,46 +242,18 @@ class _ConceptBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            color: const Color(0xFF1E1E2E),
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(10),
-              topRight: Radius.circular(10),
-            ),
-          ),
-          child: Text(
-            code,
-            style: const TextStyle(
-              fontFamily: 'monospace',
-              fontSize: 13,
-              color: Color(0xFFCDD6F4),
-              height: 1.6,
-            ),
-          ),
-        ),
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: Colors.grey.shade100,
-            borderRadius: const BorderRadius.only(
-              bottomLeft: Radius.circular(10),
-              bottomRight: Radius.circular(10),
-            ),
-            border: Border.all(color: Colors.grey.shade200),
-          ),
-          child: Text(
-            explanation,
-            style: const TextStyle(fontSize: 13, height: 1.5),
-          ),
-        ),
-      ],
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade100,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: Text(
+        explanation,
+        style: const TextStyle(fontSize: 13, height: 1.5),
+      ),
     );
   }
 }

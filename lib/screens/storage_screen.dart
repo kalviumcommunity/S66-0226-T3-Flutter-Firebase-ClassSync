@@ -222,8 +222,7 @@ class _StorageScreenState extends State<StorageScreen> {
                           child: Text(
                             _downloadUrl!,
                             style: const TextStyle(
-                                fontFamily: 'monospace',
-                                fontSize: 10,
+                                                                fontSize: 10,
                                 color: Colors.blue),
                           ),
                         ),
@@ -308,8 +307,7 @@ class _StorageScreenState extends State<StorageScreen> {
                 'final snapshot = await ref.putData(bytes);\n'
                 'final url = await snapshot.ref.getDownloadURL();',
                 style: TextStyle(
-                  fontFamily: 'monospace',
-                  fontSize: 12,
+                                    fontSize: 12,
                   color: Color(0xFFCDD6F4),
                   height: 1.7,
                 ),

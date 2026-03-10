@@ -330,8 +330,7 @@ class _TreeNode extends StatelessWidget {
         child: Text(
           label,
           style: TextStyle(
-            fontFamily: 'monospace',
-            fontSize: 12,
+                        fontSize: 12,
             fontWeight: isRoot ? FontWeight.bold : FontWeight.normal,
             color: isReactive ? Colors.orange.shade800 : Colors.black87,
           ),
@@ -404,8 +403,7 @@ class _ProfileCard extends StatelessWidget {
               child: const Text(
                 'Card → Padding → Column → Row → CircleAvatar + Column',
                 style: TextStyle(
-                  fontFamily: 'monospace',
-                  fontSize: 11,
+                                    fontSize: 11,
                   color: Colors.grey,
                 ),
                 textAlign: TextAlign.center,
@@ -510,8 +508,7 @@ class _ColorTapCard extends StatelessWidget {
             Text(
               'setState() → _colorIndex++ → AnimatedContainer rebuilds',
               style: TextStyle(
-                fontFamily: 'monospace',
-                fontSize: 11,
+                                fontSize: 11,
                 color: Colors.grey.shade600,
               ),
               textAlign: TextAlign.center,
@@ -602,8 +599,7 @@ class _CounterCard extends StatelessWidget {
             Text(
               'Only the Text("$count") node rebuilds — not the buttons',
               style: TextStyle(
-                fontFamily: 'monospace',
-                fontSize: 11,
+                                fontSize: 11,
                 color: Colors.grey.shade600,
               ),
               textAlign: TextAlign.center,
@@ -731,8 +727,7 @@ class _VisibilityCard extends StatelessWidget {
                   ? 'visible=true → widget node present in tree'
                   : 'visible=false → widget node removed from tree',
               style: TextStyle(
-                fontFamily: 'monospace',
-                fontSize: 11,
+                                fontSize: 11,
                 color: Colors.grey.shade600,
               ),
               textAlign: TextAlign.center,
@@ -806,8 +801,7 @@ class _ReactiveModelCard extends StatelessWidget {
               child: const Text(
                 'setState() → build() → diff → repaint changed nodes',
                 style: TextStyle(
-                  fontFamily: 'monospace',
-                  fontSize: 13,
+                                    fontSize: 13,
                   fontWeight: FontWeight.bold,
                   color: Color(0xFF7C3AED),
                 ),
