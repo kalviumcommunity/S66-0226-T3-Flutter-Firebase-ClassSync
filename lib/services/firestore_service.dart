@@ -32,6 +32,20 @@ class FirestoreService {
     return _tasks.orderBy('createdAt', descending: true).snapshots();
   }
 
+  Stream<QuerySnapshot> queryTasks({
+    required bool onlyPending,
+    required bool newestFirst,
+    required int limit,
+  }) {
+    if (onlyPending) {
+      return _tasks.where('completed', isEqualTo: false).snapshots();
+    }
+    return _tasks
+        .orderBy('createdAt', descending: newestFirst)
+        .limit(limit)
+        .snapshots();
+  }
+
   Stream<DocumentSnapshot> watchTaskDocument(String taskId) {
     return _tasks.doc(taskId).snapshots();
   }
