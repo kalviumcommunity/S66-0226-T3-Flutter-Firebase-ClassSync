@@ -12,6 +12,7 @@ ClassSync is a Flutter + Firebase app for coaching centers to manage classrooms,
 | Firestore data model | 3.31 | Schema design for scalable app data |
 | Firestore read operations | 3.32 | Collection and document reads with real-time streams |
 | Firestore write/update operations | 3.33 | Safe add, set-merge, and update writes with validation |
+| Firestore real-time sync | 3.34 | Snapshot listeners for live collection/document updates |
 | Storage integration | - | Firebase Storage-ready media handling |
 
 ## Tech stack
@@ -254,11 +255,47 @@ Why secure writes matter:
 - `set` with merge allows controlled partial writes
 - timestamps help tracking and conflict debugging
 
-Suggested screenshots:
 
-- Task form in app
-- Firestore Console showing newly added task
-- Firestore Console after updating task fields
+## 3.34 Implementing real-time sync with snapshot listeners
+
+This module uses Firestore snapshot listeners so UI updates instantly when data changes.
+
+| Listener type | Example in app | Result |
+|---|---|---|
+| Collection snapshot | `tasks.snapshots()` via `StreamBuilder` | Task list auto-updates on add/update/delete |
+| Document snapshot | `tasks/{taskId}.snapshots()` for selected task | Selected task details update live |
+| Manual listener | `tasks.snapshots().listen(...)` | Live activity message for doc changes |
+
+Collection listener example:
+
+```dart
+StreamBuilder<QuerySnapshot>(
+  stream: service.getTasks(),
+  builder: (context, snapshot) {
+    if (!snapshot.hasData) return const CircularProgressIndicator();
+    final docs = snapshot.data!.docs;
+    return ListView.builder(itemCount: docs.length, itemBuilder: ...);
+  },
+)
+```
+
+Document listener example:
+
+```dart
+StreamBuilder<DocumentSnapshot>(
+  stream: service.watchTaskDocument(taskId),
+  builder: (context, snapshot) {
+    final data = snapshot.data?.data() as Map<String, dynamic>?;
+    return Text(data?['title'] ?? 'No data');
+  },
+)
+```
+
+Why this improves UX:
+
+- No manual refresh required
+- Multiple clients stay synced instantly
+- UI stays consistent during rapid changes
 
 ## Project structure
 
