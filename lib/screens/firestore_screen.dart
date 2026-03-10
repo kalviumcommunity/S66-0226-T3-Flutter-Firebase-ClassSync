@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import '../services/firestore_service.dart';
@@ -15,12 +17,29 @@ class _FirestoreScreenState extends State<FirestoreScreen> {
   final _descCtrl = TextEditingController();
   bool _adding = false;
   DateTime? _selectedDeadline;
+  String? _selectedTaskId;
+  String _lastChangeMessage = 'Waiting for live changes...';
+  StreamSubscription<QuerySnapshot>? _taskChangesSub;
   late Future<DocumentSnapshot?> _latestTaskFuture;
 
   @override
   void initState() {
     super.initState();
     _latestTaskFuture = _service.getLatestTaskDocument();
+    _taskChangesSub = _service.getTasks().listen((snapshot) {
+      if (!mounted || snapshot.docChanges.isEmpty) return;
+      final change = snapshot.docChanges.first;
+      final title =
+          (change.doc.data() as Map<String, dynamic>?)?['title'] ?? 'task';
+      final label = switch (change.type) {
+        DocumentChangeType.added => 'Added',
+        DocumentChangeType.modified => 'Updated',
+        DocumentChangeType.removed => 'Removed',
+      };
+      setState(() {
+        _lastChangeMessage = '$label: $title';
+      });
+    });
   }
 
   void _reloadLatestTaskFuture() {
@@ -31,6 +50,7 @@ class _FirestoreScreenState extends State<FirestoreScreen> {
 
   @override
   void dispose() {
+    _taskChangesSub?.cancel();
     _titleCtrl.dispose();
     _descCtrl.dispose();
     super.dispose();
@@ -412,6 +432,58 @@ class _FirestoreScreenState extends State<FirestoreScreen> {
 
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.teal.shade50,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.teal.shade200),
+              ),
+              child: Text(
+                'Live activity: $_lastChangeMessage',
+                style: TextStyle(
+                  color: Colors.teal.shade900,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 12),
+
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: _selectedTaskId == null
+                ? const Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text('Tap a task to view live document updates.'),
+                  )
+                : StreamBuilder<DocumentSnapshot>(
+                    stream: _service.watchTaskDocument(_selectedTaskId!),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const LinearProgressIndicator();
+                      }
+                      final data =
+                          snapshot.data?.data() as Map<String, dynamic>?;
+                      if (data == null) {
+                        return const Text('Selected task document not found.');
+                      }
+                      final liveTitle = data['title'] as String? ?? 'Untitled';
+                      final liveDone = data['completed'] as bool? ?? false;
+                      return Text(
+                        'Live document: $liveTitle | completed: $liveDone',
+                        style: const TextStyle(fontSize: 12),
+                      );
+                    },
+                  ),
+          ),
+
+          const SizedBox(height: 12),
+
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: StreamBuilder<QuerySnapshot>(
               stream: _service.getPendingTasks(),
               builder: (context, snapshot) {
@@ -541,6 +613,11 @@ class _FirestoreScreenState extends State<FirestoreScreen> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: ListTile(
+                        onTap: () {
+                          setState(() {
+                            _selectedTaskId = doc.id;
+                          });
+                        },
                         leading: GestureDetector(
                           onTap: () async {
                             await _service.toggleTask(doc.id, completed);
