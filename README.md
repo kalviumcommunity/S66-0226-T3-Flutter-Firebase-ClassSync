@@ -4,21 +4,22 @@ ClassSync is a Flutter + Firebase app for coaching centers to manage classrooms,
 
 ## What the app provides
 
-| Feature                           | Module     | Description                                                          |
-| --------------------------------- | ---------- | -------------------------------------------------------------------- |
-| Authentication                    | 3.28, 3.29 | Email/password signup, login, and logout                             |
-| Session persistence               | 3.30       | Auto-login with Firebase Auth session restore                        |
-| Auth routing                      | 3.29       | Screen switching using `authStateChanges()`                          |
-| Firestore data model              | 3.31       | Schema design for scalable app data                                  |
-| Firestore read operations         | 3.32       | Collection and document reads with real-time streams                 |
-| Firestore write/update operations | 3.33       | Safe add, set-merge, and update writes with validation               |
-| Firestore real-time sync          | 3.34       | Snapshot listeners for live collection/document updates              |
-| Firestore query optimization      | 3.35       | where filters, ordering, and limits for efficient reads              |
-| Handling user input with forms    | 3.36       | TextFormField validation with submit/reset feedback                  |
-| State management with setState    | 3.37       | Local state updates with conditional UI changes                      |
-| Reusable custom widgets           | 3.38       | Shared Stateless and Stateful widgets used on multiple screens       |
-| Scrollable views                  | 3.xx       | ListView.builder and GridView.builder for adaptive dashboard layouts |
-| Storage integration               | -          | Firebase Storage-ready media handling                                |
+| Feature                            | Module     | Description                                                          |
+| ---------------------------------- | ---------- | -------------------------------------------------------------------- |
+| Authentication                     | 3.28, 3.29 | Email/password signup, login, and logout                             |
+| Session persistence                | 3.30       | Auto-login with Firebase Auth session restore                        |
+| Auth routing                       | 3.29       | Screen switching using `authStateChanges()`                          |
+| Firestore data model               | 3.31       | Schema design for scalable app data                                  |
+| Firestore read operations          | 3.32       | Collection and document reads with real-time streams                 |
+| Firestore write/update operations  | 3.33       | Safe add, set-merge, and update writes with validation               |
+| Firestore real-time sync           | 3.34       | Snapshot listeners for live collection/document updates              |
+| Firestore query optimization       | 3.35       | where filters, ordering, and limits for efficient reads              |
+| Handling user input with forms     | 3.36       | TextFormField validation with submit/reset feedback                  |
+| State management with setState     | 3.37       | Local state updates with conditional UI changes                      |
+| Reusable custom widgets            | 3.38       | Shared Stateless and Stateful widgets used on multiple screens       |
+| Responsive design with adaptive UI | 3.39       | MediaQuery and LayoutBuilder for phone and tablet layouts            |
+| Scrollable views                   | 3.xx       | ListView.builder and GridView.builder for adaptive dashboard layouts |
+| Storage integration                | -          | Firebase Storage-ready media handling                                |
 
 ## Tech stack
 
@@ -408,6 +409,54 @@ What challenges did you face while designing modular components?
 How could your team apply this approach to your full project?
 
 - Move repeated UI patterns (cards, buttons, input rows, empty states) into shared widgets to keep screens smaller and consistent.
+
+## 3.39 Responsive design using MediaQuery and LayoutBuilder
+
+This module adds a dedicated adaptive screen at `lib/screens/mediaquery_layoutbuilder_demo.dart`.
+
+### What it demonstrates
+
+- `MediaQuery` for screen width, height, orientation, and adaptive spacing/font sizing
+- `LayoutBuilder` for conditional phone/tablet widget trees
+- percentage-based panel sizing to avoid fixed dimensions
+
+### Key code snippets
+
+```dart
+final media = MediaQuery.of(context);
+final screenWidth = media.size.width;
+final isPortrait = media.orientation == Orientation.portrait;
+```
+
+```dart
+LayoutBuilder(
+  builder: (context, constraints) {
+    final isTablet = constraints.maxWidth >= 600;
+    return isTablet
+        ? _TabletPanels(maxWidth: constraints.maxWidth)
+        : _MobilePanels(maxWidth: constraints.maxWidth);
+  },
+)
+```
+
+### Suggested screenshot placeholders
+
+- `screenshots/responsive-mobile.png` (phone layout)
+- `screenshots/responsive-tablet.png` (tablet layout)
+
+### Reflection
+
+Why is responsiveness important in mobile development?
+
+- It ensures good usability and visual consistency across different device sizes and orientations.
+
+How does `LayoutBuilder` differ from `MediaQuery`?
+
+- `MediaQuery` gives overall device metrics, while `LayoutBuilder` gives local parent constraints for precise widget-tree decisions.
+
+How could your team use these tools to scale app design efficiently?
+
+- By defining breakpoints and adaptive components once, then reusing those patterns across feature screens.
 
 Suggested screenshots for documentation:
 
