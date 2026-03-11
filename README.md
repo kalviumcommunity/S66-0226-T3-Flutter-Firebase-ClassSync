@@ -18,6 +18,8 @@ ClassSync is a Flutter + Firebase app for coaching centers to manage classrooms,
 | State management with setState     | 3.37       | Local state updates with conditional UI changes                      |
 | Reusable custom widgets            | 3.38       | Shared Stateless and Stateful widgets used on multiple screens       |
 | Responsive design with adaptive UI | 3.39       | MediaQuery and LayoutBuilder for phone and tablet layouts            |
+| Managing images and local assets   | 3.40       | Registering and rendering local images/icons in Flutter              |
+| Animations and transitions         | 3.41       | Implicit, explicit, and page transition animations for UX            |
 | Scrollable views                   | 3.xx       | ListView.builder and GridView.builder for adaptive dashboard layouts |
 | Storage integration                | -          | Firebase Storage-ready media handling                                |
 
@@ -457,6 +459,151 @@ How does `LayoutBuilder` differ from `MediaQuery`?
 How could your team use these tools to scale app design efficiently?
 
 - By defining breakpoints and adaptive components once, then reusing those patterns across feature screens.
+
+## 3.40 Managing images, icons, and local assets
+
+This module adds local asset management using:
+
+- `assets/images/`
+- `assets/icons/`
+
+Configured in `pubspec.yaml`:
+
+```yaml
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
+    - assets/icons/
+```
+
+Screen implementation:
+
+- `lib/screens/assets_demo_screen.dart`
+
+### Asset and icon usage snippets
+
+```dart
+Image.asset(
+  'assets/images/logo.png',
+  width: 82,
+  height: 82,
+  fit: BoxFit.cover,
+)
+```
+
+```dart
+Container(
+  decoration: const BoxDecoration(
+    image: DecorationImage(
+      image: AssetImage('assets/images/background.png'),
+      fit: BoxFit.cover,
+    ),
+  ),
+)
+```
+
+```dart
+const Icon(Icons.flutter_dash, color: Colors.blue, size: 40)
+const Icon(CupertinoIcons.heart_fill, color: Colors.red, size: 38)
+```
+
+### Suggested screenshot placeholders
+
+- `screenshots/assets-display.png` (images + icons shown in app)
+- `screenshots/assets-folder-and-pubspec.png` (folder structure + pubspec assets)
+
+### Reflection
+
+What steps are necessary to load assets correctly in Flutter?
+
+- Place files in project folders, register them under `flutter/assets` in `pubspec.yaml`, run `flutter pub get`, and load via `Image.asset` or `AssetImage`.
+
+What common errors did you face while configuring `pubspec.yaml`?
+
+- Incorrect indentation and path mismatches are the most common causes of missing asset errors.
+
+How do proper asset management practices support scalability?
+
+- Organized folders and consistent naming make large projects easier to maintain, reuse, and review across teams.
+
+## 3.41 Adding animations and transitions to improve UX
+
+This module adds a dedicated demo screen:
+
+- `lib/screens/animations_transitions_demo.dart`
+
+### What was implemented
+
+- Implicit animation with `AnimatedContainer`
+- Fade animation with `AnimatedOpacity`
+- Explicit animation with `AnimationController` + `RotationTransition`
+- Custom page transition using `PageRouteBuilder` (slide + fade)
+
+### Code snippets
+
+```dart
+AnimatedContainer(
+  duration: const Duration(milliseconds: 600),
+  curve: Curves.easeInOut,
+  width: _expanded ? 220 : 120,
+  height: _expanded ? 120 : 180,
+)
+```
+
+```dart
+AnimatedOpacity(
+  opacity: _visible ? 1.0 : 0.2,
+  duration: const Duration(milliseconds: 600),
+  child: Image.asset('assets/images/logo.png', width: 120),
+)
+```
+
+```dart
+RotationTransition(
+  turns: _rotationController,
+  child: const Icon(Icons.flutter_dash, size: 84),
+)
+```
+
+```dart
+Navigator.of(context).push(
+  PageRouteBuilder(
+    transitionDuration: const Duration(milliseconds: 700),
+    pageBuilder: (context, animation, secondaryAnimation) =>
+        const _AnimatedDestinationPage(),
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      return SlideTransition(
+        position: Tween<Offset>(
+          begin: const Offset(1, 0),
+          end: Offset.zero,
+        ).animate(CurvedAnimation(parent: animation, curve: Curves.easeInOut)),
+        child: child,
+      );
+    },
+  ),
+);
+```
+
+### Suggested screenshots/GIF placeholders
+
+- `screenshots/animation-container.gif`
+- `screenshots/animation-opacity.gif`
+- `screenshots/animation-page-transition.gif`
+
+### Reflection
+
+Why are animations important for UX?
+
+- They provide visual feedback, improve perceived smoothness, and guide user attention.
+
+What is the difference between implicit and explicit animations?
+
+- Implicit animations are simpler and animate property changes automatically; explicit animations provide full control through an `AnimationController`.
+
+How can your team apply animations effectively in the main project?
+
+- Use subtle, purposeful animations for state changes and navigation while keeping durations short for responsiveness.
 
 Suggested screenshots for documentation:
 
