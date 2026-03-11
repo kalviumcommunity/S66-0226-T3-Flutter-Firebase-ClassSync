@@ -4,37 +4,38 @@ ClassSync is a Flutter + Firebase app for coaching centers to manage classrooms,
 
 ## What the app provides
 
-| Feature | Module | Description |
-|---|---|---|
-| Authentication | 3.28, 3.29 | Email/password signup, login, and logout |
-| Session persistence | 3.30 | Auto-login with Firebase Auth session restore |
-| Auth routing | 3.29 | Screen switching using `authStateChanges()` |
-| Firestore data model | 3.31 | Schema design for scalable app data |
-| Firestore read operations | 3.32 | Collection and document reads with real-time streams |
-| Firestore write/update operations | 3.33 | Safe add, set-merge, and update writes with validation |
-| Firestore real-time sync | 3.34 | Snapshot listeners for live collection/document updates |
-| Firestore query optimization | 3.35 | where filters, ordering, and limits for efficient reads |
-| Storage integration | - | Firebase Storage-ready media handling |
+| Feature                           | Module     | Description                                                          |
+| --------------------------------- | ---------- | -------------------------------------------------------------------- |
+| Authentication                    | 3.28, 3.29 | Email/password signup, login, and logout                             |
+| Session persistence               | 3.30       | Auto-login with Firebase Auth session restore                        |
+| Auth routing                      | 3.29       | Screen switching using `authStateChanges()`                          |
+| Firestore data model              | 3.31       | Schema design for scalable app data                                  |
+| Firestore read operations         | 3.32       | Collection and document reads with real-time streams                 |
+| Firestore write/update operations | 3.33       | Safe add, set-merge, and update writes with validation               |
+| Firestore real-time sync          | 3.34       | Snapshot listeners for live collection/document updates              |
+| Firestore query optimization      | 3.35       | where filters, ordering, and limits for efficient reads              |
+| Scrollable views                  | 3.xx       | ListView.builder and GridView.builder for adaptive dashboard layouts |
+| Storage integration               | -          | Firebase Storage-ready media handling                                |
 
 ## Tech stack
 
-| Layer | Technology |
-|---|---|
-| Frontend | Flutter (Dart) |
-| App initialization | Firebase Core |
-| Identity | Firebase Authentication |
-| Database | Cloud Firestore |
-| File storage | Firebase Storage |
+| Layer              | Technology              |
+| ------------------ | ----------------------- |
+| Frontend           | Flutter (Dart)          |
+| App initialization | Firebase Core           |
+| Identity           | Firebase Authentication |
+| Database           | Cloud Firestore         |
+| File storage       | Firebase Storage        |
 
 ## Prerequisites
 
-| Requirement | Purpose |
-|---|---|
-| Flutter SDK | Build and run the Flutter app |
-| Android Studio / Chrome | Android emulator or web runtime |
-| Firebase project | Backend services and configuration |
-| Firebase CLI | Firebase account/project access |
-| FlutterFire CLI | Generate platform Firebase config |
+| Requirement             | Purpose                            |
+| ----------------------- | ---------------------------------- |
+| Flutter SDK             | Build and run the Flutter app      |
+| Android Studio / Chrome | Android emulator or web runtime    |
+| Firebase project        | Backend services and configuration |
+| Firebase CLI            | Firebase account/project access    |
+| FlutterFire CLI         | Generate platform Firebase config  |
 
 Quick checks:
 
@@ -48,13 +49,13 @@ flutterfire --version
 
 ## Setup
 
-| Step | Action |
-|---|---|
-| 1 | Clone and open the repository |
-| 2 | Install dependencies |
-| 3 | Login and connect Firebase |
-| 4 | Verify generated Firebase config files |
-| 5 | Enable required Firebase services in console |
+| Step | Action                                       |
+| ---- | -------------------------------------------- |
+| 1    | Clone and open the repository                |
+| 2    | Install dependencies                         |
+| 3    | Login and connect Firebase                   |
+| 4    | Verify generated Firebase config files       |
+| 5    | Enable required Firebase services in console |
 
 Install dependencies:
 
@@ -70,10 +71,12 @@ flutterfire configure
 ```
 
 Ensure Firebase config files are present:
+
 - `lib/firebase_options.dart`
 - `android/app/google-services.json` (Android)
 
 In Firebase Console, enable required services:
+
 - Authentication -> Sign-in method -> Email/Password
 - Firestore Database
 - Storage
@@ -116,23 +119,23 @@ home: StreamBuilder<User?>(
 
 Primary collections:
 
-| Collection | Purpose |
-|---|---|
-| `users` | User profile and role data |
-| `classrooms` | Class metadata and ownership |
-| `materials` | Learning resources and metadata |
-| `assignments` | Assignment definitions and due dates |
-| `submissions` | Cross-assignment submission records |
-| `announcements` | Broadcast messages for classes |
-| `tasks` | User-level task tracking |
+| Collection      | Purpose                              |
+| --------------- | ------------------------------------ |
+| `users`         | User profile and role data           |
+| `classrooms`    | Class metadata and ownership         |
+| `materials`     | Learning resources and metadata      |
+| `assignments`   | Assignment definitions and due dates |
+| `submissions`   | Cross-assignment submission records  |
+| `announcements` | Broadcast messages for classes       |
+| `tasks`         | User-level task tracking             |
 
 Suggested growth-oriented subcollections:
 
-| Subcollection path | Reason |
-|---|---|
-| `classrooms/{classroomId}/assignments` | Parent-scoped assignment reads |
-| `classrooms/{classroomId}/announcements` | Real-time classroom feed |
-| `assignments/{assignmentId}/submissions` | High-volume submission growth |
+| Subcollection path                       | Reason                         |
+| ---------------------------------------- | ------------------------------ |
+| `classrooms/{classroomId}/assignments`   | Parent-scoped assignment reads |
+| `classrooms/{classroomId}/announcements` | Real-time classroom feed       |
+| `assignments/{assignmentId}/submissions` | High-volume submission growth  |
 
 Sample document (`assignments/{assignmentId}`):
 
@@ -154,11 +157,11 @@ Sample document (`assignments/{assignmentId}`):
 
 The app reads Firestore data in three practical ways:
 
-| Read type | Where used | Widget |
-|---|---|---|
-| Collection stream | Tasks list (`tasks`) | `StreamBuilder` |
-| Filtered stream | Pending tasks (`completed == false`) | `StreamBuilder` |
-| Single document (one-time) | Latest task document | `FutureBuilder` |
+| Read type                  | Where used                           | Widget          |
+| -------------------------- | ------------------------------------ | --------------- |
+| Collection stream          | Tasks list (`tasks`)                 | `StreamBuilder` |
+| Filtered stream            | Pending tasks (`completed == false`) | `StreamBuilder` |
+| Single document (one-time) | Latest task document                 | `FutureBuilder` |
 
 Collection stream example:
 
@@ -210,11 +213,11 @@ Suggested screenshots for documentation:
 
 The task form writes data to `tasks` with validation and timestamp tracking.
 
-| Operation | Usage in app |
-|---|---|
-| Add | Create task with auto document ID (`add`) |
+| Operation | Usage in app                                                              |
+| --------- | ------------------------------------------------------------------------- |
+| Add       | Create task with auto document ID (`add`)                                 |
 | Set merge | Merge metadata into existing document (`set` + `SetOptions(merge: true)`) |
-| Update | Update only changed fields (`update`) |
+| Update    | Update only changed fields (`update`)                                     |
 
 Input form fields:
 
@@ -256,16 +259,15 @@ Why secure writes matter:
 - `set` with merge allows controlled partial writes
 - timestamps help tracking and conflict debugging
 
-
 ## 3.34 Implementing real-time sync with snapshot listeners
 
 This module uses Firestore snapshot listeners so UI updates instantly when data changes.
 
-| Listener type | Example in app | Result |
-|---|---|---|
-| Collection snapshot | `tasks.snapshots()` via `StreamBuilder` | Task list auto-updates on add/update/delete |
-| Document snapshot | `tasks/{taskId}.snapshots()` for selected task | Selected task details update live |
-| Manual listener | `tasks.snapshots().listen(...)` | Live activity message for doc changes |
+| Listener type       | Example in app                                 | Result                                      |
+| ------------------- | ---------------------------------------------- | ------------------------------------------- |
+| Collection snapshot | `tasks.snapshots()` via `StreamBuilder`        | Task list auto-updates on add/update/delete |
+| Document snapshot   | `tasks/{taskId}.snapshots()` for selected task | Selected task details update live           |
+| Manual listener     | `tasks.snapshots().listen(...)`                | Live activity message for doc changes       |
 
 Collection listener example:
 
@@ -302,11 +304,11 @@ Why this improves UX:
 
 This module adds query controls so the app reads only relevant task data.
 
-| Query type | Example in app |
-|---|---|
-| Filter (`where`) | `where('completed', isEqualTo: false)` |
+| Query type       | Example in app                                 |
+| ---------------- | ---------------------------------------------- |
+| Filter (`where`) | `where('completed', isEqualTo: false)`         |
 | Sort (`orderBy`) | `orderBy('createdAt', descending: true/false)` |
-| Limit (`limit`) | `limit(5/10/20/50)` |
+| Limit (`limit`)  | `limit(5/10/20/50)`                            |
 
 Query stream example:
 
@@ -349,19 +351,99 @@ classsync/
 
 ## Key files
 
-| File | Responsibility |
-|---|---|
-| `lib/main.dart` | Firebase initialization and auth-state routing |
-| `lib/screens/auth_screen.dart` | Login/signup UI |
-| `lib/screens/home_screen.dart` | Authenticated landing screen and logout |
-| `lib/screens/session_splash_screen.dart` | Startup session loading state |
-| `lib/services/auth_service.dart` | Auth operations wrapper |
-| `lib/services/firestore_service.dart` | Firestore operations wrapper |
+| File                                       | Responsibility                                 |
+| ------------------------------------------ | ---------------------------------------------- |
+| `lib/main.dart`                            | Firebase initialization and auth-state routing |
+| `lib/screens/auth_screen.dart`             | Login/signup UI                                |
+| `lib/screens/home_screen.dart`             | Authenticated landing screen and logout        |
+| `lib/screens/session_splash_screen.dart`   | Startup session loading state                  |
+| `lib/services/auth_service.dart`           | Auth operations wrapper                        |
+| `lib/services/firestore_service.dart`      | Firestore operations wrapper                   |
+| `lib/screens/scrollable_views_screen.dart` | Mixed ListView/GridView lesson screen          |
 
 ## Troubleshooting
 
-| Issue | Fix |
-|---|---|
-| `flutterfire` not recognized | Add `%LOCALAPPDATA%\Pub\Cache\bin` to PATH and reopen terminal |
-| `operation-not-allowed` on auth | Enable Email/Password provider in Firebase Console |
-| Web session inconsistency | Re-test using the same localhost link shown by `flutter run` |
+| Issue                           | Fix                                                            |
+| ------------------------------- | -------------------------------------------------------------- |
+| `flutterfire` not recognized    | Add `%LOCALAPPDATA%\Pub\Cache\bin` to PATH and reopen terminal |
+| `operation-not-allowed` on auth | Enable Email/Password provider in Firebase Console             |
+| Web session inconsistency       | Re-test using the same localhost link shown by `flutter run`   |
+
+## Scrollable Views with ListView and GridView
+
+This lesson adds a ClassSync-themed screen that demonstrates two common scrolling patterns in Flutter:
+
+- `ListView.builder` for horizontally scrolling upcoming class cards
+- `GridView.builder` for a responsive study resources dashboard
+
+The implementation lives in `lib/screens/scrollable_views_screen.dart` and is available from the main demo launcher screen.
+
+### ListView example
+
+Use `ListView.builder` when you have a long or dynamic list and want Flutter to build only visible widgets.
+
+```dart
+SizedBox(
+  height: 228,
+  child: ListView.builder(
+    scrollDirection: Axis.horizontal,
+    itemCount: classrooms.length,
+    itemBuilder: (context, index) {
+      final classroom = classrooms[index];
+      return Container(
+        width: 240,
+        margin: const EdgeInsets.only(right: 14),
+        child: Text(classroom.title),
+      );
+    },
+  ),
+)
+```
+
+### GridView example
+
+Use `GridView.builder` for grids that may grow over time, such as galleries, module cards, or dashboards.
+
+```dart
+GridView.builder(
+  physics: const NeverScrollableScrollPhysics(),
+  shrinkWrap: true,
+  itemCount: resources.length,
+  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+    crossAxisCount: 2,
+    crossAxisSpacing: 12,
+    mainAxisSpacing: 12,
+  ),
+  itemBuilder: (context, index) {
+    final resource = resources[index];
+    return Card(
+      child: Center(child: Text(resource.label)),
+    );
+  },
+)
+```
+
+### Reflection
+
+How do `ListView` and `GridView` improve UI efficiency?
+
+- They give users structured, scrollable access to large amounts of content without crowding the screen.
+- They support adaptive layouts that work well across phone, tablet, and desktop widths.
+
+Why are `ListView.builder` and `GridView.builder` recommended for large data sets?
+
+- Builder constructors create widgets lazily, which reduces memory use and keeps scrolling smoother.
+- They are a better fit for dynamic data from APIs, Firestore, or local collections.
+
+What performance pitfalls should you avoid?
+
+- Avoid building very large static child lists when a builder can be used instead.
+- Avoid nesting multiple independently scrollable widgets without setting constraints or scroll physics correctly.
+- Avoid unbounded grids/lists inside columns unless you use `shrinkWrap` and explicit height where needed.
+
+### Screenshots
+
+Add screenshots here after running the app and opening the `Scrollable Views` screen:
+
+- Horizontal `ListView` of upcoming classes
+- Responsive `GridView` of study resources

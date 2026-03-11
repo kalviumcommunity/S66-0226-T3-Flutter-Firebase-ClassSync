@@ -7,6 +7,7 @@ import 'dart_basics_screen.dart';
 import 'firestore_screen.dart';
 import 'hello_flutter_screen.dart';
 import 'login_screen.dart';
+import 'scrollable_views_screen.dart';
 import 'signup_screen.dart';
 import 'storage_screen.dart';
 import 'design_system_screen.dart';
@@ -49,6 +50,14 @@ class HomeScreen extends StatelessWidget {
         icon: Icons.dashboard_outlined,
         color: const Color(0xFF10B981),
         screen: const ResponsiveLayoutScreen(),
+        highlight: true,
+      ),
+      _DemoCard(
+        title: 'Scrollable Views 📜',
+        subtitle: 'ListView.builder · GridView.builder · adaptive dashboard UI',
+        icon: Icons.view_quilt_outlined,
+        color: const Color(0xFF12355B),
+        screen: const ScrollableViewsScreen(),
         highlight: true,
       ),
 
