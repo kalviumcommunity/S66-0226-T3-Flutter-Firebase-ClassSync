@@ -36,10 +36,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     if (error != null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(error),
-          backgroundColor: Colors.red.shade700,
-        ),
+        SnackBar(content: Text(error), backgroundColor: Colors.red.shade700),
       );
     }
   }
@@ -47,9 +44,9 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final color = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFF),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
@@ -74,29 +71,19 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ],
                   ),
-                  child: const Icon(Icons.school, color: Colors.white, size: 40),
-                ),
-                const SizedBox(height: 24),
-                Text(
-                  'Welcome Back',
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: color.primary,
+                  child: const Icon(
+                    Icons.school,
+                    color: Colors.white,
+                    size: 40,
                   ),
                 ),
+                const SizedBox(height: 24),
+                Text('Welcome Back', style: textTheme.headlineSmall),
                 const SizedBox(height: 6),
-                const Text(
-                  'Sign in to ClassSync',
-                  style: TextStyle(fontSize: 14, color: Colors.grey),
-                ),
+                Text('Sign in to ClassSync', style: textTheme.bodyMedium),
                 const SizedBox(height: 32),
 
                 Card(
-                  elevation: 4,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
                   child: Padding(
                     padding: const EdgeInsets.all(24),
                     child: Form(
@@ -109,10 +96,6 @@ class _LoginScreenState extends State<LoginScreen> {
                             decoration: const InputDecoration(
                               labelText: 'Email Address',
                               prefixIcon: Icon(Icons.email_outlined),
-                              border: OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(12)),
-                              ),
                             ),
                             validator: (v) {
                               final s = v?.trim() ?? '';
@@ -140,15 +123,10 @@ class _LoginScreenState extends State<LoginScreen> {
                                   () => _obscurePass = !_obscurePass,
                                 ),
                               ),
-                              border: const OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(12)),
-                              ),
                             ),
-                            validator: (v) =>
-                                (v?.trim() ?? '').isEmpty
-                                    ? 'Enter your password'
-                                    : null,
+                            validator: (v) => (v?.trim() ?? '').isEmpty
+                                ? 'Enter your password'
+                                : null,
                           ),
                           const SizedBox(height: 28),
 
@@ -157,11 +135,6 @@ class _LoginScreenState extends State<LoginScreen> {
                             height: 52,
                             child: FilledButton(
                               onPressed: _loading ? null : _login,
-                              style: FilledButton.styleFrom(
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
                               child: _loading
                                   ? const SizedBox(
                                       width: 22,
@@ -171,10 +144,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                         color: Colors.white,
                                       ),
                                     )
-                                  : const Text(
-                                      'Log In',
-                                      style: TextStyle(fontSize: 16),
-                                    ),
+                                  : const Text('Log In'),
                             ),
                           ),
                         ],
@@ -187,13 +157,11 @@ class _LoginScreenState extends State<LoginScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text("Don't have an account?"),
+                    Text("Don't have an account?", style: textTheme.bodyMedium),
                     TextButton(
                       onPressed: () => Navigator.push(
                         context,
-                        MaterialPageRoute(
-                          builder: (_) => const SignupScreen(),
-                        ),
+                        MaterialPageRoute(builder: (_) => const SignupScreen()),
                       ),
                       child: const Text('Sign Up'),
                     ),

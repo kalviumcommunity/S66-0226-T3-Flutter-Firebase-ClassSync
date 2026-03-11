@@ -43,10 +43,7 @@ class _SignupScreenState extends State<SignupScreen> {
     if (error != null) {
       setState(() => _loading = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(error),
-          backgroundColor: Colors.red.shade700,
-        ),
+        SnackBar(content: Text(error), backgroundColor: Colors.red.shade700),
       );
       return;
     }
@@ -60,15 +57,14 @@ class _SignupScreenState extends State<SignupScreen> {
         'role': 'student',
       });
     }
-
   }
 
   @override
   Widget build(BuildContext context) {
     final color = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFF),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
@@ -100,26 +96,12 @@ class _SignupScreenState extends State<SignupScreen> {
                   ),
                 ),
                 const SizedBox(height: 24),
-                Text(
-                  'Create Account',
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: color.primary,
-                  ),
-                ),
+                Text('Create Account', style: textTheme.headlineSmall),
                 const SizedBox(height: 6),
-                const Text(
-                  'Sign up to join ClassSync',
-                  style: TextStyle(fontSize: 14, color: Colors.grey),
-                ),
+                Text('Sign up to join ClassSync', style: textTheme.bodyMedium),
                 const SizedBox(height: 32),
 
                 Card(
-                  elevation: 4,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
                   child: Padding(
                     padding: const EdgeInsets.all(24),
                     child: Form(
@@ -132,15 +114,10 @@ class _SignupScreenState extends State<SignupScreen> {
                             decoration: const InputDecoration(
                               labelText: 'Full Name',
                               prefixIcon: Icon(Icons.person_outline),
-                              border: OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(12)),
-                              ),
                             ),
-                            validator: (v) =>
-                                (v?.trim() ?? '').isEmpty
-                                    ? 'Enter your full name'
-                                    : null,
+                            validator: (v) => (v?.trim() ?? '').isEmpty
+                                ? 'Enter your full name'
+                                : null,
                           ),
                           const SizedBox(height: 16),
 
@@ -150,10 +127,6 @@ class _SignupScreenState extends State<SignupScreen> {
                             decoration: const InputDecoration(
                               labelText: 'Email Address',
                               prefixIcon: Icon(Icons.email_outlined),
-                              border: OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(12)),
-                              ),
                             ),
                             validator: (v) {
                               final s = v?.trim() ?? '';
@@ -177,18 +150,14 @@ class _SignupScreenState extends State<SignupScreen> {
                                       ? Icons.visibility_off
                                       : Icons.visibility,
                                 ),
-                                onPressed: () =>
-                                    setState(() => _obscurePass = !_obscurePass),
-                              ),
-                              border: const OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(12)),
+                                onPressed: () => setState(
+                                  () => _obscurePass = !_obscurePass,
+                                ),
                               ),
                             ),
-                            validator: (v) =>
-                                (v?.length ?? 0) < 6
-                                    ? 'Password must be at least 6 characters'
-                                    : null,
+                            validator: (v) => (v?.length ?? 0) < 6
+                                ? 'Password must be at least 6 characters'
+                                : null,
                           ),
                           const SizedBox(height: 16),
 
@@ -208,15 +177,10 @@ class _SignupScreenState extends State<SignupScreen> {
                                   () => _obscureConfirm = !_obscureConfirm,
                                 ),
                               ),
-                              border: const OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(12)),
-                              ),
                             ),
-                            validator: (v) =>
-                                v != _passCtrl.text
-                                    ? 'Passwords do not match'
-                                    : null,
+                            validator: (v) => v != _passCtrl.text
+                                ? 'Passwords do not match'
+                                : null,
                           ),
                           const SizedBox(height: 28),
 
@@ -225,11 +189,6 @@ class _SignupScreenState extends State<SignupScreen> {
                             height: 52,
                             child: FilledButton(
                               onPressed: _loading ? null : _signUp,
-                              style: FilledButton.styleFrom(
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
                               child: _loading
                                   ? const SizedBox(
                                       width: 22,
@@ -239,10 +198,7 @@ class _SignupScreenState extends State<SignupScreen> {
                                         color: Colors.white,
                                       ),
                                     )
-                                  : const Text(
-                                      'Create Account',
-                                      style: TextStyle(fontSize: 16),
-                                    ),
+                                  : const Text('Create Account'),
                             ),
                           ),
                         ],
@@ -255,7 +211,10 @@ class _SignupScreenState extends State<SignupScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text('Already have an account?'),
+                    Text(
+                      'Already have an account?',
+                      style: textTheme.bodyMedium,
+                    ),
                     TextButton(
                       onPressed: () => Navigator.pop(context),
                       child: const Text('Log In'),
