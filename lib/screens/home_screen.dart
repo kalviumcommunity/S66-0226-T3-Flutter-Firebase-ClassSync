@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'architecture_screen.dart';
+import 'animations_transitions_demo.dart';
 import 'auth_screen.dart';
 import 'assets_demo_screen.dart';
 import 'counter_screen.dart';
@@ -146,6 +147,14 @@ class HomeScreen extends StatelessWidget {
         icon: Icons.image_outlined,
         color: const Color(0xFF1D4ED8),
         screen: const AssetsDemoScreen(),
+        highlight: true,
+      ),
+      _DemoCard(
+        title: 'Animations & Transitions 🎞️',
+        subtitle: 'AnimatedContainer · Opacity · Rotation · route transition',
+        icon: Icons.animation_outlined,
+        color: const Color(0xFFBE123C),
+        screen: const AnimationsTransitionsDemo(),
         highlight: true,
       ),
 
