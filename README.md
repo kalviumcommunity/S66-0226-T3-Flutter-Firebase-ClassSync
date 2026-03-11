@@ -14,6 +14,7 @@ ClassSync is a Flutter + Firebase app for coaching centers to manage classrooms,
 | Firestore write/update operations | 3.33       | Safe add, set-merge, and update writes with validation               |
 | Firestore real-time sync          | 3.34       | Snapshot listeners for live collection/document updates              |
 | Firestore query optimization      | 3.35       | where filters, ordering, and limits for efficient reads              |
+| Handling user input with forms    | 3.36       | TextFormField validation with submit/reset feedback                  |
 | Scrollable views                  | 3.xx       | ListView.builder and GridView.builder for adaptive dashboard layouts |
 | Storage integration               | -          | Firebase Storage-ready media handling                                |
 
@@ -202,6 +203,76 @@ Why streams are useful:
 - UI updates instantly when Firestore data changes
 - No manual refresh logic needed
 - Better fit for dashboards, feeds, and task lists
+
+## 3.36 Handling user input with forms
+
+This module adds a dedicated form demo screen in `lib/screens/user_input_form.dart` to practice:
+
+- collecting input with `TextFormField`
+- validating data with `Form` + `GlobalKey<FormState>`
+- showing feedback with `SnackBar`
+- resetting form state after interaction
+
+### Core form widgets used
+
+```dart
+TextFormField(
+  controller: _nameController,
+  decoration: const InputDecoration(
+    labelText: 'Name',
+    prefixIcon: Icon(Icons.person_outline),
+  ),
+  validator: (value) {
+    final text = value?.trim() ?? '';
+    if (text.isEmpty) return 'Please enter your name';
+    if (text.length < 2) return 'Name must be at least 2 characters';
+    return null;
+  },
+)
+```
+
+```dart
+FilledButton(
+  onPressed: _submitForm,
+  child: const Text('Submit'),
+)
+```
+
+```dart
+void _submitForm() {
+  if (!_formKey.currentState!.validate()) return;
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(content: Text('Form Submitted Successfully!')),
+  );
+}
+```
+
+### Feedback behavior
+
+- validation fails: field-level error appears below invalid inputs
+- validation succeeds: success `SnackBar` appears
+- reset pressed: form and controllers are cleared
+
+### Suggested screenshot placeholders
+
+- `screenshots/user-input-before.png` (empty form)
+- `screenshots/user-input-errors.png` (validation errors visible)
+- `screenshots/user-input-success.png` (success SnackBar visible)
+
+### Reflection
+
+Why is input validation important in mobile apps?
+
+- It prevents bad data from being saved and gives immediate guidance to users.
+
+What is the difference between `TextField` and `TextFormField`?
+
+- `TextField` is a basic input widget.
+- `TextFormField` integrates with `Form` and supports built-in validator flow.
+
+How does form state management simplify validation?
+
+- `GlobalKey<FormState>` allows validating all fields together with one call (`validate()`), keeping submit logic clean and centralized.
 
 Suggested screenshots for documentation:
 

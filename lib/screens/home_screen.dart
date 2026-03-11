@@ -17,6 +17,7 @@ import 'welcome_screen.dart';
 import 'devtools_demo_screen.dart';
 import 'navigation_demo_screen.dart';
 import 'stateless_stateful_demo.dart';
+import 'user_input_form.dart';
 import 'widget_tree_screen.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -101,6 +102,14 @@ class HomeScreen extends StatelessWidget {
         icon: Icons.account_tree_outlined,
         color: const Color(0xFF7C3AED),
         screen: const WidgetTreeScreen(),
+        highlight: true,
+      ),
+      _DemoCard(
+        title: 'Handling User Input 🧾',
+        subtitle: 'TextFormField · Form validation · SnackBar feedback',
+        icon: Icons.edit_note_outlined,
+        color: const Color(0xFF0B7285),
+        screen: const UserInputForm(),
         highlight: true,
       ),
 
