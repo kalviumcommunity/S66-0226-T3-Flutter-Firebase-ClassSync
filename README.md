@@ -16,6 +16,7 @@ ClassSync is a Flutter + Firebase app for coaching centers to manage classrooms,
 | Firestore query optimization      | 3.35       | where filters, ordering, and limits for efficient reads              |
 | Handling user input with forms    | 3.36       | TextFormField validation with submit/reset feedback                  |
 | State management with setState    | 3.37       | Local state updates with conditional UI changes                      |
+| Reusable custom widgets           | 3.38       | Shared Stateless and Stateful widgets used on multiple screens       |
 | Scrollable views                  | 3.xx       | ListView.builder and GridView.builder for adaptive dashboard layouts |
 | Storage integration               | -          | Firebase Storage-ready media handling                                |
 
@@ -330,6 +331,83 @@ Why is `setState()` important for Flutter's reactive model?
 How can improper use of `setState()` affect performance?
 
 - Calling it unnecessarily or in large widget scopes can cause extra rebuild work and reduced UI smoothness.
+
+## 3.38 Reusable custom widgets
+
+This module introduces reusable components in `lib/widgets/` and reuses them across two screens:
+
+- `lib/widgets/reusable_info_card.dart` (Stateless custom widget)
+- `lib/widgets/like_toggle_button.dart` (Stateful custom widget)
+- Used in:
+  - `lib/screens/custom_widgets_demo_screen.dart`
+  - `lib/screens/custom_widgets_details_screen.dart`
+
+### Custom widget definitions
+
+```dart
+class ReusableInfoCard extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final IconData icon;
+
+  const ReusableInfoCard({
+    super.key,
+    required this.title,
+    required this.subtitle,
+    required this.icon,
+  });
+}
+```
+
+```dart
+class LikeToggleButton extends StatefulWidget {
+  const LikeToggleButton({super.key});
+
+  @override
+  State<LikeToggleButton> createState() => _LikeToggleButtonState();
+}
+```
+
+### Example reuse
+
+```dart
+const ReusableInfoCard(
+  title: 'Profile',
+  subtitle: 'View your account details and learning preferences.',
+  icon: Icons.person_outline,
+  accent: Color(0xFF0F766E),
+  trailing: LikeToggleButton(),
+)
+```
+
+```dart
+const ReusableInfoCard(
+  title: 'Announcements',
+  subtitle: 'School updates and reminders are grouped in one place.',
+  icon: Icons.campaign_outlined,
+  accent: Color(0xFF7C3AED),
+  trailing: LikeToggleButton(),
+)
+```
+
+### Suggested screenshot placeholders
+
+- `screenshots/custom-widget-screen-1.png` (widget used on demo screen)
+- `screenshots/custom-widget-screen-2.png` (same widget used on details screen)
+
+### Reflection
+
+How do reusable widgets improve development efficiency?
+
+- They remove duplicate UI code and make design updates faster because changes happen in one place.
+
+What challenges did you face while designing modular components?
+
+- Choosing the right input properties (title, subtitle, icon, style) so one widget can serve multiple contexts.
+
+How could your team apply this approach to your full project?
+
+- Move repeated UI patterns (cards, buttons, input rows, empty states) into shared widgets to keep screens smaller and consistent.
 
 Suggested screenshots for documentation:
 
