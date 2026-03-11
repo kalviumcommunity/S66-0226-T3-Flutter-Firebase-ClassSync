@@ -8,6 +8,7 @@ import 'dart_basics_screen.dart';
 import 'firestore_screen.dart';
 import 'hello_flutter_screen.dart';
 import 'login_screen.dart';
+import 'mediaquery_layoutbuilder_demo.dart';
 import 'scrollable_views_screen.dart';
 import 'signup_screen.dart';
 import 'state_management_demo.dart';
@@ -128,6 +129,14 @@ class HomeScreen extends StatelessWidget {
         icon: Icons.widgets_outlined,
         color: const Color(0xFF5B21B6),
         screen: const CustomWidgetsDemoScreen(),
+        highlight: true,
+      ),
+      _DemoCard(
+        title: 'MediaQuery + LayoutBuilder 📱',
+        subtitle: 'Adaptive phone/tablet UI with responsive sizing',
+        icon: Icons.aspect_ratio_outlined,
+        color: const Color(0xFF0F766E),
+        screen: const MediaQueryLayoutBuilderDemo(),
         highlight: true,
       ),
 
