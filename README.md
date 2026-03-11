@@ -18,6 +18,7 @@ ClassSync is a Flutter + Firebase app for coaching centers to manage classrooms,
 | State management with setState     | 3.37       | Local state updates with conditional UI changes                      |
 | Reusable custom widgets            | 3.38       | Shared Stateless and Stateful widgets used on multiple screens       |
 | Responsive design with adaptive UI | 3.39       | MediaQuery and LayoutBuilder for phone and tablet layouts            |
+| Managing images and local assets   | 3.40       | Registering and rendering local images/icons in Flutter              |
 | Scrollable views                   | 3.xx       | ListView.builder and GridView.builder for adaptive dashboard layouts |
 | Storage integration                | -          | Firebase Storage-ready media handling                                |
 
@@ -457,6 +458,73 @@ How does `LayoutBuilder` differ from `MediaQuery`?
 How could your team use these tools to scale app design efficiently?
 
 - By defining breakpoints and adaptive components once, then reusing those patterns across feature screens.
+
+## 3.40 Managing images, icons, and local assets
+
+This module adds local asset management using:
+
+- `assets/images/`
+- `assets/icons/`
+
+Configured in `pubspec.yaml`:
+
+```yaml
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
+    - assets/icons/
+```
+
+Screen implementation:
+
+- `lib/screens/assets_demo_screen.dart`
+
+### Asset and icon usage snippets
+
+```dart
+Image.asset(
+  'assets/images/logo.png',
+  width: 82,
+  height: 82,
+  fit: BoxFit.cover,
+)
+```
+
+```dart
+Container(
+  decoration: const BoxDecoration(
+    image: DecorationImage(
+      image: AssetImage('assets/images/background.png'),
+      fit: BoxFit.cover,
+    ),
+  ),
+)
+```
+
+```dart
+const Icon(Icons.flutter_dash, color: Colors.blue, size: 40)
+const Icon(CupertinoIcons.heart_fill, color: Colors.red, size: 38)
+```
+
+### Suggested screenshot placeholders
+
+- `screenshots/assets-display.png` (images + icons shown in app)
+- `screenshots/assets-folder-and-pubspec.png` (folder structure + pubspec assets)
+
+### Reflection
+
+What steps are necessary to load assets correctly in Flutter?
+
+- Place files in project folders, register them under `flutter/assets` in `pubspec.yaml`, run `flutter pub get`, and load via `Image.asset` or `AssetImage`.
+
+What common errors did you face while configuring `pubspec.yaml`?
+
+- Incorrect indentation and path mismatches are the most common causes of missing asset errors.
+
+How do proper asset management practices support scalability?
+
+- Organized folders and consistent naming make large projects easier to maintain, reuse, and review across teams.
 
 Suggested screenshots for documentation:
 
