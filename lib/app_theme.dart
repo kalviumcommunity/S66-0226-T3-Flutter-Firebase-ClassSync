@@ -56,10 +56,10 @@ class AppTheme {
         centerTitle: false,
         elevation: 0,
         scrolledUnderElevation: 0,
-        backgroundColor: colorScheme.surface,
-        foregroundColor: _textStrong,
+        backgroundColor: colorScheme.primary,
+        foregroundColor: colorScheme.onPrimary,
         titleTextStyle: baseText.titleLarge?.copyWith(
-          color: _textStrong,
+          color: colorScheme.onPrimary,
           fontWeight: FontWeight.w800,
         ),
       ),

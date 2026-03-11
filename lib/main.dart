@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'app_theme.dart';
 import 'firebase_options.dart';
 import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
@@ -38,18 +39,20 @@ class ClassSyncApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Auth Flow Demo',
+      title: 'ClassSync',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF4F46E5)),
-        useMaterial3: true,
-      ),
+      theme: AppTheme.light(),
       home: initError != null
           ? Scaffold(
               body: Center(
                 child: Padding(
                   padding: const EdgeInsets.all(16),
-                  child: Text('Firebase initialization failed: $initError'),
+                  child: Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Text('Firebase initialization failed: $initError'),
+                    ),
+                  ),
                 ),
               ),
             )

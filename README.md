@@ -20,7 +20,7 @@ ClassSync is a Flutter + Firebase app for coaching centers to manage classrooms,
 | Responsive design with adaptive UI | 3.39       | MediaQuery and LayoutBuilder for phone and tablet layouts            |
 | Managing images and local assets   | 3.40       | Registering and rendering local images/icons in Flutter              |
 | Animations and transitions         | 3.41       | Implicit, explicit, and page transition animations for UX            |
-| Scrollable views                   | 3.xx       | ListView.builder and GridView.builder for adaptive dashboard layouts |
+| Scrollable views                   | 3.42       | ListView.builder and GridView.builder for adaptive dashboard layouts |
 | Storage integration                | -          | Firebase Storage-ready media handling                                |
 
 ## Tech stack
@@ -827,21 +827,21 @@ GridView.builder(
 
 ### Reflection
 
-How do `ListView` and `GridView` improve UI efficiency?
+How does `ListView` differ from `GridView` in design use cases?
 
-- They give users structured, scrollable access to large amounts of content without crowding the screen.
-- They support adaptive layouts that work well across phone, tablet, and desktop widths.
+- `ListView` is ideal for one-dimensional feeds (messages, activity logs, timelines).
+- `GridView` is ideal for structured, multi-column content (dashboards, galleries, product cards).
 
-Why are `ListView.builder` and `GridView.builder` recommended for large data sets?
+Why is `ListView.builder()` more efficient for large lists?
 
-- Builder constructors create widgets lazily, which reduces memory use and keeps scrolling smoother.
-- They are a better fit for dynamic data from APIs, Firestore, or local collections.
+- It lazily builds only visible items instead of rendering the entire list at once.
+- This lowers memory usage and improves scrolling performance on large datasets.
 
-What performance pitfalls should you avoid?
+What can you do to prevent lag or overflow errors in scrollable views?
 
-- Avoid building very large static child lists when a builder can be used instead.
-- Avoid nesting multiple independently scrollable widgets without setting constraints or scroll physics correctly.
-- Avoid unbounded grids/lists inside columns unless you use `shrinkWrap` and explicit height where needed.
+- Use builder constructors for dynamic/large lists.
+- Constrain nested scrollables with fixed heights or `shrinkWrap` + proper `physics`.
+- Keep list item widgets lightweight and avoid expensive rebuilds during scrolling.
 
 ### Screenshots
 
