@@ -15,6 +15,7 @@ ClassSync is a Flutter + Firebase app for coaching centers to manage classrooms,
 | Firestore real-time sync          | 3.34       | Snapshot listeners for live collection/document updates              |
 | Firestore query optimization      | 3.35       | where filters, ordering, and limits for efficient reads              |
 | Handling user input with forms    | 3.36       | TextFormField validation with submit/reset feedback                  |
+| State management with setState    | 3.37       | Local state updates with conditional UI changes                      |
 | Scrollable views                  | 3.xx       | ListView.builder and GridView.builder for adaptive dashboard layouts |
 | Storage integration               | -          | Firebase Storage-ready media handling                                |
 
@@ -273,6 +274,62 @@ What is the difference between `TextField` and `TextFormField`?
 How does form state management simplify validation?
 
 - `GlobalKey<FormState>` allows validating all fields together with one call (`validate()`), keeping submit logic clean and centralized.
+
+## 3.37 Managing local UI state with setState
+
+This module adds `lib/screens/state_management_demo.dart` to demonstrate local state updates in a `StatefulWidget`.
+
+### What this screen demonstrates
+
+- local state variable (`_counter`)
+- increment/decrement/reset actions
+- `setState()`-driven UI refresh on each interaction
+- conditional UI styling when `_counter >= 5`
+
+### setState examples used
+
+```dart
+void _incrementCounter() {
+  setState(() {
+    _counter++;
+  });
+}
+```
+
+```dart
+void _decrementCounter() {
+  setState(() {
+    if (_counter > 0) {
+      _counter--;
+    }
+  });
+}
+```
+
+```dart
+color: _counter >= 5 ? const Color(0xFFD1FAE5) : const Color(0xFFF8FAFC),
+```
+
+### Suggested screenshot placeholders
+
+- `screenshots/state-before.png` (counter at 0)
+- `screenshots/state-after.png` (counter incremented)
+- `screenshots/state-threshold.png` (counter >= 5 with changed background)
+
+### Reflection
+
+What is the difference between Stateless and Stateful widgets?
+
+- `StatelessWidget` renders fixed UI from immutable inputs.
+- `StatefulWidget` can change over time and rebuild based on local state updates.
+
+Why is `setState()` important for Flutter's reactive model?
+
+- It tells Flutter that state changed and triggers a rebuild of the affected widget subtree.
+
+How can improper use of `setState()` affect performance?
+
+- Calling it unnecessarily or in large widget scopes can cause extra rebuild work and reduced UI smoothness.
 
 Suggested screenshots for documentation:
 
