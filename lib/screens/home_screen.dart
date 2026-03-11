@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'architecture_screen.dart';
 import 'auth_screen.dart';
 import 'counter_screen.dart';
+import 'custom_widgets_demo_screen.dart';
 import 'dart_basics_screen.dart';
 import 'firestore_screen.dart';
 import 'hello_flutter_screen.dart';
@@ -119,6 +120,14 @@ class HomeScreen extends StatelessWidget {
         icon: Icons.tune,
         color: const Color(0xFF0F766E),
         screen: const StateManagementDemo(),
+        highlight: true,
+      ),
+      _DemoCard(
+        title: 'Reusable Custom Widgets 🧩',
+        subtitle: 'Stateless + Stateful reusable components across screens',
+        icon: Icons.widgets_outlined,
+        color: const Color(0xFF5B21B6),
+        screen: const CustomWidgetsDemoScreen(),
         highlight: true,
       ),
 
