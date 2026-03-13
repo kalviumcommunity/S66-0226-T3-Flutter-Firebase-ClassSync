@@ -18,6 +18,11 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _loading = false;
   bool _obscurePass = true;
 
+  bool _isValidEmail(String value) {
+    final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+$');
+    return emailRegex.hasMatch(value.trim());
+  }
+
   @override
   void dispose() {
     _emailCtrl.dispose();
@@ -88,6 +93,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     padding: const EdgeInsets.all(24),
                     child: Form(
                       key: _formKey,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
                       child: Column(
                         children: [
                           TextFormField(
@@ -99,7 +105,10 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                             validator: (v) {
                               final s = v?.trim() ?? '';
-                              if (s.isEmpty || !s.contains('@')) {
+                              if (s.isEmpty) {
+                                return 'This field is required';
+                              }
+                              if (!_isValidEmail(s)) {
                                 return 'Enter a valid email address';
                               }
                               return null;
@@ -125,8 +134,10 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                             ),
                             validator: (v) => (v?.trim() ?? '').isEmpty
-                                ? 'Enter your password'
-                                : null,
+                                ? 'This field is required'
+                                : (v!.trim().length < 8
+                                      ? 'Password must be at least 8 characters'
+                                      : null),
                           ),
                           const SizedBox(height: 28),
 
