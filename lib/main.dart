@@ -31,10 +31,23 @@ void main() async {
   runApp(ClassSyncApp(initError: initError));
 }
 
-class ClassSyncApp extends StatelessWidget {
+class ClassSyncApp extends StatefulWidget {
   final Object? initError;
 
   const ClassSyncApp({super.key, this.initError});
+
+  @override
+  State<ClassSyncApp> createState() => _ClassSyncAppState();
+}
+
+class _ClassSyncAppState extends State<ClassSyncApp> {
+  ThemeMode _themeMode = ThemeMode.system;
+
+  void _setThemeMode(ThemeMode mode) {
+    setState(() {
+      _themeMode = mode;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +55,9 @@ class ClassSyncApp extends StatelessWidget {
       title: 'ClassSync',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
-      home: initError != null
+      darkTheme: AppTheme.dark(),
+      themeMode: _themeMode,
+      home: widget.initError != null
           ? Scaffold(
               body: Center(
                 child: Padding(
@@ -50,7 +65,9 @@ class ClassSyncApp extends StatelessWidget {
                   child: Card(
                     child: Padding(
                       padding: const EdgeInsets.all(24),
-                      child: Text('Firebase initialization failed: $initError'),
+                      child: Text(
+                        'Firebase initialization failed: ${widget.initError}',
+                      ),
                     ),
                   ),
                 ),
@@ -63,7 +80,10 @@ class ClassSyncApp extends StatelessWidget {
                   return const SessionSplashScreen();
                 }
                 if (snapshot.hasData) {
-                  return const HomeScreen();
+                  return HomeScreen(
+                    currentThemeMode: _themeMode,
+                    onThemeModeChanged: _setThemeMode,
+                  );
                 }
                 return const LoginScreen();
               },

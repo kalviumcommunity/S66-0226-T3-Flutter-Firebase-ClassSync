@@ -26,7 +26,14 @@ import 'user_input_form.dart';
 import 'widget_tree_screen.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final ThemeMode currentThemeMode;
+  final ValueChanged<ThemeMode> onThemeModeChanged;
+
+  const HomeScreen({
+    super.key,
+    required this.currentThemeMode,
+    required this.onThemeModeChanged,
+  });
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -34,6 +41,17 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
+
+  bool _isDarkModeActive(BuildContext context) {
+    if (widget.currentThemeMode == ThemeMode.dark) return true;
+    if (widget.currentThemeMode == ThemeMode.light) return false;
+    return Theme.of(context).brightness == Brightness.dark;
+  }
+
+  void _toggleTheme(BuildContext context) {
+    final isDark = _isDarkModeActive(context);
+    widget.onThemeModeChanged(isDark ? ThemeMode.light : ThemeMode.dark);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -247,6 +265,17 @@ class _HomeScreenState extends State<HomeScreen> {
         foregroundColor: color.onPrimary,
         title: _buildAppBarTitle(user),
         actions: [
+          IconButton(
+            onPressed: () => _toggleTheme(context),
+            icon: Icon(
+              _isDarkModeActive(context)
+                  ? Icons.light_mode_outlined
+                  : Icons.dark_mode_outlined,
+            ),
+            tooltip: _isDarkModeActive(context)
+                ? 'Switch to Light Mode'
+                : 'Switch to Dark Mode',
+          ),
           if (_currentIndex == 2)
             IconButton(
               onPressed: () => FirebaseAuth.instance.signOut(),
@@ -502,6 +531,43 @@ class _HomeScreenState extends State<HomeScreen> {
                     onPressed: () => FirebaseAuth.instance.signOut(),
                     icon: const Icon(Icons.logout),
                     label: const Text('Sign Out'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Appearance',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  'Tap the button to switch between Light and Dark mode.',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+                const SizedBox(height: 14),
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton.icon(
+                    onPressed: () => _toggleTheme(context),
+                    icon: Icon(
+                      _isDarkModeActive(context)
+                          ? Icons.light_mode_outlined
+                          : Icons.dark_mode_outlined,
+                    ),
+                    label: Text(
+                      _isDarkModeActive(context)
+                          ? 'Switch to Light Mode'
+                          : 'Switch to Dark Mode',
+                    ),
                   ),
                 ),
               ],
