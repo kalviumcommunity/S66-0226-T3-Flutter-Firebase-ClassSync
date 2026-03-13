@@ -79,6 +79,45 @@ class _ClassSyncAppState extends State<ClassSyncApp> {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const SessionSplashScreen();
                 }
+                if (snapshot.hasError) {
+                  return Scaffold(
+                    body: Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(20),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.error_outline,
+                              size: 56,
+                              color: Colors.redAccent,
+                            ),
+                            const SizedBox(height: 12),
+                            const Text(
+                              'Authentication temporarily unavailable',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            const Text(
+                              'Please check your connection and try again.',
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 14),
+                            FilledButton.icon(
+                              onPressed: () => setState(() {}),
+                              icon: const Icon(Icons.refresh),
+                              label: const Text('Retry'),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                }
                 if (snapshot.hasData) {
                   return HomeScreen(
                     currentThemeMode: _themeMode,

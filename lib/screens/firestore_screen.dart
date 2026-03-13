@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -104,7 +105,8 @@ class _FirestoreScreenState extends State<FirestoreScreen> {
           const SnackBar(content: Text('Task added successfully')),
         );
       }
-    } catch (_) {
+    } catch (e, st) {
+      log('Failed to add task', error: e, stackTrace: st);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Could not add task right now')),
@@ -221,7 +223,8 @@ class _FirestoreScreenState extends State<FirestoreScreen> {
         deadline: newDeadline,
       );
       _reloadLatestTaskFuture();
-    } catch (_) {
+    } catch (e, st) {
+      log('Failed to update task', error: e, stackTrace: st);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Could not update task right now')),
@@ -252,7 +255,8 @@ class _FirestoreScreenState extends State<FirestoreScreen> {
         );
       }
       _reloadLatestTaskFuture();
-    } catch (_) {
+    } catch (e, st) {
+      log('Failed to merge task metadata', error: e, stackTrace: st);
       if (mounted) {
         ScaffoldMessenger.of(
           context,
@@ -582,13 +586,23 @@ class _FirestoreScreenState extends State<FirestoreScreen> {
                         builder: (context, snapshot) {
                           if (snapshot.connectionState ==
                               ConnectionState.waiting) {
-                            return const LinearProgressIndicator();
+                            return const _InlineLoadingState(
+                              message: 'Listening for document changes...',
+                            );
+                          }
+                          if (snapshot.hasError) {
+                            return _InlineErrorState(
+                              title: 'Unable to load selected task',
+                              message:
+                                  'We could not fetch live document updates right now.',
+                              onRetry: () => setState(() {}),
+                            );
                           }
                           final data =
                               snapshot.data?.data() as Map<String, dynamic>?;
                           if (data == null) {
-                            return const Text(
-                              'Selected task document not found.',
+                            return const _InlineEmptyState(
+                              message: 'Selected task document not found.',
                             );
                           }
                           final liveTitle =
@@ -607,6 +621,19 @@ class _FirestoreScreenState extends State<FirestoreScreen> {
                 child: StreamBuilder<QuerySnapshot>(
                   stream: _service.getPendingTasks(),
                   builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const _InlineLoadingState(
+                        message: 'Loading pending task count...',
+                      );
+                    }
+                    if (snapshot.hasError) {
+                      return _InlineErrorState(
+                        title: 'Pending tasks unavailable',
+                        message:
+                            'Could not read pending tasks count. Please try again.',
+                        onRetry: () => setState(() {}),
+                      );
+                    }
                     final pendingCount = snapshot.data?.docs.length ?? 0;
                     return Container(
                       width: double.infinity,
@@ -634,14 +661,23 @@ class _FirestoreScreenState extends State<FirestoreScreen> {
                   future: _latestTaskFuture,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const LinearProgressIndicator();
+                      return const _InlineLoadingState(
+                        message: 'Loading latest task...',
+                      );
                     }
                     if (snapshot.hasError) {
-                      return const Text('Could not read latest task document.');
+                      return _InlineErrorState(
+                        title: 'Latest task unavailable',
+                        message:
+                            'Could not read latest task document right now.',
+                        onRetry: _reloadLatestTaskFuture,
+                      );
                     }
                     final doc = snapshot.data;
                     if (doc == null || !doc.exists) {
-                      return const Text('Latest task (one-time read): no data');
+                      return const _InlineEmptyState(
+                        message: 'Latest task (one-time read): no data yet.',
+                      );
                     }
                     final data = doc.data() as Map<String, dynamic>?;
                     final title = data?['title'] as String? ?? 'Untitled task';
@@ -668,35 +704,24 @@ class _FirestoreScreenState extends State<FirestoreScreen> {
               if (snapshot.connectionState == ConnectionState.waiting)
                 const Padding(
                   padding: EdgeInsets.all(16),
-                  child: Center(child: CircularProgressIndicator()),
+                  child: _LoadingState(
+                    message: 'Fetching tasks from Firestore...',
+                  ),
                 )
               else if (snapshot.hasError)
                 Padding(
                   padding: const EdgeInsets.all(16),
-                  child: _ErrorWidget(message: snapshot.error.toString()),
+                  child: _ErrorWidget(
+                    message: snapshot.error.toString(),
+                    onRetry: () => setState(() {}),
+                  ),
                 )
               else if (docs.isEmpty)
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.inbox_outlined,
-                          size: 64,
-                          color: Colors.grey.shade300,
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          'No tasks yet. Add one above!',
-                          style: TextStyle(
-                            color: Colors.grey.shade500,
-                            fontSize: 15,
-                          ),
-                        ),
-                      ],
-                    ),
+                const Padding(
+                  padding: EdgeInsets.all(16),
+                  child: _EmptyState(
+                    title: 'No tasks yet',
+                    message: 'Tap Add Task above to create your first item.',
                   ),
                 )
               else
@@ -880,9 +905,140 @@ class _PulseDotState extends State<_PulseDot>
   }
 }
 
+class _LoadingState extends StatelessWidget {
+  final String message;
+  const _LoadingState({required this.message});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const CircularProgressIndicator(),
+          const SizedBox(height: 12),
+          Text(message, textAlign: TextAlign.center),
+        ],
+      ),
+    );
+  }
+}
+
+class _EmptyState extends StatelessWidget {
+  final String title;
+  final String message;
+
+  const _EmptyState({required this.title, required this.message});
+
+  @override
+  Widget build(BuildContext context) {
+    final color = Theme.of(context).colorScheme;
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.inbox_outlined, size: 56, color: color.outline),
+            const SizedBox(height: 12),
+            Text(
+              title,
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 12, color: color.onSurfaceVariant),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _InlineLoadingState extends StatelessWidget {
+  final String message;
+
+  const _InlineLoadingState({required this.message});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        const SizedBox(
+          width: 16,
+          height: 16,
+          child: CircularProgressIndicator(strokeWidth: 2),
+        ),
+        const SizedBox(width: 10),
+        Expanded(child: Text(message, style: const TextStyle(fontSize: 12))),
+      ],
+    );
+  }
+}
+
+class _InlineEmptyState extends StatelessWidget {
+  final String message;
+
+  const _InlineEmptyState({required this.message});
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(message, style: Theme.of(context).textTheme.bodySmall);
+  }
+}
+
+class _InlineErrorState extends StatelessWidget {
+  final String title;
+  final String message;
+  final VoidCallback onRetry;
+
+  const _InlineErrorState({
+    required this.title,
+    required this.message,
+    required this.onRetry,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.red.shade50,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.red.shade200),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.error_outline, color: Colors.red.shade700),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(fontWeight: FontWeight.w700),
+                ),
+                Text(message, style: const TextStyle(fontSize: 12)),
+              ],
+            ),
+          ),
+          TextButton(onPressed: onRetry, child: const Text('Retry')),
+        ],
+      ),
+    );
+  }
+}
+
 class _ErrorWidget extends StatelessWidget {
   final String message;
-  const _ErrorWidget({required this.message});
+  final VoidCallback onRetry;
+
+  const _ErrorWidget({required this.message, required this.onRetry});
 
   @override
   Widget build(BuildContext context) {
@@ -894,7 +1050,7 @@ class _ErrorWidget extends StatelessWidget {
         : 'Could not load tasks';
     final detail = isIndexError
         ? 'This query needs a Firestore composite index. Open the link in the error text to create it, then reload the page.'
-        : message;
+        : 'We could not load tasks right now. Please check your connection and try again.';
 
     return Center(
       child: Padding(
@@ -913,6 +1069,12 @@ class _ErrorWidget extends StatelessWidget {
               detail,
               textAlign: TextAlign.center,
               style: const TextStyle(fontSize: 12, color: Colors.grey),
+            ),
+            const SizedBox(height: 12),
+            FilledButton.icon(
+              onPressed: onRetry,
+              icon: const Icon(Icons.refresh),
+              label: const Text('Retry'),
             ),
           ],
         ),

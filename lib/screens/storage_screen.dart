@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../services/storage_service.dart';
@@ -19,18 +21,40 @@ class _StorageScreenState extends State<StorageScreen> {
   String? _error;
   bool _uploading = false;
 
+  String _friendlyStorageError(Object error) {
+    final msg = error.toString().toLowerCase();
+    if (msg.contains('permission') || msg.contains('unauthorized')) {
+      return 'You do not have permission to upload this file.';
+    }
+    if (msg.contains('network') || msg.contains('socket')) {
+      return 'Network issue detected. Check your connection and retry.';
+    }
+    if (msg.contains('canceled') || msg.contains('cancelled')) {
+      return 'Image selection was cancelled.';
+    }
+    return 'Upload failed. Please try again.';
+  }
+
   Future<void> _pickImage() async {
-    final xfile = await _picker.pickImage(
-      source: ImageSource.gallery,
-      maxWidth: 1200,
-      imageQuality: 85,
-    );
-    if (xfile != null) {
+    try {
+      final xfile = await _picker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 1200,
+        imageQuality: 85,
+      );
+      if (xfile != null) {
+        setState(() {
+          _pickedFile = xfile;
+          _downloadUrl = null;
+          _error = null;
+          _uploadProgress = null;
+        });
+      }
+    } catch (e, st) {
+      log('Failed to pick image from gallery', error: e, stackTrace: st);
+      if (!mounted) return;
       setState(() {
-        _pickedFile = xfile;
-        _downloadUrl = null;
-        _error = null;
-        _uploadProgress = null;
+        _error = _friendlyStorageError(e);
       });
     }
   }
@@ -57,10 +81,11 @@ class _StorageScreenState extends State<StorageScreen> {
           _uploadProgress = 1.0;
         });
       }
-    } catch (e) {
+    } catch (e, st) {
+      log('Failed to upload image', error: e, stackTrace: st);
       if (mounted) {
         setState(() {
-          _error = e.toString();
+          _error = _friendlyStorageError(e);
           _uploading = false;
           _uploadProgress = null;
         });
@@ -77,9 +102,14 @@ class _StorageScreenState extends State<StorageScreen> {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: const [
-            Text('Firebase Storage',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
-            Text('Upload images to Cloud Storage', style: TextStyle(fontSize: 12)),
+            Text(
+              'Firebase Storage',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+            ),
+            Text(
+              'Upload images to Cloud Storage',
+              style: TextStyle(fontSize: 12),
+            ),
           ],
         ),
       ),
@@ -97,8 +127,10 @@ class _StorageScreenState extends State<StorageScreen> {
               ),
               child: Row(
                 children: [
-                  Icon(Icons.cloud_upload_outlined,
-                      color: Colors.green.shade700),
+                  Icon(
+                    Icons.cloud_upload_outlined,
+                    color: Colors.green.shade700,
+                  ),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
@@ -106,9 +138,10 @@ class _StorageScreenState extends State<StorageScreen> {
                       'It returns a permanent public download URL you can save '
                       'in Firestore and load anywhere.',
                       style: TextStyle(
-                          fontSize: 13,
-                          color: Colors.green.shade900,
-                          height: 1.4),
+                        fontSize: 13,
+                        color: Colors.green.shade900,
+                        height: 1.4,
+                      ),
                     ),
                   ),
                 ],
@@ -124,13 +157,39 @@ class _StorageScreenState extends State<StorageScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  if (_pickedFile == null)
+                    Container(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade50,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: Colors.grey.shade200),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.image_not_supported_outlined,
+                            color: Colors.grey.shade600,
+                          ),
+                          const SizedBox(width: 10),
+                          const Expanded(
+                            child: Text(
+                              'No image selected yet. Choose one from the gallery to continue.',
+                              style: TextStyle(fontSize: 12),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   OutlinedButton.icon(
                     style: OutlinedButton.styleFrom(
                       foregroundColor: Colors.green.shade700,
                       side: BorderSide(color: Colors.green.shade300),
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10)),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
                     onPressed: _uploading ? null : _pickImage,
                     icon: const Icon(Icons.photo_library_outlined),
@@ -160,7 +219,8 @@ class _StorageScreenState extends State<StorageScreen> {
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10)),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
                     onPressed: (_pickedFile == null || _uploading)
                         ? null
@@ -170,13 +230,17 @@ class _StorageScreenState extends State<StorageScreen> {
                             width: 18,
                             height: 18,
                             child: CircularProgressIndicator(
-                                strokeWidth: 2, color: Colors.white),
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
                           )
                         : const Icon(Icons.cloud_upload),
                     label: Text(
                       _uploading ? 'Uploading…' : 'Upload Image',
                       style: const TextStyle(
-                          fontSize: 15, fontWeight: FontWeight.bold),
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
 
@@ -189,14 +253,17 @@ class _StorageScreenState extends State<StorageScreen> {
                         minHeight: 8,
                         backgroundColor: Colors.blue.shade100,
                         valueColor: AlwaysStoppedAnimation<Color>(
-                            Colors.blue.shade600),
+                          Colors.blue.shade600,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       '${((_uploadProgress ?? 0) * 100).toInt()}%',
                       style: TextStyle(
-                          fontSize: 12, color: Colors.blue.shade700),
+                        fontSize: 12,
+                        color: Colors.blue.shade700,
+                      ),
                     ),
                   ],
                 ],
@@ -222,15 +289,18 @@ class _StorageScreenState extends State<StorageScreen> {
                           child: Text(
                             _downloadUrl!,
                             style: const TextStyle(
-                                                                fontSize: 10,
-                                color: Colors.blue),
+                              fontSize: 10,
+                              color: Colors.blue,
+                            ),
                           ),
                         ),
                         const SizedBox(height: 12),
                         const Text(
                           'Uploaded image preview:',
                           style: TextStyle(
-                              fontWeight: FontWeight.w600, fontSize: 13),
+                            fontWeight: FontWeight.w600,
+                            fontSize: 13,
+                          ),
                         ),
                         const SizedBox(height: 8),
                         ClipRRect(
@@ -245,7 +315,8 @@ class _StorageScreenState extends State<StorageScreen> {
                                 height: 200,
                                 color: Colors.grey.shade200,
                                 child: const Center(
-                                    child: CircularProgressIndicator()),
+                                  child: CircularProgressIndicator(),
+                                ),
                               );
                             },
                           ),
@@ -255,7 +326,9 @@ class _StorageScreenState extends State<StorageScreen> {
                   : Text(
                       'Upload an image above to get its permanent URL.',
                       style: TextStyle(
-                          color: Colors.grey.shade500, fontSize: 13),
+                        color: Colors.grey.shade500,
+                        fontSize: 13,
+                      ),
                     ),
             ),
 
@@ -273,18 +346,41 @@ class _StorageScreenState extends State<StorageScreen> {
                   children: [
                     Row(
                       children: [
-                        Icon(Icons.cloud_off,
-                            color: Colors.red.shade600, size: 18),
+                        Icon(
+                          Icons.cloud_off,
+                          color: Colors.red.shade600,
+                          size: 18,
+                        ),
                         const SizedBox(width: 6),
-                        const Text('Firebase not configured yet',
-                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        const Text(
+                          'Firebase not configured yet',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
                       ],
                     ),
                     const SizedBox(height: 6),
-                    const Text(
-                      'Run "flutterfire configure" to connect to a real '
-                      'Firebase project, then enable Storage in the console.',
-                      style: TextStyle(fontSize: 12, color: Colors.grey),
+                    Text(
+                      _error!,
+                      style: const TextStyle(fontSize: 12, color: Colors.grey),
+                    ),
+                    const SizedBox(height: 10),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        OutlinedButton.icon(
+                          onPressed: _uploading ? null : _pickImage,
+                          icon: const Icon(Icons.image_search_outlined),
+                          label: const Text('Pick Again'),
+                        ),
+                        FilledButton.icon(
+                          onPressed: (_uploading || _pickedFile == null)
+                              ? null
+                              : _upload,
+                          icon: const Icon(Icons.refresh),
+                          label: const Text('Retry Upload'),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -307,7 +403,7 @@ class _StorageScreenState extends State<StorageScreen> {
                 'final snapshot = await ref.putData(bytes);\n'
                 'final url = await snapshot.ref.getDownloadURL();',
                 style: TextStyle(
-                                    fontSize: 12,
+                  fontSize: 12,
                   color: Color(0xFFCDD6F4),
                   height: 1.7,
                 ),
@@ -353,16 +449,19 @@ class _StepCard extends StatelessWidget {
                   child: Text(
                     step,
                     style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 13),
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 10),
                 Text(
                   title,
                   style: const TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: 15),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                  ),
                 ),
               ],
             ),
