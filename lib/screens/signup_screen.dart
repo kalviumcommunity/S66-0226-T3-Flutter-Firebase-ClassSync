@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../services/auth_service.dart';
 import '../services/firestore_service.dart';
 
@@ -14,6 +15,7 @@ class _SignupScreenState extends State<SignupScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameCtrl = TextEditingController();
   final _emailCtrl = TextEditingController();
+  final _phoneCtrl = TextEditingController();
   final _passCtrl = TextEditingController();
   final _confirmCtrl = TextEditingController();
   final _auth = AuthService();
@@ -23,10 +25,21 @@ class _SignupScreenState extends State<SignupScreen> {
   bool _obscurePass = true;
   bool _obscureConfirm = true;
 
+  bool _isValidEmail(String value) {
+    final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+$');
+    return emailRegex.hasMatch(value.trim());
+  }
+
+  bool _isValidPhone(String value) {
+    final phoneRegex = RegExp(r'^[0-9]{10}$');
+    return phoneRegex.hasMatch(value.trim());
+  }
+
   @override
   void dispose() {
     _nameCtrl.dispose();
     _emailCtrl.dispose();
+    _phoneCtrl.dispose();
     _passCtrl.dispose();
     _confirmCtrl.dispose();
     super.dispose();
@@ -53,6 +66,7 @@ class _SignupScreenState extends State<SignupScreen> {
       await _firestoreService.addUserData(user.uid, {
         'name': _nameCtrl.text.trim(),
         'email': _emailCtrl.text.trim(),
+        'phone': _phoneCtrl.text.trim(),
         'createdAt': DateTime.now().toIso8601String(),
         'role': 'student',
       });
@@ -106,6 +120,7 @@ class _SignupScreenState extends State<SignupScreen> {
                     padding: const EdgeInsets.all(24),
                     child: Form(
                       key: _formKey,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
                       child: Column(
                         children: [
                           TextFormField(
@@ -115,9 +130,14 @@ class _SignupScreenState extends State<SignupScreen> {
                               labelText: 'Full Name',
                               prefixIcon: Icon(Icons.person_outline),
                             ),
-                            validator: (v) => (v?.trim() ?? '').isEmpty
-                                ? 'Enter your full name'
-                                : null,
+                            validator: (v) {
+                              final s = v?.trim() ?? '';
+                              if (s.isEmpty) return 'This field is required';
+                              if (s.length < 2) {
+                                return 'Name must be at least 2 characters';
+                              }
+                              return null;
+                            },
                           ),
                           const SizedBox(height: 16),
 
@@ -130,8 +150,36 @@ class _SignupScreenState extends State<SignupScreen> {
                             ),
                             validator: (v) {
                               final s = v?.trim() ?? '';
-                              if (s.isEmpty || !s.contains('@')) {
+                              if (s.isEmpty) {
+                                return 'This field is required';
+                              }
+                              if (!_isValidEmail(s)) {
                                 return 'Enter a valid email address';
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 16),
+
+                          TextFormField(
+                            controller: _phoneCtrl,
+                            keyboardType: TextInputType.number,
+                            textInputAction: TextInputAction.next,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly,
+                              LengthLimitingTextInputFormatter(10),
+                            ],
+                            decoration: const InputDecoration(
+                              labelText: 'Phone Number (10 digits)',
+                              prefixIcon: Icon(Icons.phone_outlined),
+                            ),
+                            validator: (v) {
+                              final s = v?.trim() ?? '';
+                              if (s.isEmpty) {
+                                return 'This field is required';
+                              }
+                              if (!_isValidPhone(s)) {
+                                return 'Enter a valid 10-digit phone number';
                               }
                               return null;
                             },
@@ -155,9 +203,14 @@ class _SignupScreenState extends State<SignupScreen> {
                                 ),
                               ),
                             ),
-                            validator: (v) => (v?.length ?? 0) < 6
-                                ? 'Password must be at least 6 characters'
-                                : null,
+                            validator: (v) {
+                              final s = v?.trim() ?? '';
+                              if (s.isEmpty) return 'This field is required';
+                              if (s.length < 8) {
+                                return 'Password must be at least 8 characters';
+                              }
+                              return null;
+                            },
                           ),
                           const SizedBox(height: 16),
 
@@ -178,9 +231,16 @@ class _SignupScreenState extends State<SignupScreen> {
                                 ),
                               ),
                             ),
-                            validator: (v) => v != _passCtrl.text
-                                ? 'Passwords do not match'
-                                : null,
+                            validator: (v) {
+                              final s = v ?? '';
+                              if (s.trim().isEmpty) {
+                                return 'This field is required';
+                              }
+                              if (s != _passCtrl.text) {
+                                return 'Passwords do not match';
+                              }
+                              return null;
+                            },
                           ),
                           const SizedBox(height: 28),
 
