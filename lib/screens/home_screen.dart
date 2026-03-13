@@ -25,8 +25,15 @@ import 'stateless_stateful_demo.dart';
 import 'user_input_form.dart';
 import 'widget_tree_screen.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  int _currentIndex = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -227,64 +234,281 @@ class HomeScreen extends StatelessWidget {
       ),
     ];
 
+    final List<Widget> tabs = [
+      _buildAllDemosTab(context, demos, color),
+      _buildHighlightsTab(context, demos),
+      _buildAccountTab(context, user, color),
+    ];
+
     return Scaffold(
       backgroundColor: color.surface,
       appBar: AppBar(
         backgroundColor: color.primary,
         foregroundColor: color.onPrimary,
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'ClassSync',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-            ),
-            Text(
-              user?.email ?? 'Logged in user',
-              style: const TextStyle(fontSize: 12),
-            ),
-          ],
-        ),
+        title: _buildAppBarTitle(user),
         actions: [
-          IconButton(
-            onPressed: () => FirebaseAuth.instance.signOut(),
-            icon: const Icon(Icons.logout),
-            tooltip: 'Logout',
+          if (_currentIndex == 2)
+            IconButton(
+              onPressed: () => FirebaseAuth.instance.signOut(),
+              icon: const Icon(Icons.logout),
+              tooltip: 'Logout',
+            ),
+        ],
+      ),
+      body: IndexedStack(index: _currentIndex, children: tabs),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: (index) => setState(() => _currentIndex = index),
+        selectedItemColor: color.primary,
+        unselectedItemColor: Colors.grey.shade600,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home_outlined),
+            activeIcon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.explore_outlined),
+            activeIcon: Icon(Icons.explore),
+            label: 'Explore',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person_outline),
+            activeIcon: Icon(Icons.person),
+            label: 'Account',
           ),
         ],
       ),
-      body: ListView.separated(
-        padding: const EdgeInsets.all(16),
-        itemCount: demos.length + 1,
-        separatorBuilder: (_, _) => const SizedBox(height: 12),
-        itemBuilder: (context, index) {
-          if (index == 0) {
-            return Container(
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: color.primaryContainer,
-                borderRadius: BorderRadius.circular(14),
+    );
+  }
+
+  Widget _buildAppBarTitle(User? user) {
+    final isNarrow = MediaQuery.of(context).size.width < 380;
+    final titleSize = isNarrow ? 18.0 : 20.0;
+
+    switch (_currentIndex) {
+      case 1:
+        return Text(
+          'Explore Highlights',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: titleSize),
+        );
+      case 2:
+        return Text(
+          'Account',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: titleSize),
+        );
+      default:
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'ClassSync',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: titleSize,
               ),
-              child: Row(
-                children: [
-                  Icon(Icons.verified_user, color: color.onPrimaryContainer),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      'Persistent login is active. Close and reopen the app to stay signed in.',
-                      style: TextStyle(
-                        color: color.onPrimaryContainer,
-                        fontSize: 13,
-                      ),
+            ),
+            Text(
+              user?.email ?? 'Logged in user',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontSize: 12),
+            ),
+          ],
+        );
+    }
+  }
+
+  Widget _buildAllDemosTab(
+    BuildContext context,
+    List<_DemoCard> demos,
+    ColorScheme color,
+  ) {
+    return ListView.separated(
+      padding: const EdgeInsets.all(16),
+      itemCount: demos.length + 1,
+      separatorBuilder: (_, _) => const SizedBox(height: 12),
+      itemBuilder: (context, index) {
+        if (index == 0) {
+          return Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: color.primaryContainer,
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.verified_user, color: color.onPrimaryContainer),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    'Persistent login is active. Close and reopen the app to stay signed in.',
+                    style: TextStyle(
+                      color: color.onPrimaryContainer,
+                      fontSize: 13,
                     ),
                   ),
-                ],
-              ),
-            );
-          }
-          return _buildCard(context, demos[index - 1]);
-        },
+                ),
+              ],
+            ),
+          );
+        }
+        return _buildCard(context, demos[index - 1]);
+      },
+    );
+  }
+
+  Widget _buildHighlightsTab(BuildContext context, List<_DemoCard> demos) {
+    final highlights = demos.where((d) => d.highlight).toList();
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth;
+        final isPhone = width < 700;
+
+        if (isPhone) {
+          return ListView.separated(
+            padding: const EdgeInsets.all(16),
+            itemCount: highlights.length,
+            separatorBuilder: (_, _) => const SizedBox(height: 12),
+            itemBuilder: (context, index) {
+              return _buildCard(context, highlights[index]);
+            },
+          );
+        }
+
+        final crossAxisCount = width >= 1100 ? 3 : 2;
+        return GridView.builder(
+          padding: const EdgeInsets.all(16),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: crossAxisCount,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+            childAspectRatio: width >= 1100 ? 1.35 : 1.1,
+          ),
+          itemCount: highlights.length,
+          itemBuilder: (context, index) {
+            final demo = highlights[index];
+            return _buildHighlightGridCard(context, demo);
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildHighlightGridCard(BuildContext context, _DemoCard demo) {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [demo.color, demo.color.withValues(alpha: 0.75)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: demo.color.withValues(alpha: 0.35),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(16),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => demo.screen),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(demo.icon, color: Colors.white, size: 26),
+                ),
+                const Spacer(),
+                Text(
+                  demo.title,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  demo.subtitle,
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontSize: 12, color: Colors.white70),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAccountTab(BuildContext context, User? user, ColorScheme color) {
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 24,
+                      backgroundColor: color.primaryContainer,
+                      child: Icon(Icons.person, color: color.primary),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Signed In User',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          Text(user?.email ?? 'No email available'),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton.icon(
+                    onPressed: () => FirebaseAuth.instance.signOut(),
+                    icon: const Icon(Icons.logout),
+                    label: const Text('Sign Out'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -334,6 +558,8 @@ class HomeScreen extends StatelessWidget {
                       children: [
                         Text(
                           demo.title,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 17,
@@ -343,6 +569,8 @@ class HomeScreen extends StatelessWidget {
                         const SizedBox(height: 4),
                         Text(
                           demo.subtitle,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
                             fontSize: 13,
                             color: Colors.white70,
@@ -388,6 +616,8 @@ class HomeScreen extends StatelessWidget {
                   children: [
                     Text(
                       demo.title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
@@ -396,6 +626,8 @@ class HomeScreen extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       demo.subtitle,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         fontSize: 13,
                         color: Colors.grey.shade600,
