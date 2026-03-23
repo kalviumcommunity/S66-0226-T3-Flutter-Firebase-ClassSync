@@ -15,19 +15,22 @@ class _StorageScreenState extends State<StorageScreen> {
 
   XFile? _pickedFile;
   double? _uploadProgress;
+  UploadedMedia? _uploadedMedia;
   String? _downloadUrl;
   String? _error;
   bool _uploading = false;
+  bool _deleting = false;
 
-  Future<void> _pickImage() async {
+  Future<void> _pickImage(ImageSource source) async {
     final xfile = await _picker.pickImage(
-      source: ImageSource.gallery,
+      source: source,
       maxWidth: 1200,
       imageQuality: 85,
     );
     if (xfile != null) {
       setState(() {
         _pickedFile = xfile;
+        _uploadedMedia = null;
         _downloadUrl = null;
         _error = null;
         _uploadProgress = null;
@@ -44,7 +47,7 @@ class _StorageScreenState extends State<StorageScreen> {
     });
 
     try {
-      final url = await _service.uploadImage(
+      final media = await _service.uploadImageAndSaveRecord(
         _pickedFile!,
         onProgress: (p) {
           if (mounted) setState(() => _uploadProgress = p);
@@ -52,7 +55,8 @@ class _StorageScreenState extends State<StorageScreen> {
       );
       if (mounted) {
         setState(() {
-          _downloadUrl = url;
+          _uploadedMedia = media;
+          _downloadUrl = media.downloadUrl;
           _uploading = false;
           _uploadProgress = 1.0;
         });
@@ -68,6 +72,33 @@ class _StorageScreenState extends State<StorageScreen> {
     }
   }
 
+  Future<void> _deleteUploadedFile() async {
+    final media = _uploadedMedia;
+    if (media == null) return;
+    setState(() {
+      _deleting = true;
+      _error = null;
+    });
+    try {
+      await _service.deleteUploadedMedia(media);
+      if (mounted) {
+        setState(() {
+          _deleting = false;
+          _uploadedMedia = null;
+          _downloadUrl = null;
+          _uploadProgress = null;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _deleting = false;
+          _error = e.toString();
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -77,9 +108,14 @@ class _StorageScreenState extends State<StorageScreen> {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: const [
-            Text('Firebase Storage',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
-            Text('Upload images to Cloud Storage', style: TextStyle(fontSize: 12)),
+            Text(
+              'Firebase Storage',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+            ),
+            Text(
+              'Upload images to Cloud Storage',
+              style: TextStyle(fontSize: 12),
+            ),
           ],
         ),
       ),
@@ -97,8 +133,10 @@ class _StorageScreenState extends State<StorageScreen> {
               ),
               child: Row(
                 children: [
-                  Icon(Icons.cloud_upload_outlined,
-                      color: Colors.green.shade700),
+                  Icon(
+                    Icons.cloud_upload_outlined,
+                    color: Colors.green.shade700,
+                  ),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
@@ -106,9 +144,10 @@ class _StorageScreenState extends State<StorageScreen> {
                       'It returns a permanent public download URL you can save '
                       'in Firestore and load anywhere.',
                       style: TextStyle(
-                          fontSize: 13,
-                          color: Colors.green.shade900,
-                          height: 1.4),
+                        fontSize: 13,
+                        color: Colors.green.shade900,
+                        height: 1.4,
+                      ),
                     ),
                   ),
                 ],
@@ -130,15 +169,37 @@ class _StorageScreenState extends State<StorageScreen> {
                       side: BorderSide(color: Colors.green.shade300),
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10)),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
-                    onPressed: _uploading ? null : _pickImage,
+                    onPressed: _uploading
+                        ? null
+                        : () => _pickImage(ImageSource.gallery),
                     icon: const Icon(Icons.photo_library_outlined),
                     label: Text(
                       _pickedFile == null
                           ? 'Choose from Gallery'
-                          : '✓  ${_pickedFile!.name}',
+                          : 'Gallery: ${_pickedFile!.name}',
                       style: const TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.green.shade800,
+                      side: BorderSide(color: Colors.green.shade200),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    onPressed: _uploading
+                        ? null
+                        : () => _pickImage(ImageSource.camera),
+                    icon: const Icon(Icons.photo_camera_outlined),
+                    label: const Text(
+                      'Capture with Camera',
+                      style: TextStyle(fontWeight: FontWeight.w600),
                     ),
                   ),
                 ],
@@ -160,7 +221,8 @@ class _StorageScreenState extends State<StorageScreen> {
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10)),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
                     onPressed: (_pickedFile == null || _uploading)
                         ? null
@@ -170,13 +232,17 @@ class _StorageScreenState extends State<StorageScreen> {
                             width: 18,
                             height: 18,
                             child: CircularProgressIndicator(
-                                strokeWidth: 2, color: Colors.white),
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
                           )
                         : const Icon(Icons.cloud_upload),
                     label: Text(
                       _uploading ? 'Uploading…' : 'Upload Image',
                       style: const TextStyle(
-                          fontSize: 15, fontWeight: FontWeight.bold),
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
 
@@ -189,14 +255,17 @@ class _StorageScreenState extends State<StorageScreen> {
                         minHeight: 8,
                         backgroundColor: Colors.blue.shade100,
                         valueColor: AlwaysStoppedAnimation<Color>(
-                            Colors.blue.shade600),
+                          Colors.blue.shade600,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       '${((_uploadProgress ?? 0) * 100).toInt()}%',
                       style: TextStyle(
-                          fontSize: 12, color: Colors.blue.shade700),
+                        fontSize: 12,
+                        color: Colors.blue.shade700,
+                      ),
                     ),
                   ],
                 ],
@@ -222,15 +291,25 @@ class _StorageScreenState extends State<StorageScreen> {
                           child: Text(
                             _downloadUrl!,
                             style: const TextStyle(
-                                                                fontSize: 10,
-                                color: Colors.blue),
+                              fontSize: 10,
+                              color: Colors.blue,
+                            ),
                           ),
                         ),
+                        if (_uploadedMedia?.recordId != null) ...[
+                          const SizedBox(height: 8),
+                          Text(
+                            'Firestore record id: ${_uploadedMedia!.recordId}',
+                            style: const TextStyle(fontSize: 12),
+                          ),
+                        ],
                         const SizedBox(height: 12),
                         const Text(
                           'Uploaded image preview:',
                           style: TextStyle(
-                              fontWeight: FontWeight.w600, fontSize: 13),
+                            fontWeight: FontWeight.w600,
+                            fontSize: 13,
+                          ),
                         ),
                         const SizedBox(height: 8),
                         ClipRRect(
@@ -245,9 +324,39 @@ class _StorageScreenState extends State<StorageScreen> {
                                 height: 200,
                                 color: Colors.grey.shade200,
                                 child: const Center(
-                                    child: CircularProgressIndicator()),
+                                  child: CircularProgressIndicator(),
+                                ),
                               );
                             },
+                            errorBuilder: (context, error, stackTrace) {
+                              return Container(
+                                height: 200,
+                                color: Colors.red.shade50,
+                                alignment: Alignment.center,
+                                child: Text(
+                                  'Could not load image preview',
+                                  style: TextStyle(color: Colors.red.shade700),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        OutlinedButton.icon(
+                          onPressed: (_deleting || _uploading)
+                              ? null
+                              : _deleteUploadedFile,
+                          icon: _deleting
+                              ? const SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : const Icon(Icons.delete_outline),
+                          label: Text(
+                            _deleting ? 'Deleting...' : 'Delete from Storage',
                           ),
                         ),
                       ],
@@ -255,7 +364,9 @@ class _StorageScreenState extends State<StorageScreen> {
                   : Text(
                       'Upload an image above to get its permanent URL.',
                       style: TextStyle(
-                          color: Colors.grey.shade500, fontSize: 13),
+                        color: Colors.grey.shade500,
+                        fontSize: 13,
+                      ),
                     ),
             ),
 
@@ -273,11 +384,16 @@ class _StorageScreenState extends State<StorageScreen> {
                   children: [
                     Row(
                       children: [
-                        Icon(Icons.cloud_off,
-                            color: Colors.red.shade600, size: 18),
+                        Icon(
+                          Icons.cloud_off,
+                          color: Colors.red.shade600,
+                          size: 18,
+                        ),
                         const SizedBox(width: 6),
-                        const Text('Firebase not configured yet',
-                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        const Text(
+                          'Firebase not configured yet',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
                       ],
                     ),
                     const SizedBox(height: 6),
@@ -307,7 +423,7 @@ class _StorageScreenState extends State<StorageScreen> {
                 'final snapshot = await ref.putData(bytes);\n'
                 'final url = await snapshot.ref.getDownloadURL();',
                 style: TextStyle(
-                                    fontSize: 12,
+                  fontSize: 12,
                   color: Color(0xFFCDD6F4),
                   height: 1.7,
                 ),
@@ -353,16 +469,19 @@ class _StepCard extends StatelessWidget {
                   child: Text(
                     step,
                     style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 13),
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 10),
                 Text(
                   title,
                   style: const TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: 15),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                  ),
                 ),
               ],
             ),
