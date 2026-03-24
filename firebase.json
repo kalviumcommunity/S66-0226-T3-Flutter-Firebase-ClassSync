@@ -1,1 +1,39 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"classsync-df2de","appId":"1:117768309220:android:3bfd7cf801ed314c4f5ff1","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"classsync-df2de","configurations":{"android":"1:117768309220:android:3bfd7cf801ed314c4f5ff1","ios":"1:117768309220:ios:b2d4d7a3816376c94f5ff1","web":"1:117768309220:web:3f3376f91c1461f64f5ff1"}}}}}}
+{
+  "functions": [
+    {
+      "codebase": "default",
+      "source": "functions",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ],
+      "predeploy": [
+        "npm --prefix \"$RESOURCE_DIR\" run lint"
+      ]
+    }
+  ],
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "classsync-df2de",
+          "appId": "1:117768309220:android:3bfd7cf801ed314c4f5ff1",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "classsync-df2de",
+          "configurations": {
+            "android": "1:117768309220:android:3bfd7cf801ed314c4f5ff1",
+            "ios": "1:117768309220:ios:b2d4d7a3816376c94f5ff1",
+            "web": "1:117768309220:web:3f3376f91c1461f64f5ff1"
+          }
+        }
+      }
+    }
+  }
+}

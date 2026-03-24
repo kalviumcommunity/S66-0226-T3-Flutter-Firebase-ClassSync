@@ -7,6 +7,7 @@ import 'assets_demo_screen.dart';
 import 'counter_screen.dart';
 import 'custom_widgets_demo_screen.dart';
 import 'dart_basics_screen.dart';
+import 'cloud_functions_screen.dart';
 import 'firestore_screen.dart';
 import 'hello_flutter_screen.dart';
 import 'login_screen.dart';
@@ -220,6 +221,14 @@ class _HomeScreenState extends State<HomeScreen> {
         icon: Icons.cloud_upload_outlined,
         color: Colors.green,
         screen: const StorageScreen(),
+      ),
+      _DemoCard(
+        title: 'Cloud Functions',
+        subtitle: 'Callable + Firestore trigger event handling',
+        icon: Icons.bolt_outlined,
+        color: Colors.deepOrange,
+        screen: const CloudFunctionsScreen(),
+        highlight: true,
       ),
 
       _DemoCard(
