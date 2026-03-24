@@ -67,3 +67,8 @@ serviceAccountKey.json
 *service-account*.json
 *.pem
 *.key
+# Firebase Functions
+functions/node_modules/
+functions/.runtimeconfig.json
+functions/.env
+functions/.env.*

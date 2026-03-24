@@ -38,6 +38,7 @@ dependencies:
   firebase_auth: ^5.0.0
   cloud_firestore: ^5.0.0
   firebase_storage: ^12.0.0
+  cloud_functions: ^5.0.0
 
   # Media picker (for Firebase Storage demo)
   image_picker: ^1.1.2
