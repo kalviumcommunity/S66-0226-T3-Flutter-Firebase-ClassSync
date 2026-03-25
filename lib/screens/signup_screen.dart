@@ -67,7 +67,6 @@ class _SignupScreenState extends State<SignupScreen> {
         'name': _nameCtrl.text.trim(),
         'email': _emailCtrl.text.trim(),
         'phone': _phoneCtrl.text.trim(),
-        'createdAt': DateTime.now().toIso8601String(),
         'role': 'student',
       });
     }

@@ -71,6 +71,12 @@ class StorageService {
 
   Future<String> saveUploadRecord(UploadedMedia media) async {
     final uid = _auth.currentUser?.uid;
+    if (uid == null) {
+      throw FirebaseAuthException(
+        code: 'not-authenticated',
+        message: 'Please sign in before uploading media.',
+      );
+    }
     final doc = await _firestore.collection('media_uploads').add({
       'uid': uid,
       'fileName': media.fileName,

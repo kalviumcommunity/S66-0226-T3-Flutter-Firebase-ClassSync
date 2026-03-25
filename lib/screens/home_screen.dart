@@ -9,6 +9,7 @@ import 'custom_widgets_demo_screen.dart';
 import 'dart_basics_screen.dart';
 import 'cloud_functions_screen.dart';
 import 'firestore_screen.dart';
+import 'firestore_security_screen.dart';
 import 'hello_flutter_screen.dart';
 import 'login_screen.dart';
 import 'mediaquery_layoutbuilder_demo.dart';
@@ -214,6 +215,14 @@ class _HomeScreenState extends State<HomeScreen> {
         icon: Icons.sync,
         color: Colors.blue,
         screen: const FirestoreScreen(),
+      ),
+      _DemoCard(
+        title: 'Securing Firestore',
+        subtitle: 'Auth-aware reads/writes and rules demo',
+        icon: Icons.security_outlined,
+        color: Colors.teal,
+        screen: const FirestoreSecurityScreen(),
+        highlight: true,
       ),
       _DemoCard(
         title: 'Firebase Storage',
