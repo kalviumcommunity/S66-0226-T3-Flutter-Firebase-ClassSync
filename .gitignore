@@ -72,3 +72,13 @@ functions/node_modules/
 functions/.runtimeconfig.json
 functions/.env
 functions/.env.*
+functions/.firebase/
+functions/.eslintcache
+
+# Firebase local/emulator artifacts
+.firebase/
+firebase-debug.log
+firebase-debug.*.log
+firestore-debug.log
+ui-debug.log
+firebase-export*/

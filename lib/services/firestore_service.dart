@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class FirestoreService {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   final CollectionReference _tasks = FirebaseFirestore.instance.collection(
     'tasks',
   );
@@ -13,8 +15,16 @@ class FirestoreService {
     required String description,
     DateTime? deadline,
   }) {
+    final uid = _auth.currentUser?.uid;
+    if (uid == null) {
+      throw FirebaseAuthException(
+        code: 'not-authenticated',
+        message: 'Please sign in before writing to Firestore.',
+      );
+    }
     final now = Timestamp.now();
     return _tasks.add({
+      'uid': uid,
       'title': title,
       'description': description,
       'completed': false,
@@ -29,7 +39,14 @@ class FirestoreService {
   }
 
   Stream<QuerySnapshot> getTasks() {
-    return _tasks.orderBy('createdAt', descending: true).snapshots();
+    final uid = _auth.currentUser?.uid;
+    if (uid == null) {
+      return const Stream.empty();
+    }
+    return _tasks
+        .where('uid', isEqualTo: uid)
+        .orderBy('createdAt', descending: true)
+        .snapshots();
   }
 
   Stream<QuerySnapshot> queryTasks({
@@ -37,10 +54,18 @@ class FirestoreService {
     required bool newestFirst,
     required int limit,
   }) {
+    final uid = _auth.currentUser?.uid;
+    if (uid == null) {
+      return const Stream.empty();
+    }
     if (onlyPending) {
-      return _tasks.where('completed', isEqualTo: false).snapshots();
+      return _tasks
+          .where('uid', isEqualTo: uid)
+          .where('completed', isEqualTo: false)
+          .snapshots();
     }
     return _tasks
+        .where('uid', isEqualTo: uid)
         .orderBy('createdAt', descending: newestFirst)
         .limit(limit)
         .snapshots();
@@ -51,11 +76,21 @@ class FirestoreService {
   }
 
   Stream<QuerySnapshot> getPendingTasks() {
-    return _tasks.where('completed', isEqualTo: false).snapshots();
+    final uid = _auth.currentUser?.uid;
+    if (uid == null) {
+      return const Stream.empty();
+    }
+    return _tasks
+        .where('uid', isEqualTo: uid)
+        .where('completed', isEqualTo: false)
+        .snapshots();
   }
 
   Future<DocumentSnapshot?> getLatestTaskDocument() async {
+    final uid = _auth.currentUser?.uid;
+    if (uid == null) return null;
     final snapshot = await _tasks
+        .where('uid', isEqualTo: uid)
         .orderBy('createdAt', descending: true)
         .limit(1)
         .get();
@@ -87,10 +122,30 @@ class FirestoreService {
   }
 
   Future<void> addUserData(String uid, Map<String, dynamic> data) {
-    return _users.doc(uid).set(data);
+    final currentUid = _auth.currentUser?.uid;
+    if (currentUid == null || currentUid != uid) {
+      throw FirebaseAuthException(
+        code: 'not-authorized',
+        message: 'You can only write your own user profile.',
+      );
+    }
+    final payload = {
+      ...data,
+      'uid': uid,
+      'updatedAt': Timestamp.now(),
+      'createdAt': data['createdAt'] ?? Timestamp.now(),
+    };
+    return _users.doc(uid).set(payload, SetOptions(merge: true));
   }
 
   Future<DocumentSnapshot> getUserData(String uid) {
+    final currentUid = _auth.currentUser?.uid;
+    if (currentUid == null || currentUid != uid) {
+      throw FirebaseAuthException(
+        code: 'not-authorized',
+        message: 'You can only read your own user profile.',
+      );
+    }
     return _users.doc(uid).get();
   }
 }
