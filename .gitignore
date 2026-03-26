@@ -63,6 +63,9 @@ lib/firebase_options_prod.dart
 *.jks
 *.p12
 *.mobileprovision
+*.p8
+AuthKey_*.p8
+android/key.properties
 serviceAccountKey.json
 *service-account*.json
 *.pem

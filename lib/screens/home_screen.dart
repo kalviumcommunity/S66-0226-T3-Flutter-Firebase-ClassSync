@@ -17,6 +17,7 @@ import 'scrollable_views_screen.dart';
 import 'signup_screen.dart';
 import 'state_management_demo.dart';
 import 'storage_screen.dart';
+import 'push_notifications_screen.dart';
 import 'design_system_screen.dart';
 import 'responsive_home.dart';
 import 'responsive_layout.dart';
@@ -237,6 +238,14 @@ class _HomeScreenState extends State<HomeScreen> {
         icon: Icons.bolt_outlined,
         color: Colors.deepOrange,
         screen: const CloudFunctionsScreen(),
+        highlight: true,
+      ),
+      _DemoCard(
+        title: 'Push Notifications',
+        subtitle: 'FCM token + foreground/background handlers',
+        icon: Icons.notifications_active_outlined,
+        color: Colors.red,
+        screen: const PushNotificationsScreen(),
         highlight: true,
       ),
 
